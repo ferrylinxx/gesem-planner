@@ -1,0 +1,12 @@
+{
+  "name": "gesem-planner",
+  "version": "1.0.0",
+  "description": "GESEM Planner - Gestió de reserves de formació",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

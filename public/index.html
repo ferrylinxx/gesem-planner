@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GESEM Planner v11</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#1a1a1a;background:#f5f4f0}
+.topbar-outer{background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.1);padding:8px 0}
+.topbar{width:92%;max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.logo{font-size:14px;font-weight:500;display:flex;align-items:center;gap:7px}
+.lm{width:22px;height:22px;background:#1D9E75;border-radius:5px;display:flex;align-items:center;justify-content:center}
+.logo-g{color:#1D9E75}
+.nav{display:flex;gap:1px}
+.nb{padding:5px 12px;border-radius:8px;border:none;background:transparent;color:#6b6b67;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;transition:all .12s}
+.nb:hover{background:#f5f4f0;color:#1a1a1a}
+.nb.act{background:#E1F5EE;color:#085041}
+.nb.act-p{background:#E6F1FB;color:#0C447C}
+.wrap{width:92%;max-width:1440px;margin:0 auto}
+.ml{display:grid;grid-template-columns:50% 50%;gap:0;width:92%;max-width:1440px;margin:0 auto}
+.lc{border-right:0.5px solid rgba(0,0,0,0.1);background:#fff;padding:12px;overflow-y:auto;max-height:calc(100vh - 44px)}
+.rc{background:#f5f4f0;padding:12px;overflow-y:auto;max-height:calc(100vh - 44px)}
+.sh{font-size:10px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;margin-top:11px}
+.sh:first-child{margin-top:0}
+.fi{display:flex;flex-direction:column;gap:3px;margin-bottom:7px}
+.fi label{font-size:11px;color:#6b6b67;font-weight:500}
+.fi input,.fi select{padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit}
+.fi input:focus,.fi select:focus{outline:none;border-color:#1D9E75;background:#fff}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.sw{display:flex;gap:4px;align-items:center}.sw select{flex:1}
+.bi{width:24px;height:24px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:6px;border:0.5px solid rgba(0,0,0,0.18);background:transparent;cursor:pointer;color:#6b6b67;font-size:14px;flex-shrink:0;font-family:inherit}
+.bi:hover{background:#f5f4f0}.bi.on{background:#E6F1FB;border-color:#85B7EB;color:#0C447C}
+.ie{background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.1);border-radius:6px;overflow:hidden;margin-top:3px}
+.ie-it{display:flex;align-items:center;gap:5px;padding:5px 8px;border-bottom:0.5px solid rgba(0,0,0,0.07);font-size:11px}
+.ie-it:last-child{border-bottom:none}.ie-it:hover{background:#fff}.ie-it span{flex:1}
+.ie-add{padding:6px 8px;display:flex;gap:5px;background:#fff}
+.ie-add input{flex:1;padding:4px 7px;border:0.5px solid rgba(0,0,0,0.18);border-radius:4px;background:#f5f4f0;color:#1a1a1a;font-size:11px;font-family:inherit}
+.ie-add input:focus{outline:none;border-color:#1D9E75}
+.day-sel{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.ds{width:32px;height:32px;border-radius:50%;border:0.5px solid rgba(0,0,0,0.18);background:transparent;cursor:pointer;font-size:11px;font-weight:500;color:#6b6b67;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;font-family:inherit}
+.ds:hover:not(.disabled-day){border-color:#1D9E75}
+.ds.blocked{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
+.ds.disabled-day{opacity:.3;cursor:not-allowed;pointer-events:none}
+.distrib-opts{display:flex;gap:5px;flex-wrap:wrap}
+.do-btn{padding:5px 11px;border-radius:20px;border:0.5px solid rgba(0,0,0,0.18);background:transparent;cursor:pointer;font-size:11px;font-weight:500;color:#6b6b67;transition:all .15s;font-family:inherit}
+.do-btn:hover:not(:disabled){border-color:#1D9E75;color:#1a1a1a}
+.do-btn.sel{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.do-btn:disabled{opacity:.3;cursor:not-allowed;text-decoration:line-through}
+.excl-tag{background:#FCEBEB;border:0.5px solid #F09595;color:#791F1F;padding:2px 6px;border-radius:20px;font-size:10px;display:inline-flex;align-items:center;gap:3px;cursor:pointer;margin:2px}
+.agent-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.agent-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 8px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.12);background:transparent;transition:all .15s;font-family:inherit}
+.agent-btn:hover{border-color:#1D9E75;background:#f5f4f0}
+.agent-btn.sel{border:2px solid #1D9E75;background:#E1F5EE}
+.agent-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#fff}
+.agent-name{font-size:10px;color:#6b6b67;font-weight:500;text-align:center;line-height:1.2;max-width:52px}
+.agent-btn.sel .agent-name{color:#085041}
+.agent-add-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 8px;border-radius:10px;border:0.5px dashed rgba(0,0,0,0.2);background:transparent;font-family:inherit;transition:all .15s}
+.agent-add-btn:hover{border-color:#1D9E75}
+.agent-add-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#6b6b67;background:#f5f4f0}
+.agent-new-form{background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.12);border-radius:10px;padding:8px 10px;margin-top:6px;display:none}
+.agent-new-form.open{display:block}
+/* FORMADOR PREFERIT */
+.form-pref-box{background:#E1F5EE;border:1.5px solid #1D9E75;border-radius:10px;padding:8px 11px;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.form-pref-clear{background:none;border:none;cursor:pointer;color:#791F1F;font-size:16px;padding:0;font-family:inherit;flex-shrink:0}
+/* BUTTONS */
+.rsm{background:#E1F5EE;border-radius:8px;padding:8px 11px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.btn{padding:6px 13px;border-radius:8px;border:0.5px solid rgba(0,0,0,0.18);background:transparent;color:#1a1a1a;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;transition:all .12s}
+.btn:hover{background:#f5f4f0}
+.btn-p{background:#1D9E75;color:#fff;border-color:#1D9E75}.btn-p:hover{background:#0F6E56}
+.btn-sm{padding:3px 8px;font-size:11px}
+.btn-g{border:none;background:transparent;cursor:pointer;color:#6b6b67;font-size:12px;padding:3px 5px;border-radius:4px;font-family:inherit}
+.btn-g:hover{background:#f5f4f0}
+.btn-icon{width:26px;height:26px;border-radius:6px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;transition:all .12s;font-family:inherit;flex-shrink:0}
+.btn-icon:hover{background:#f5f4f0}
+/* FORMADORS CARDS */
+.fcard{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:10px 12px;margin-bottom:7px;cursor:pointer;position:relative;transition:all .12s}
+.fcard:hover{border-color:#5DCAA5}
+.fcard.r1{border:2px solid #1D9E75}
+.fcard.r2{border-left:3px solid #378ADD}
+.fcard.r3{border-left:3px solid #7F77DD}
+.fcard.rc{border-left:3px solid #E24B4A}
+.fcard.nm{opacity:.4;pointer-events:none}
+.fcard.fsel{background:#E1F5EE}
+.fcard.preferred{border:2px solid #1D9E75;background:#FAFFFE}
+.preferred-badge{position:absolute;top:8px;left:8px;background:#1D9E75;color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:500}
+.rb{position:absolute;top:8px;right:8px;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+.rb1{background:#1D9E75;color:#fff}.rb2{background:#E6F1FB;color:#0C447C}.rb3{background:#EEEDFE;color:#3C3489}
+.fsp-m{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;background:#E1F5EE;color:#085041}
+.fsp-o{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;background:#f5f4f0;color:#6b6b67}
+.dd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dd-a{background:#1D9E75}.dd-p{background:#BA7517}.dd-b{background:#E24B4A}
+.mc{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
+.mc-ok{background:#E1F5EE;color:#085041}.mc-w{background:#FAEEDA;color:#633806}.mc-b{background:#FCEBEB;color:#791F1F}
+.pr{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .12s}
+.pr:hover{border-color:#5DCAA5}
+.pr.sel{background:#E1F5EE;border-color:#1D9E75}
+.pr.best{border:2px solid #1D9E75}
+.ps{background:#E6F1FB;border-radius:8px;padding:9px 12px;margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap}
+.psi{font-size:12px;color:#0C447C}
+.pill{padding:2px 7px;border-radius:20px;font-size:10px}
+.p-ok{background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5}
+.p-c{background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27}
+/* RESERVES TABLE */
+.res-table-wrap{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden}
+table.rt{width:100%;border-collapse:collapse;font-size:12px}
+table.rt th{text-align:left;padding:8px 10px;font-size:10px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid rgba(0,0,0,0.08);background:#f5f4f0;white-space:nowrap}
+table.rt td{padding:8px 10px;border-bottom:0.5px solid rgba(0,0,0,0.05);vertical-align:middle}
+table.rt tr:last-child td{border-bottom:none}
+table.rt tr:hover td{background:#fafaf8}
+table.rt tr.urgent td{background:#FFF8F0}
+/* DATE PILLS inline */
+.date-pills-row{display:flex;flex-wrap:wrap;gap:2px}
+.dp{padding:1px 5px;border-radius:4px;font-size:10px;background:#E1F5EE;color:#085041;white-space:nowrap}
+/* GESTIÓ */
+.filter-bar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.filter-chip{padding:5px 11px;border-radius:20px;border:0.5px solid rgba(0,0,0,0.18);background:transparent;cursor:pointer;font-size:11px;font-weight:500;color:#6b6b67;font-family:inherit;transition:all .15s}
+.filter-chip:hover{border-color:#1D9E75;color:#1a1a1a}
+.filter-chip.act{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.alert-banner{background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:8px;padding:8px 12px;font-size:12px;color:#633806;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+/* AGENT GROUP */
+.agent-group{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.agent-group-hdr{padding:9px 14px;background:#f5f4f0;border-bottom:0.5px solid rgba(0,0,0,0.08);display:flex;align-items:center;gap:8px;justify-content:space-between}
+/* CANVIS IA */
+.alt-card{background:#fff;border:1.5px solid #7F77DD;border-radius:12px;padding:13px;margin-bottom:9px}
+.canvi-card{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:11px 14px;margin-bottom:8px}
+/* FORMADORS PAGE */
+.foto-prev{width:56px;height:56px;border-radius:50%;overflow:hidden;border:0.5px solid rgba(0,0,0,0.18);flex-shrink:0}
+.foto-prev img{width:56px;height:56px;object-fit:cover;border-radius:50%;display:block}
+.foto-btn{padding:5px 10px;border:0.5px dashed rgba(0,0,0,0.18);border-radius:8px;cursor:pointer;font-size:11px;color:#6b6b67;background:#f5f4f0;display:inline-block}
+.foto-btn:hover{border-color:#1D9E75;color:#085041}
+input[type=file]{display:none}
+/* BADGES */
+.badge{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
+.bg{background:#E1F5EE;color:#085041}.bb{background:#E6F1FB;color:#0C447C}
+.ba{background:#FAEEDA;color:#633806}.br{background:#FCEBEB;color:#791F1F}
+.bgr{background:#f5f4f0;color:#6b6b67}.bpu{background:#EEEDFE;color:#3C3489}
+.estat-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}.ed-pc{background:#BA7517}.ed-pf{background:#378ADD}.ed-co{background:#1D9E75}.ed-ca{background:#E24B4A}.ed-vf{background:#534AB7}
+
+.sv{font-size:18px;font-weight:500}.sl{font-size:10px;color:#6b6b67;margin-top:1px}
+.ec-r{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.07);font-size:12px}
+.ec-r:last-child{border-bottom:none}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.ch{text-align:center;font-size:9px;font-weight:500;color:#6b6b67;padding:3px 0}
+.cc{min-height:54px;border:0.5px solid rgba(0,0,0,0.08);border-radius:3px;padding:3px;background:#fff}
+.cc.ot{opacity:.3;background:#f5f4f0}.cc.fc{background:#FAEEDA}.cc.tc{border-color:#1D9E75;border-width:1.5px}
+.cd{font-size:9px;font-weight:500;color:#6b6b67;margin-bottom:1px}.cc.tc .cd{color:#1D9E75}
+.cev{border-radius:2px;padding:1px 3px;margin-bottom:1px;font-size:8px;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer}
+.ev-s{background:#E1F5EE;color:#085041}.ev-r{background:#FAEEDA;color:#633806}.ev-f{background:#FCEBEB;color:#791F1F}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:300;align-items:flex-start;justify-content:center;padding-top:24px;overflow-y:auto}
+.modal-box{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;max-width:96vw;padding:18px;margin-bottom:24px}
+.vp{display:none}.vp.act{display:block}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(83,74,183,0.3);border-top-color:#534AB7;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:14px;right:14px;background:#1D9E75;color:#fff;padding:7px 13px;border-radius:8px;font-size:12px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div>
+<div class="topbar-outer">
+  <div class="topbar">
+    <div class="logo">
+      <div class="lm"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="4" height="4" rx="1" fill="white" opacity=".9"/><rect x="7" y="1" width="4" height="4" rx="1" fill="white" opacity=".6"/><rect x="1" y="7" width="4" height="4" rx="1" fill="white" opacity=".6"/><rect x="7" y="7" width="4" height="4" rx="1" fill="white" opacity=".3"/></svg></div>
+      GESEM <span class="logo-g">Planner</span>
+      <span style="font-size:10px;color:#6b6b67;font-weight:400">v11</span>
+    </div>
+    <div class="nav">
+      <button class="nb act" id="nb-p" onclick="gv('p',this)">Petició</button>
+      <button class="nb" id="nb-gest" onclick="gv('gest',this)">Gestió reserves</button>
+      <button class="nb" id="nb-canvis" onclick="gv('canvis',this)">Canvis</button>
+      <button class="nb" id="nb-entrades" onclick="gv('entrades',this)">Entrades</button>
+      <button class="nb" id="nb-f" onclick="gv('f',this)">Formadors</button>
+    </div>
+  </div>
+</div>
+
+<!-- PETICIÓ -->
+<div class="vp act" id="page-p">
+<div class="ml">
+<div class="lc">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:12px;font-weight:500">Nova petició</div>
+    <button class="btn btn-sm" style="color:#6b6b67;font-size:11px" onclick="clearPeticio()">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="vertical-align:-1px;margin-right:3px"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Netejar
+    </button>
+  </div>
+
+  <div class="sh" style="margin-top:0">Dades del curs</div>
+  <div class="fi"><label>Client</label><input id="p-client" placeholder="Nom de l'empresa client" oninput="lf()"/></div>
+  <div class="fi"><label>Nom del curs</label><input id="p-curs" placeholder="Títol del curs" oninput="lf()"/></div>
+  <div class="g2">
+    <div class="fi"><label>Especialitat</label>
+      <div class="sw"><select id="p-esp" onchange="lf()"></select><button class="bi on" onclick="togIE('esp',this)">+</button></div>
+      <div id="ie-esp"></div>
+    </div>
+    <div class="fi"><label>Modalitat</label>
+      <div class="sw"><select id="p-modal"></select><button class="bi" onclick="togIE('modal',this)">+</button></div>
+      <div id="ie-modal"></div>
+    </div>
+  </div>
+
+  <!-- FORMADOR PREFERIT -->
+  <div class="sh">Formador preferit (opcional)</div>
+  <div id="form-pref-display"></div>
+  <div class="fi">
+    <div class="sw">
+      <select id="p-form-pref" onchange="setFormPref()">
+        <option value="">Cap preferència · flux habitual</option>
+      </select>
+    </div>
+    <div style="font-size:10px;color:#6b6b67;margin-top:2px">Si el client demana un formador específic, es prioritzarà a la proposta.</div>
+  </div>
+
+  <div class="sh">Agent comercial</div>
+  <div class="agent-selector" id="agent-selector"></div>
+  <div class="agent-new-form" id="agent-new-form">
+    <div style="font-size:11px;color:#6b6b67;margin-bottom:5px">Nou agent:</div>
+    <div style="display:flex;gap:5px;align-items:center">
+      <input type="text" id="agent-new-input" placeholder="Nom complet..." style="flex:1;padding:5px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:6px;background:#fff;color:#1a1a1a;font-size:12px;font-family:inherit" onkeydown="if(event.key==='Enter')addAgent()"/>
+      <button class="btn btn-p btn-sm" onclick="addAgent()">Afegir</button>
+      <button class="btn btn-sm" onclick="document.getElementById('agent-new-form').classList.remove('open')">×</button>
+    </div>
+  </div>
+
+  <div class="sh">Horari</div>
+  <div class="g3">
+    <div class="fi"><label>Hores totals</label><input type="number" id="p-hores" value="16" min="2" oninput="ua()"/></div>
+    <div class="fi"><label>Hores/sessió</label>
+      <div class="sw"><select id="p-hsess" onchange="ua()"></select><button class="bi" onclick="togIE('hsess',this)">+</button></div>
+      <div id="ie-hsess"></div>
+    </div>
+    <div class="fi"><label>Sess./setm.</label>
+      <select id="p-ssw" onchange="upD();ua()">
+        <option value="1">1/setm</option><option value="2" selected>2/setm</option><option value="3">3/setm</option>
+      </select>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="fi"><label>Torn preferit</label>
+      <div class="sw"><select id="p-torn" onchange="lf()"></select><button class="bi" onclick="togIE('torn',this)">+</button></div>
+      <div id="ie-torn"></div>
+    </div>
+    <div class="fi">
+      <label style="display:flex;align-items:center;gap:5px">Data inici <span style="background:#E6F1FB;color:#0C447C;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:500">orientativa</span></label>
+      <input type="date" id="p-inici" value="2026-04-14" oninput="ua()"/>
+    </div>
+  </div>
+  <div class="sh">Distribució de dies</div>
+  <div style="font-size:10px;color:#6b6b67;margin-bottom:5px" id="dh">Selecciona la distribució:</div>
+  <div class="distrib-opts" id="do"></div>
+  <div class="sh" style="margin-top:10px">Preu i restriccions</div>
+  <div class="fi"><label>Preu/hora client (€)</label><input type="number" id="p-preu" value="75" min="0" oninput="ua()"/></div>
+  <div style="font-size:10px;color:#6b6b67;margin-bottom:5px">Dies bloquejats:</div>
+  <div class="day-sel" id="bdays">
+    <button class="ds" data-d="1" onclick="togDay(this)">Dl</button>
+    <button class="ds" data-d="2" onclick="togDay(this)">Dm</button>
+    <button class="ds" data-d="3" onclick="togDay(this)">Dc</button>
+    <button class="ds" data-d="4" onclick="togDay(this)">Dj</button>
+    <button class="ds" data-d="5" onclick="togDay(this)">Dv</button>
+  </div>
+  <div style="display:flex;gap:5px;align-items:center;margin-bottom:4px">
+    <input type="date" id="excl-in" style="flex:1;padding:5px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;font-family:inherit"/>
+    <button class="btn btn-sm" onclick="addEx()">+ Excloure</button>
+  </div>
+  <div id="excl-list"></div>
+  <div class="rsm">
+    <div>
+      <div style="font-size:12px;color:#085041;font-weight:500" id="rsm-t"></div>
+      <div style="font-size:11px;color:#0F6E56;margin-top:1px" id="rsm-e"></div>
+    </div>
+    <button class="btn btn-p" style="font-size:12px" onclick="genProp()">Generar proposta</button>
+  </div>
+</div>
+
+<div class="rc">
+  <div id="r-live">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div style="font-size:13px;font-weight:500">Formadors candidats</div>
+        <div style="font-size:11px;color:#6b6b67;margin-top:1px" id="fc-sub">Omple el formulari per veure candidats</div>
+      </div>
+      <div id="fc-badge" style="display:none;background:#E6F1FB;color:#0C447C;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500"></div>
+    </div>
+    <div id="flive"></div>
+  </div>
+  <div id="r-prop" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div style="font-size:13px;font-weight:500">Proposta generada</div>
+        <div style="font-size:11px;color:#6b6b67;margin-top:1px" id="prop-sub"></div>
+      </div>
+      <button class="btn btn-sm" onclick="showLive()">← Tornar</button>
+    </div>
+    <div id="prop-body"></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- GESTIÓ RESERVES -->
+<div class="vp" id="page-gest" style="padding:12px">
+<div class="wrap">
+  <div id="gest-alert" style="display:none" class="alert-banner">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" stroke="#BA7517" stroke-width="1"/><path d="M7 4v3.5" stroke="#BA7517" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="10" r=".8" fill="#BA7517"/></svg>
+    <span id="gest-alert-txt"></span>
+    <button class="btn btn-sm" style="margin-left:auto;background:#FAEEDA;border-color:#EF9F27;color:#633806" onclick="openEmailPendentsPerAgent()">Email resum per agent</button>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-chip act" id="fc-all" onclick="setFilter('',this)">Totes <span id="st-total" style="background:rgba(0,0,0,0.1);padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
+    <button class="filter-chip" onclick="setFilter('pendent-cli',this)">Pendent client <span id="st-pc" style="background:#BA7517;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
+    <button class="filter-chip" onclick="setFilter('pendent-form',this)">Pendent formador <span id="st-pf" style="background:#378ADD;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
+    <button class="filter-chip" onclick="setFilter('confirmada',this)">Confirmades <span id="st-co" style="background:#1D9E75;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
+    <button class="filter-chip" onclick="setFilter('cancel',this)">Cancel·lades <span id="st-ca" style="background:#E24B4A;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
+    <button class="filter-chip" onclick="setFilter('vf',this)" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489">VF <span id="st-vf" style="background:#534AB7;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
+    <div style="flex:1"></div>
+    <button class="btn btn-sm" style="background:#FAEEDA;border-color:#EF9F27;color:#633806" onclick="openEmailPendentsPerAgent()">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="vertical-align:-1px;margin-right:3px"><rect x=".5" y="1.5" width="10" height="8" rx="1" stroke="currentColor" stroke-width=".8" fill="none"/><path d=".5 3l5 3.5 5-3.5" stroke="currentColor" stroke-width=".8"/></svg>
+      Resum per agent
+    </button>
+    <select id="gest-com-f" onchange="renderGest()" style="padding:5px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:20px;background:#fff;color:#1a1a1a;font-size:11px;font-family:inherit">
+      <option value="">Tots els agents</option>
+    </select>
+    <select id="gest-sort" onchange="renderGest()" style="padding:5px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:20px;background:#fff;color:#1a1a1a;font-size:11px;font-family:inherit">
+      <option value="data">Per data</option>
+      <option value="agent">Per agent</option>
+      <option value="client">Per client</option>
+    </select>
+  </div>
+  <div id="gest-list"></div>
+</div>
+</div>
+
+<!-- CANVIS -->
+<div class="vp" id="page-canvis">
+<div style="display:grid;grid-template-columns:340px 1fr;gap:0;width:92%;max-width:1440px;margin:0 auto">
+<div style="border-right:0.5px solid rgba(0,0,0,0.1);background:#fff;padding:14px;overflow-y:auto;max-height:calc(100vh - 44px)">
+  <div style="font-size:12px;font-weight:500;margin-bottom:10px">Selecciona la reserva</div>
+  <div id="canvis-reserves-list"></div>
+  <div id="canvis-tipus-section" style="display:none">
+    <div class="sh">Tipus de canvi sol·licitat</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <button style="padding:9px 10px;border-radius:10px;border:2px solid #534AB7;background:#EEEDFE;cursor:pointer;font-family:inherit;text-align:left" id="ctb-inici" onclick="selCanviTipus('inici',this)">
+        <span style="font-size:16px;margin-bottom:3px;display:block">📅</span>
+        <span style="font-size:11px;font-weight:500;color:#3C3489;display:block">Inici més tard</span>
+        <span style="font-size:10px;color:#6b6b67;display:block;margin-top:1px;line-height:1.4">Data d'inici posterior</span>
+      </button>
+      <button style="padding:9px 10px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;font-family:inherit;text-align:left" id="ctb-data" onclick="selCanviTipus('data',this)">
+        <span style="font-size:16px;margin-bottom:3px;display:block">🔄</span>
+        <span style="font-size:11px;font-weight:500;color:#1a1a1a;display:block">Canvi data concreta</span>
+        <span style="font-size:10px;color:#6b6b67;display:block;margin-top:1px;line-height:1.4">Moure sessions concretes</span>
+      </button>
+      <button style="padding:9px 10px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;font-family:inherit;text-align:left" id="ctb-horari" onclick="selCanviTipus('horari',this)">
+        <span style="font-size:16px;margin-bottom:3px;display:block">🕐</span>
+        <span style="font-size:11px;font-weight:500;color:#1a1a1a;display:block">Canvi d'horari</span>
+        <span style="font-size:10px;color:#6b6b67;display:block;margin-top:1px;line-height:1.4">Diferent franja horària</span>
+      </button>
+      <button style="padding:9px 10px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;font-family:inherit;text-align:left" id="ctb-tot" onclick="selCanviTipus('tot',this)">
+        <span style="font-size:16px;margin-bottom:3px;display:block">♻️</span>
+        <span style="font-size:11px;font-weight:500;color:#1a1a1a;display:block">Reprogramació total</span>
+        <span style="font-size:10px;color:#6b6b67;display:block;margin-top:1px;line-height:1.4">Totes les dates de nou</span>
+      </button>
+    </div>
+    <div id="canvis-form-dinamic"></div>
+    <div class="fi"><label>Motiu del canvi</label><input type="text" id="canvis-motiu" placeholder="ex: canvi d'agenda del client..."/></div>
+    <div class="fi"><label>Si el formador no té disponibilitat...</label>
+      <select id="canvis-form-opt">
+        <option value="no">Mantenir el mateix formador · altres dates</option>
+        <option value="si">Permetre canvi de formador si cal</option>
+        <option value="prioritat">Prioritzar disponibilitat · qualsevol formador</option>
+      </select>
+    </div>
+    <button style="width:100%;margin-top:4px;padding:9px;font-size:13px;background:#534AB7;color:#fff;border:0.5px solid #534AB7;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px" onclick="runCanvisIA()">
+      <span class="spinner" id="canvis-ia-spin" style="display:none;border-top-color:#fff"></span>
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" id="canvis-ia-icon"><circle cx="6.5" cy="6.5" r="5.5" stroke="white" stroke-width="1"/><path d="M4 6.5l2 2 3-3" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Generar proposta amb IA
+    </button>
+  </div>
+</div>
+<div style="background:#f5f4f0;padding:14px;overflow-y:auto;max-height:calc(100vh - 44px)">
+  <div id="canvis-rc-empty" style="text-align:center;padding:40px 20px;color:#6b6b67">
+    <div style="font-size:32px;margin-bottom:12px">🔄</div>
+    <div style="font-size:14px;font-weight:500;margin-bottom:6px;color:#1a1a1a">Gestió de canvis de dates</div>
+    <div style="font-size:12px;line-height:1.7">Selecciona una reserva i el tipus de canvi.<br>La IA analitzarà totes les opcions i generarà<br>una proposta per al client i el comercial.</div>
+  </div>
+  <div id="canvis-rc-content" style="display:none">
+    <div style="display:flex;gap:1px;margin-bottom:12px">
+      <button class="btn" id="canvis-tab-prop-btn" onclick="showCanvisTab('prop',this)" style="background:#534AB7;border-color:#534AB7;color:#fff;border-radius:8px 0 0 8px;font-size:12px">Proposta IA</button>
+      <button class="btn" id="canvis-tab-email-btn" onclick="showCanvisTab('email',this)" style="border-radius:0;font-size:12px">Email generat</button>
+      <button class="btn" id="canvis-tab-hist-btn" onclick="showCanvisTab('hist',this)" style="border-radius:0 8px 8px 0;font-size:12px">Historial</button>
+    </div>
+    <div id="canvis-tab-prop-content"><div id="canvis-prop-result"></div></div>
+    <div id="canvis-tab-email-content" style="display:none"><div id="canvis-email-wrap"></div></div>
+    <div id="canvis-tab-hist-content" style="display:none">
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:13px">
+        <div style="font-size:12px;font-weight:500;margin-bottom:10px">Historial de canvis</div>
+        <div id="canvis-hist-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<!-- MODAL CANVIS APPLY -->
+<div id="canvis-apply-bg" class="modal-bg">
+  <div class="modal-box" style="width:500px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div style="font-size:14px;font-weight:500" id="canvis-apply-title">Vista prèvia del canvi</div>
+      <button class="btn-g" onclick="document.getElementById('canvis-apply-bg').style.display='none'">✕</button>
+    </div>
+    <div id="canvis-apply-body"></div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="document.getElementById('canvis-apply-bg').style.display='none'">Cancel·lar</button>
+      <button class="btn btn-sm" style="background:#E6F1FB;border-color:#85B7EB;color:#0C447C" onclick="canvisApplyAndEmail()">Aplicar i preparar email</button>
+      <button class="btn btn-p btn-sm" onclick="canvisApplyChange()">Aplicar canvi</button>
+    </div>
+  </div>
+</div>
+
+<!-- FORMADORS -->
+<div class="vp" id="page-f" style="padding:12px">
+<div style="width:92%;max-width:1440px;margin:0 auto">
+
+  <!-- Header controls: fila 1 -->
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:7px;flex-wrap:wrap">
+    <input type="text" id="fs-q" placeholder="Cerca per nom o especialitat..." oninput="renderFP()" style="flex:1;min-width:140px;padding:7px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit"/>
+    <select id="fs-t" onchange="renderFP()" style="padding:7px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit">
+      <option value="">Tots</option><option value="intern">Interns</option><option value="extern">Externs</option>
+    </select>
+    <select id="fs-sort" onchange="renderFP()" style="padding:7px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit">
+      <option value="nom">Per nom</option>
+      <option value="volum">Per volum GESEM</option>
+      <option value="disp">Per disponibilitat</option>
+      <option value="rating">Per valoració</option>
+    </select>
+    <button class="btn btn-p" style="font-size:12px" onclick="openFM(-1)">+ Nou formador</button>
+  </div>
+
+  <!-- Filtre per especialitat -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+    <span style="font-size:11px;color:#6b6b67;font-weight:500;white-space:nowrap">Especialitat:</span>
+    <button class="filter-chip act" id="fsp-all" onclick="selFiltreEsp('',this)">Totes</button>
+    <div id="fsp-chips" style="display:flex;gap:5px;flex-wrap:wrap"></div>
+  </div>
+
+  <!-- Two columns: grid + sidebar -->
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start">
+
+    <!-- Formadors grid -->
+    <div>
+      <!-- Resultat filtre especialitat -->
+      <div id="fp-esp-banner" style="display:none;background:#E6F1FB;border:0.5px solid #85B7EB;border-radius:8px;padding:8px 12px;margin-bottom:9px;font-size:12px;color:#0C447C;display:flex;align-items:center;justify-content:space-between"></div>
+      <div id="fp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px"></div>
+    </div>
+
+    <!-- Sidebar: disponibilitat i volum -->
+    <div>
+      <!-- Semàfor disponibilitat -->
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:13px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+          Disponibilitat anual
+          <span style="font-size:9px;color:#6b6b67;font-weight:400;text-transform:none">Hores lliures estimades</span>
+        </div>
+        <div id="fp-disponibilitat"></div>
+      </div>
+
+      <!-- Rànquing volum GESEM -->
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:13px">
+        <div style="font-size:11px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+          Volum amb GESEM
+          <span style="font-size:9px;color:#6b6b67;font-weight:400;text-transform:none">Hores facturades</span>
+        </div>
+        <div id="fp-volum"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<!-- ENTRADES -->
+<div class="vp" id="page-entrades" style="padding:12px">
+<div class="wrap">
+  <div style="margin-bottom:14px">
+    <div style="font-size:14px;font-weight:500">Entrades de peticions</div>
+    <div style="font-size:12px;color:#6b6b67;margin-top:3px">Tres canals per introduir peticions al sistema</div>
+  </div>
+
+  <!-- TABS CANALS -->
+  <div style="display:flex;gap:1px;margin-bottom:14px">
+    <button class="btn" id="etab-manual-btn" onclick="showEntradaTab('manual',this)" style="background:#1D9E75;border-color:#1D9E75;color:#fff;border-radius:8px 0 0 8px;font-size:12px">Manual</button>
+    <button class="btn" id="etab-email-btn" onclick="showEntradaTab('email',this)" style="border-radius:0;font-size:12px">Email comercial</button>
+    <button class="btn" id="etab-massiu-btn" onclick="showEntradaTab('massiu',this)" style="border-radius:0 8px 8px 0;font-size:12px">Càrrega massiva</button>
+  </div>
+
+  <!-- CANAL A: Manual -->
+  <div id="etab-manual-content">
+    <div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#1D9E75" stroke-width="1"/><path d="M10 6v4.5l3 2" stroke="#1D9E75" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <div>
+        <div style="font-size:13px;font-weight:500;color:#085041">Petició manual</div>
+        <div style="font-size:12px;color:#0F6E56;margin-top:2px">Utilitza el formulari complet de la pestanya <strong>Petició</strong> per introduir manualment un curs amb tots els criteris.</div>
+      </div>
+      <button class="btn btn-p btn-sm" style="flex-shrink:0;white-space:nowrap" onclick="gv('p',document.getElementById('nb-p'))">Anar a Petició →</button>
+    </div>
+  </div>
+
+  <!-- CANAL B: Email comercial -->
+  <div id="etab-email-content" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <!-- Entrada email -->
+      <div>
+        <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
+          <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0;display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:12px;font-weight:500">Cos del missatge del comercial</div>
+            <button class="btn btn-sm" onclick="clearEmailEntrada()">Netejar</button>
+          </div>
+          <textarea id="email-entrada-text" placeholder="Enganxa aquí el cos del correu electrònic del comercial...
+
+Exemple:
+Hola,
+Necessitem organitzar un curs de Lideratge per a l'empresa Grup ABC, unes 16h en sessions de 2h, preferentment dimarts i dijous a partir del 15 de maig, torn de matí.
+Gràcies,
+Marc Abad" style="width:100%;min-height:260px;padding:12px;border:none;background:#fff;color:#1a1a1a;font-size:13px;font-family:inherit;resize:vertical;outline:none;line-height:1.65"></textarea>
+          <div style="padding:10px 13px;border-top:0.5px solid rgba(0,0,0,0.08);display:flex;justify-content:flex-end">
+            <button class="btn btn-p" onclick="processarEmailEntrada()" style="display:flex;align-items:center;gap:6px">
+              <span class="spinner" id="email-ia-spin" style="display:none;border-top-color:#fff"></span>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" id="email-ia-icon"><circle cx="6.5" cy="6.5" r="5.5" stroke="white" stroke-width="1"/><path d="M4 6.5l2 2 3-3" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Analitzar amb IA
+            </button>
+          </div>
+        </div>
+        <div style="margin-top:8px;background:#E6F1FB;border-radius:8px;padding:8px 11px;font-size:11px;color:#0C447C">
+          La IA llegirà el missatge i extraurà: client, curs, hores, distribució, torn i agent comercial. Podràs revisar i ajustar tot abans de generar la proposta.
+        </div>
+      </div>
+      <!-- Resultat extracció -->
+      <div id="email-extraccio-result">
+        <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="rgba(0,0,0,0.12)" stroke-width="1.5"/><path d="M10 16l4 4 8-8" stroke="rgba(0,0,0,0.2)" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div style="font-size:13px;font-weight:500;color:#1a1a1a">Resultat de l'extracció</div>
+          <div style="font-size:12px">Enganxa un email i clica "Analitzar amb IA"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANAL C: Càrrega massiva -->
+  <div id="etab-massiu-content" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <!-- Entrada -->
+      <div>
+        <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
+          <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0">
+            <div style="font-size:12px;font-weight:500;margin-bottom:2px">Càrrega massiva de cursos</div>
+            <div style="font-size:11px;color:#6b6b67">Enganxa una taula (Excel/CSV) o escriu manualment</div>
+          </div>
+          <!-- Format esperit -->
+          <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#FAEEDA">
+            <div style="font-size:10px;font-weight:500;color:#633806;margin-bottom:4px">Format esperat (columnes):</div>
+            <div style="font-size:10px;color:#633806;font-family:'Courier New',monospace;line-height:1.8">Client | Curs | Especialitat | Hores | Sess/setm | Torn | Data inici | Agent</div>
+          </div>
+          <textarea id="massiu-text" placeholder="Enganxa aquí les files de la taula Excel, o escriu una per línia:
+
+Grup ABC | Lideratge | Lideratge i management | 16 | 2 | Matí | 01/06/2026 | Jordi Llopart
+Farmàcies XY | Comunicació | Comunicació efectiva | 12 | 1 | Tarda | 15/06/2026 | Marc Abad
+Construccions SL | Excel | Excel i eines Office | 8 | 2 | Matí | 22/06/2026 | Raquel Muñoz" style="width:100%;min-height:200px;padding:12px;border:none;background:#fff;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;outline:none;line-height:1.7"></textarea>
+          <div style="padding:10px 13px;border-top:0.5px solid rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#6b6b67">
+              <input type="file" id="massiu-file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="loadMassiuFile(this)"/>
+              <span style="padding:4px 10px;border:0.5px dashed rgba(0,0,0,0.2);border-radius:6px;background:#f5f4f0">📎 Pujar fitxer CSV/Excel</span>
+            </label>
+            <button class="btn btn-p" onclick="processarMassiu()" style="display:flex;align-items:center;gap:6px">
+              <span class="spinner" id="massiu-ia-spin" style="display:none;border-top-color:#fff"></span>
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" id="massiu-ia-icon"><circle cx="6.5" cy="6.5" r="5.5" stroke="white" stroke-width="1"/><path d="M4 6.5l2 2 3-3" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
+              Assignar calendaris amb IA
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Resultat massiu -->
+      <div id="massiu-result">
+        <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="4" width="20" height="24" rx="3" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" fill="none"/><path d="M10 11h12M10 15h12M10 19h8" stroke="rgba(0,0,0,0.2)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <div style="font-size:13px;font-weight:500;color:#1a1a1a">Resultat de la càrrega</div>
+          <div style="font-size:12px">Enganxa o puja la taula i clica "Assignar calendaris"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARXIU (sempre visible a la part inferior) -->
+  <div style="margin-top:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div style="font-size:13px;font-weight:500">Arxiu de cursos finalitzats</div>
+        <div style="font-size:11px;color:#6b6b67;margin-top:2px">Cursos marcats com a VF · Tancats i arxivats</div>
+      </div>
+      <span class="badge bgr" id="arxiu-count">0 cursos arxivats</span>
+    </div>
+    <div id="arxiu-list">
+      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;font-size:13px">
+        Cap curs arxivat encara. Els cursos finalitzats apareixeran aquí.
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL FORMADOR -->
+<div id="fm-bg" class="modal-bg">
+  <div class="modal-box" style="width:500px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div style="font-size:14px;font-weight:500" id="fm-title">Nou formador</div>
+      <button class="btn-g" onclick="closeFM()">✕</button>
+    </div>
+    <div id="fm-body"></div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:12px">
+      <button class="btn btn-sm" onclick="closeFM()">Cancel·lar</button>
+      <button class="btn btn-p btn-sm" onclick="saveFM()">Desar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EMAIL COMERCIAL -->
+<div id="email-bg" class="modal-bg">
+  <div class="modal-box" style="width:660px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div style="font-size:14px;font-weight:500" id="email-modal-title">Email al comercial</div>
+      <button class="btn-g" onclick="closeEmail()">✕</button>
+    </div>
+    <div class="fi"><label>De</label><input id="email-de" value="gestio@gesem.es" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Per a</label><input id="email-para" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Assumpte</label><input id="email-assumpte" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Missatge (editable)</label>
+      <textarea id="email-cos" style="min-height:280px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;line-height:1.6;width:100%"></textarea>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="closeEmail()">Cancel·lar</button>
+      <button class="btn btn-sm" onclick="copyEmail()">Copiar text</button>
+      <button class="btn btn-p btn-sm" onclick="markEmailSent()">Marcar com a enviat ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EMAIL FORMADOR -->
+<div id="emailf-bg" class="modal-bg">
+  <div class="modal-box" style="width:580px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div style="font-size:14px;font-weight:500" id="emailf-title">Email al formador</div>
+      <button class="btn-g" onclick="document.getElementById('emailf-bg').style.display='none'">✕</button>
+    </div>
+    <div style="background:#E1F5EE;border-radius:8px;padding:8px 11px;margin-bottom:10px;font-size:12px;color:#085041">Email independent de la comunicació amb el comercial. Confirmació directa amb el formador.</div>
+    <div class="fi"><label>Per a (formador)</label><input id="emailf-para" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Assumpte</label><input id="emailf-assumpte" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Missatge (editable)</label>
+      <textarea id="emailf-cos" style="min-height:220px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:13px;font-family:inherit;resize:vertical;line-height:1.65;width:100%"></textarea>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="document.getElementById('emailf-bg').style.display='none'">Cancel·lar</button>
+      <button class="btn btn-sm" onclick="copyEmailF()">Copiar text</button>
+      <button class="btn btn-p btn-sm" onclick="document.getElementById('emailf-bg').style.display='none';toast('Email formador marcat com enviat')">Marcat com a enviat ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESUM PENDENTS PER AGENT -->
+<div id="pendents-bg" class="modal-bg">
+  <div class="modal-box" style="width:680px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div style="font-size:14px;font-weight:500">Recordatori reserves pendents</div>
+        <div style="font-size:11px;color:#6b6b67;margin-top:2px" id="pendents-subtitle"></div>
+      </div>
+      <button class="btn-g" onclick="document.getElementById('pendents-bg').style.display='none'">✕</button>
+    </div>
+    <!-- Navegació agents -->
+    <div id="pendents-nav" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+      <span style="font-size:11px;color:#6b6b67;font-weight:500;margin-right:4px">Agent:</span>
+    </div>
+    <!-- Camp email -->
+    <div style="display:flex;gap:7px;margin-bottom:6px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;display:flex;align-items:center;gap:6px;background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;padding:5px 9px">
+        <span style="font-size:10px;color:#6b6b67;font-weight:500;white-space:nowrap">Per a:</span>
+        <span id="pendents-para" style="font-size:12px;color:#1a1a1a"></span>
+      </div>
+      <div style="flex:2;display:flex;align-items:center;gap:6px;background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;padding:5px 9px">
+        <span style="font-size:10px;color:#6b6b67;font-weight:500;white-space:nowrap">Assumpte:</span>
+        <span id="pendents-assumpte" style="font-size:12px;color:#1a1a1a"></span>
+      </div>
+    </div>
+    <!-- Cos editable -->
+    <textarea id="pendents-cos" style="width:100%;min-height:320px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;line-height:1.65"></textarea>
+    <!-- Accions -->
+    <div style="display:flex;gap:7px;justify-content:space-between;margin-top:10px;flex-wrap:wrap;align-items:center">
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" id="pendents-prev-btn" onclick="navPendentsAgent(-1)">← Anterior</button>
+        <button class="btn btn-sm" id="pendents-next-btn" onclick="navPendentsAgent(1)">Següent →</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="copyPendentsEmail()">Copiar text</button>
+        <button class="btn btn-p btn-sm" onclick="markPendentsEnviat()">Marcat com a enviat ✓</button>
+      </div>
+    </div>
+    <div id="pendents-progress" style="margin-top:8px;font-size:11px;color:#6b6b67;text-align:center"></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ── DADES ──────────────────────────────────────────────────────
+const CATS={
+  esp:{items:['Lideratge i management','Comunicació efectiva','Vendes i negociació','Excel i eines Office','Prevenció de riscos','Atenció al client','Treball en equip','Habilitats digitals','Recursos humans','Finances per no financers','Idiomes','Presentacions efectives']},
+  modal:{items:['Presencial','Síncrona online','Híbrida','E-learning asíncron']},
+  hsess:{items:['1.5','2','2.5','3','4']},
+  torn:{items:['9:30–11:30h','12:00–15:00h','9:00–11:00h','16:00–18:00h','Qualsevol']}
+};
+const FESTIUS={'2026-01-01':"Cap d'any",'2026-01-06':'Reis','2026-04-03':'Divendres Sant','2026-04-06':'Pasqua','2026-04-23':'Sant Jordi','2026-05-01':'Treball','2026-06-24':'Sant Joan','2026-08-15':'Assumpció','2026-09-11':'Diada','2026-09-24':'La Mercè','2026-10-12':'Hispanitat','2026-11-01':'Tots Sants','2026-12-06':'Constitució','2026-12-08':'Immaculada','2026-12-25':'Nadal','2026-12-26':'Sant Esteve'};
+const DISTRIBS={1:[[1],[2],[3],[4],[5]],2:[[2,4],[1,3],[3,5],[1,4],[1,5],[2,5]],3:[[1,3,5],[2,4,5],[1,2,4],[1,3,4],[2,3,5]]};
+const DLABELS={'1':'Dilluns','2':'Dimarts','3':'Dimecres','4':'Dijous','5':'Divendres','2,4':'Dm·Dj','1,3':'Dl·Dc','3,5':'Dc·Dv','1,4':'Dl·Dj','1,5':'Dl·Dv','2,5':'Dm·Dv','1,3,5':'Dl·Dc·Dv','2,4,5':'Dm·Dj·Dv','1,2,4':'Dl·Dm·Dj','1,3,4':'Dl·Dc·Dj','2,3,5':'Dm·Dc·Dv'};
+const DL=['','Dl','Dm','Dc','Dj','Dv'];
+const MONTHS=['Gener','Febrer','Març','Abril','Maig','Juny','Juliol','Agost','Setembre','Octubre','Novembre','Desembre'];
+const AV_COLORS=['#1D9E75','#185FA5','#854F0B','#534AB7','#993C1D','#3B6D11','#72243E','#D85A30','#0F6E56','#3C3489'];
+
+let AGENTS=[];
+let selectedAgent='';
+let preferredFormadorId=null;
+
+let FORMADORS=[];
+
+// ── HELPERS ────────────────────────────────────────────────────
+function sd(n,mx){let v=n*2654435761|0;v=((v^(v>>>16))*2246822519|0);return Math.abs(v)%mx;}
+function ini(n){return n.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();}
+function toISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtD(d){return d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();}
+function parseISO(s){return new Date(s+'T00:00:00');}
+function isFest(d){return!!FESTIUS[toISO(d)];}
+function daysAgo(iso){return Math.floor((Date.now()-parseISO(iso).getTime())/86400000);}
+
+function makeAv(nom,idx,sz=42){
+  const c=document.createElement('canvas');c.width=sz;c.height=sz;
+  const x=c.getContext('2d');
+  x.fillStyle=AV_COLORS[idx%AV_COLORS.length];
+  x.beginPath();x.arc(sz/2,sz/2,sz/2,0,Math.PI*2);x.fill();
+  x.fillStyle='rgba(255,255,255,0.15)';x.beginPath();x.arc(sz/2,sz*0.38,sz*0.32,0,Math.PI*2);x.fill();
+  x.fillStyle='white';x.font=`500 ${Math.round(sz*0.31)}px sans-serif`;x.textAlign='center';x.textBaseline='middle';
+  x.fillText(ini(nom),sz/2,sz/2+1);
+  return c.toDataURL();
+}
+
+// ── API HELPERS ────────────────────────────────────────────────
+async function apiPost(path,data){try{await fetch('/api/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(e){console.error('API POST error',e);}}
+async function apiPut(path,data){try{await fetch('/api/'+path,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(e){console.error('API PUT error',e);}}
+async function apiDel(path){try{await fetch('/api/'+path,{method:'DELETE'});}catch(e){console.error('API DEL error',e);}}
+
+let RESERVES=[],bDays=new Set(),exclD=new Set(),selDist=null,calY=2026,calM=3,eFId=-1,openIE={},activeFilter='',currentEmailResId=null,fotoDataURL=null;
+
+// ── DADES DE CALENDARIS EN TEMPS REAL ─────────────────────────────
+// calData[id] = { slots:[{date,startMin,endMin}], fullDayDates:Set<isoDate> }
+const calData={};
+let calDataLoaded=false;
+
+// Mapa de torns a minuts del dia (start/end)
+const TORN_MINUTS={
+  '9:30–11:30h':  {start:570,  end:690},   // 9h30 - 11h30
+  '9:00–11:00h':  {start:540,  end:660},   // 9h00 - 11h00
+  '12:00–15:00h': {start:720,  end:900},   // 12h00 - 15h00
+  '16:00–18:00h': {start:960,  end:1080},  // 16h00 - 18h00
+  'Qualsevol':    {start:480,  end:1200},  // tot el dia laboral
+};
+function tornToMinuts(torn){
+  if(TORN_MINUTS[torn])return TORN_MINUTS[torn];
+  // Intentar parsejar formats com "10:00–12:00h"
+  const m=torn.match(/(\d{1,2}):(\d{2})[^0-9]+(\d{1,2}):(\d{2})/);
+  if(m)return{start:parseInt(m[1])*60+parseInt(m[2]),end:parseInt(m[3])*60+parseInt(m[4])};
+  return{start:480,end:1200};
+}
+
+// Comprova si un slot de calendari solapa amb una franja horària
+function slotsOverlap(slotStart,slotEnd,tornStart,tornEnd){
+  return slotStart < tornEnd && slotEnd > tornStart;
+}
+
+function hasCalendar(f){return !!(f&&f.icsUrl);}
+
+// Comprova si una data (ISO) és ocupada per al torn indicat
+function isDateBusyForTorn(fId, isoDate, torn){
+  const cd=calData[fId];
+  if(!cd)return false;
+  // 1. Dia complet bloquejat (all-day event)
+  if(cd.fullDayDates.has(isoDate))return true;
+  // 2. Comprovar solapament de franja horària
+  const t=tornToMinuts(torn);
+  return cd.slots.some(s=>s.date===isoDate && slotsOverlap(s.startMin,s.endMin,t.start,t.end));
+}
+
+// Retorna la llista de dates del calendari que estan ocupades en el torn
+function calBusyDatesForTorn(fId, dates, torn){
+  return dates.filter(d=>isDateBusyForTorn(fId,toISO(d),torn));
+}
+
+// Retorna detall per dia: per a cada data, quin motiu hi ha (null=lliure)
+function datesBusyDetail(fId, dates, torn, resISO){
+  return dates.map(d=>{
+    const iso=toISO(d);
+    const calBusy=hasCalendar({icsUrl:calData[fId]?'x':''})&&calData[fId]?isDateBusyForTorn(fId,iso,torn):false;
+    const gesBusy=resISO.has(iso);
+    return{iso,calBusy,gesBusy,busy:calBusy||gesBusy};
+  });
+}
+
+async function loadCalData(){
+  const withCal=FORMADORS.filter(f=>f.icsUrl);
+  if(!withCal.length){calDataLoaded=true;return;}
+  try{
+    await Promise.all(withCal.map(async f=>{
+      try{
+        const r=await fetch('/api/disponibilitat/'+f.id).then(x=>x.json());
+        calData[f.id]={
+          slots: r.slots||[],
+          fullDayDates: new Set(r.fullDayDates||[])
+        };
+      }catch(e){calData[f.id]={slots:[],fullDayDates:new Set()};}
+    }));
+  }finally{calDataLoaded=true;}
+}
+
+async function refreshCal(formadorId){
+  await fetch('/api/disponibilitat/'+formadorId+'/cache',{method:'DELETE'});
+  try{
+    const r=await fetch('/api/disponibilitat/'+formadorId).then(x=>x.json());
+    calData[formadorId]={slots:r.slots||[],fullDayDates:new Set(r.fullDayDates||[])};
+    const total=(r.fullDayDates||[]).length+(r.slots||[]).length;
+    toast('📅 Calendari actualitzat · '+total+' events detectats');
+  }catch(e){toast('Error actualitzant calendari');}
+}
+
+// ── NAVEGACIÓ ───────────────────────────────────────────────────
+function gv(id,btn){
+  document.querySelectorAll('.vp').forEach(v=>v.classList.remove('act'));
+  document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act');b.classList.remove('act-p');});
+  document.getElementById('page-'+id).classList.add('act');
+  if(btn)btn.classList.add('act');else{const nb=document.getElementById('nb-'+id);if(nb)nb.classList.add('act');}
+  if(id==='gest')renderGest();
+  if(id==='entrades'){renderArxiu();}
+  if(id==='f'){renderFP();initFiltreEsp();}
+  if(id==='canvis')renderCanvis();
+}
+
+// ── CATÀLEGS ────────────────────────────────────────────────────
+function fillSels(){
+  ['esp','modal','hsess','torn'].forEach(k=>{
+    const s=document.getElementById('p-'+k);if(!s)return;
+    const cur=s.value;
+    s.innerHTML=CATS[k].items.map(v=>`<option value="${v}">${k==='hsess'?v+'h':v}</option>`).join('');
+    if(cur&&CATS[k].items.includes(cur))s.value=cur;
+  });
+  // Formadors selector
+  const sf=document.getElementById('p-form-pref');
+  if(sf){sf.innerHTML='<option value="">Cap preferència · flux habitual</option>'+FORMADORS.map(f=>`<option value="${f.id}">${f.nom} (${f.specs[0]||'—'})</option>`).join('');}
+}
+
+function togIE(cat,btn){
+  if(openIE[cat]){document.getElementById('ie-'+cat).innerHTML='';openIE[cat]=false;btn.classList.remove('on');btn.textContent='+';return;}
+  Object.keys(openIE).forEach(k=>{if(openIE[k]){document.getElementById('ie-'+k).innerHTML='';openIE[k]=false;const ob=document.querySelector(`.bi[onclick*="'${k}'"]`);if(ob){ob.classList.remove('on');ob.textContent='+'}}});
+  openIE[cat]=true;btn.classList.add('on');btn.textContent='×';renderIE(cat);
+}
+function renderIE(cat){let h='<div class="ie">';CATS[cat].items.forEach((it,i)=>{h+=`<div class="ie-it" id="ie-i-${cat}-${i}"><span>${it}</span><button class="btn-g" style="font-size:10px" onclick="startIEed('${cat}',${i})">editar</button><button class="btn-g" style="color:#A32D2D;font-size:13px" onclick="delIE('${cat}',${i})">×</button></div>`;});h+=`<div class="ie-add"><input type="text" id="ie-n-${cat}" placeholder="Nova..." onkeydown="if(event.key==='Enter')addIE('${cat}')"/><button class="btn btn-p btn-sm" onclick="addIE('${cat}')">+</button></div></div>`;document.getElementById('ie-'+cat).innerHTML=h;}
+function startIEed(cat,i){document.getElementById(`ie-i-${cat}-${i}`).innerHTML=`<input type="text" value="${CATS[cat].items[i]}" id="ie-e-${cat}-${i}" style="flex:1;padding:3px 6px;border:0.5px solid #1D9E75;border-radius:4px;background:#fff;color:#1a1a1a;font-size:11px;font-family:inherit" onkeydown="if(event.key==='Enter')saveIEed('${cat}',${i})"/><button class="btn btn-p btn-sm" onclick="saveIEed('${cat}',${i})">OK</button><button class="btn btn-sm" onclick="renderIE('${cat}')">×</button>`;document.getElementById(`ie-e-${cat}-${i}`).focus();}
+function saveIEed(cat,i){const el=document.getElementById(`ie-e-${cat}-${i}`);if(!el)return;const v=el.value.trim();if(!v)return;CATS[cat].items[i]=v;apiPut('cats/'+cat,{items:CATS[cat].items});fillSels();renderIE(cat);lf();toast('Actualitzat');}
+function addIE(cat){const el=document.getElementById('ie-n-'+cat);const v=el?el.value.trim():'';if(!v||CATS[cat].items.includes(v)){toast(v?'Ja existeix':'Buit');return;}CATS[cat].items.push(v);apiPut('cats/'+cat,{items:CATS[cat].items});fillSels();renderIE(cat);toast('Afegit');}
+function delIE(cat,i){if(CATS[cat].items.length<=1){toast('Mínim 1');return;}CATS[cat].items.splice(i,1);apiPut('cats/'+cat,{items:CATS[cat].items});fillSels();renderIE(cat);toast('Eliminat');}
+
+// ── FORMADOR PREFERIT ───────────────────────────────────────────
+function setFormPref(){
+  const sel=document.getElementById('p-form-pref');
+  const val=sel.value;
+  preferredFormadorId=val?parseInt(val):null;
+  const disp=document.getElementById('form-pref-display');
+  if(preferredFormadorId!==null){
+    const f=FORMADORS.find(x=>x.id===preferredFormadorId);
+    if(f){
+      disp.innerHTML=`<div class="form-pref-box">
+        <img src="${f.img}" width="30" height="30" style="border-radius:50%;object-fit:cover;flex-shrink:0"/>
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">${f.nom}</div><div style="font-size:10px;color:#085041">Formador prioritzat · s'examinarà primer la seva disponibilitat</div></div>
+        <button class="form-pref-clear" onclick="clearFormPref()" title="Eliminar preferència">×</button>
+      </div>`;
+    }
+  }else{disp.innerHTML='';}
+  lf();
+}
+function clearFormPref(){preferredFormadorId=null;document.getElementById('p-form-pref').value='';document.getElementById('form-pref-display').innerHTML='';lf();}
+
+// ── AGENTS ─────────────────────────────────────────────────────
+function renderAgentSelector(){
+  document.getElementById('agent-selector').innerHTML=AGENTS.map(a=>{
+    const isSel=selectedAgent===a.nom;
+    const parts=a.nom.split(' ');
+    return`<button class="agent-btn ${isSel?'sel':''}" onclick="selectAgent('${a.nom}')" title="${a.nom}"><div class="agent-av" style="background:${a.color}">${ini(a.nom)}</div><div class="agent-name">${parts[0]+(parts.length>1?'<br>'+parts.slice(1).join(' '):'')}</div></button>`;
+  }).join('')+`<button class="agent-add-btn" onclick="document.getElementById('agent-new-form').classList.toggle('open')" title="Afegir agent"><div class="agent-add-icon">+</div><div class="agent-name" style="color:#6b6b67">Afegir</div></button>`;
+  const cf=document.getElementById('gest-com-f');
+  if(cf)cf.innerHTML='<option value="">Tots els agents</option>'+AGENTS.map(a=>`<option value="${a.nom}">${a.nom}</option>`).join('');
+}
+function selectAgent(nom){selectedAgent=nom;renderAgentSelector();}
+function addAgent(){const inp=document.getElementById('agent-new-input');const nom=inp.value.trim();if(!nom){toast('Escriu el nom');return;}if(AGENTS.find(a=>a.nom===nom)){toast('Ja existeix');return;}const a={nom,color:AV_COLORS[AGENTS.length%AV_COLORS.length]};AGENTS.push(a);apiPost('agents',a);selectedAgent=nom;inp.value='';document.getElementById('agent-new-form').classList.remove('open');renderAgentSelector();toast('Agent afegit');}
+
+// ── DIES / DISTRIBUCIÓ ──────────────────────────────────────────
+function upD(){
+  const ssw=parseInt(document.getElementById('p-ssw').value)||2;
+  const opts=DISTRIBS[ssw]||[[2,4]];
+  if(!selDist||!opts.some(o=>o.join(',')===selDist.join(','))){
+    const valid=opts.filter(o=>!o.some(d=>bDays.has(d)));
+    selDist=valid.length>0?valid[0]:opts[0];
+  }
+  document.getElementById('dh').textContent=ssw===1?'Dia de la setmana:':'Distribució òptima:';
+  document.getElementById('do').innerHTML=opts.map((opt,i)=>{
+    const k=opt.join(',');const isSel=selDist&&selDist.join(',')===k;
+    const isBlocked=opt.some(d=>bDays.has(d));
+    return`<button class="do-btn ${isSel&&!isBlocked?'sel':''}" id="do-${i}" onclick="selD(${i})" ${isBlocked?'disabled title="Conté un dia bloquejat"':''}>${DLABELS[k]||opt.map(d=>DL[d]).join('·')}${isBlocked?' 🚫':''}</button>`;
+  }).join('');
+}
+function selD(i){const ssw=parseInt(document.getElementById('p-ssw').value)||2;const opt=(DISTRIBS[ssw]||[[2,4]])[i];if(opt&&!opt.some(d=>bDays.has(d))){selDist=opt;document.querySelectorAll('.do-btn').forEach((b,j)=>{b.classList.toggle('sel',j===i&&!b.disabled);});lf();}}
+function togDay(btn){const d=parseInt(btn.dataset.d);if(bDays.has(d)){bDays.delete(d);btn.classList.remove('blocked');}else{bDays.add(d);btn.classList.add('blocked');}upD();ua();}
+function addEx(){const v=document.getElementById('excl-in').value;if(!v)return;exclD.add(v);renderExcl();ua();}
+function removeEx(d){exclD.delete(d);renderExcl();ua();}
+function renderExcl(){document.getElementById('excl-list').innerHTML=[...exclD].map(d=>`<span class="excl-tag" onclick="removeEx('${d}')">${d} ×</span>`).join('');}
+function ua(){upR();lf();}
+function upR(){
+  const h=parseInt(document.getElementById('p-hores').value)||16;const hs=parseFloat(document.getElementById('p-hsess').value)||2;const ssw=parseInt(document.getElementById('p-ssw').value)||2;const pc=parseFloat(document.getElementById('p-preu').value)||0;const ns=Math.ceil(h/hs),sw=Math.ceil(ns/ssw);
+  document.getElementById('rsm-t').innerHTML=`<strong>${ns} sessions</strong> · <strong>${hs}h/sessió</strong> · ~<strong>${sw} setmanes</strong>`;
+  document.getElementById('rsm-e').textContent=pc>0?`Ingressos estimats: ${(pc*h).toFixed(0)}€`:'';
+}
+function clearPeticio(){document.getElementById('p-client').value='';document.getElementById('p-curs').value='';document.getElementById('p-hores').value='16';document.getElementById('p-inici').value='2026-04-14';document.getElementById('p-preu').value='75';document.getElementById('excl-in').value='';bDays=new Set();exclD=new Set();selDist=null;preferredFormadorId=null;document.getElementById('p-form-pref').value='';document.getElementById('form-pref-display').innerHTML='';document.querySelectorAll('.ds').forEach(b=>b.classList.remove('blocked'));renderExcl();upD();upR();lf();document.getElementById('r-live').style.display='';document.getElementById('r-prop').style.display='none';document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act','act-p');});document.getElementById('nb-p').classList.add('act');toast('Petició netejada');}
+
+// ── DATES ──────────────────────────────────────────────────────
+function validDay(d){const dw=d.getDay();if(dw===0||dw===6)return false;if(bDays.has(dw))return false;if(isFest(d))return false;if(exclD.has(toISO(d)))return false;return true;}
+function buildDates(startStr,n,dist,extraExcl){const res=[];const cur=new Date(startStr+'T00:00:00');let it=0;while(res.length<n&&it<500){const dw=cur.getDay()||7;if(dist.includes(dw)&&validDay(cur)&&(!extraExcl||!extraExcl.has(toISO(cur))))res.push(new Date(cur));cur.setDate(cur.getDate()+1);it++;}return res;}
+function findFirstAvailable(startStr,dist){const cur=new Date(startStr+'T00:00:00');for(let i=0;i<60;i++){const dw=cur.getDay()||7;if(dist.includes(dw)&&validDay(cur))return new Date(cur);cur.setDate(cur.getDate()+1);}return new Date(startStr+'T00:00:00');}
+
+// ── PUNTUACIÓ ──────────────────────────────────────────────────
+// gesReservesPerF: Map<formadorId, Set<isoDate>> — només dates d'aquest formador a GESEM
+// torn: string com '9:30–11:30h' per comprovar solapament exacte
+function calcScore(f,esp,dates,gesReservesPerF,pc,isPref,torn){
+  if(!f.specs.includes(esp))return{score:0,match:false,blocked:false,marge:null};
+
+  const hasRealCal=hasCalendar(f)&&calData[f.id]!==undefined;
+
+  // ── Conflictes GESEM: dates on AQUEST formador ja té un altre curs ──
+  const fGesISO=gesReservesPerF[f.id]||new Set();
+  const gesConflDates=dates.filter(d=>fGesISO.has(toISO(d)));
+
+  // ── Conflictes per calendari propi del formador ──
+  // Ara comprovem la franja horària exacta, no el dia sencer
+  let calConflDates=[];
+  if(hasRealCal&&torn){
+    calConflDates=calBusyDatesForTorn(f.id,dates,torn);
+  }
+
+  // ── Si el calendari bloqueja el 100% de les dates → no disponible ──
+  const totalDates=dates.length;
+  const uniqueBusy=new Set([...gesConflDates.map(d=>toISO(d)),...calConflDates.map(d=>toISO(d))]);
+  const blocked=totalDates>0&&uniqueBusy.size>=totalDates;
+  if(blocked)return{
+    score:0,match:true,blocked:true,
+    gesConflicts:gesConflDates.length,calConflicts:calConflDates.length,
+    hasRealCal,marge:pc>0?Math.round((pc-f.preu_hora)/pc*100):null,
+    dispScore:0,ratingScore:0,costScore:0
+  };
+
+  // ── PRIORITAT 1 (60 pts): Disponibilitat ──
+  const totalConflicts=uniqueBusy.size;
+  // Si té calendari real, ignorem la disponibilitat declarada (dades fiables)
+  const dispDeclarada=hasRealCal?0:{alta:20,parcial:10,baixa:0}[f.disp]||10;
+  const dispDates=Math.max(0,40-totalConflicts*Math.ceil(40/Math.max(totalDates,1)));
+  // Bonus si té calendari real i cap conflicte (dades verificades)
+  const calBonus=hasRealCal&&calConflDates.length===0?10:0;
+  const disponibilitatScore=Math.min(60,dispDeclarada+dispDates+calBonus);
+
+  // ── PRIORITAT 2 (25 pts): Valoració ──
+  const ratingScore=Math.round((parseFloat(f.rating||4)-3)/2*25);
+
+  // ── PRIORITAT 3 (15 pts): Cost ──
+  const maxPreu=80,minPreu=20;
+  const costScore=Math.round((1-(Math.max(minPreu,Math.min(maxPreu,f.preu_hora))-minPreu)/(maxPreu-minPreu))*15);
+
+  let score=Math.min(99,Math.max(5,disponibilitatScore+ratingScore+costScore));
+  if(isPref)score=Math.min(99,score+20);
+
+  const marge=pc>0?Math.round((pc-f.preu_hora)/pc*100):null;
+  return{
+    score,match:true,blocked:false,
+    gesConflicts:gesConflDates.length,
+    calConflicts:calConflDates.length,
+    totalConflicts,hasRealCal,marge,
+    dispScore:disponibilitatScore,ratingScore,costScore
+  };
+}
+
+// ── LIVE FILTER ────────────────────────────────────────────────
+function lf(){
+  const esp=document.getElementById('p-esp').value;
+  const h=parseInt(document.getElementById('p-hores').value)||16;
+  const hs=parseFloat(document.getElementById('p-hsess').value)||2;
+  const ssw=parseInt(document.getElementById('p-ssw').value)||2;
+  const pc=parseFloat(document.getElementById('p-preu').value)||0;
+  const torn=document.getElementById('p-torn').value||'Qualsevol';
+  const inici=document.getElementById('p-inici').value||'2026-04-14';
+  const ns=Math.ceil(h/hs);
+  const dist=selDist||(DISTRIBS[ssw]||[[2,4]])[0];
+  // Map per formador: dates que JA TÉ assignades a GESEM (no les de la resta)
+  const gesReservesPerF={};
+  RESERVES.filter(r=>r.estat!=='cancel'&&r.formadorId!=null).forEach(r=>{
+    if(!gesReservesPerF[r.formadorId])gesReservesPerF[r.formadorId]=new Set();
+    (r.dates||[]).forEach(d=>gesReservesPerF[r.formadorId].add(d));
+  });
+  const firstAvail=findFirstAvailable(inici,dist);
+  const sDates=buildDates(toISO(firstAvail),ns,dist);
+
+  const scored=FORMADORS.map(f=>{
+    const s=calcScore(f,esp,sDates,gesReservesPerF,pc,f.id===preferredFormadorId,torn);
+    return{...f,...s};
+  });
+
+  // Separar: no match esp | bloquejats del tot | disponibles
+  const available=scored.filter(f=>f.match&&!f.blocked).sort((a,b)=>{
+    if(a.id===preferredFormadorId)return -1;
+    if(b.id===preferredFormadorId)return 1;
+    return b.score-a.score;
+  });
+  const blocked=scored.filter(f=>f.match&&f.blocked);
+  const noMatch=scored.filter(f=>!f.match);
+
+  const sub=document.getElementById('fc-sub');const badge=document.getElementById('fc-badge');
+  const hasAnyCal=FORMADORS.some(f=>f.icsUrl&&calData[f.id]);
+  if(available.length){
+    const prefMsg=preferredFormadorId!==null?' · Formador preferit prioritzat':'';
+    const calMsg=hasAnyCal?` · Calendaris verificats`:'';
+    sub.textContent=`${available.length} disponibles${prefMsg}${calMsg}`;
+    badge.style.display='';badge.textContent=available.length+' disponibles';
+  }else{
+    sub.textContent='Cap formador disponible amb aquests criteris';badge.style.display='none';
+  }
+
+  document.getElementById('flive').innerHTML=[...available,...blocked,...noMatch].map((f,i)=>{
+    const rank=available.indexOf(f);
+    const isPref=f.id===preferredFormadorId;
+    const isBlocked=f.blocked&&f.match;
+    const isNoMatch=!f.match;
+
+    let cls='fcard';
+    if(isNoMatch)cls+=' nm';
+    else if(isBlocked)cls+=' rc'; // vermell = totalment bloquejat
+    else if(isPref)cls+=' preferred';
+    else if(rank===0)cls+=' r1';
+    else if(rank===1)cls+=' r2';
+    else if(rank===2)cls+=' r3';
+
+    let rb='';
+    if(isBlocked)rb='<div class="preferred-badge" style="background:#E24B4A">No disp.</div>';
+    else if(isPref)rb='<div class="preferred-badge">Preferit</div>';
+    else if(rank===0)rb='<div class="rb rb1">1</div>';
+    else if(rank===1)rb='<div class="rb rb2">2</div>';
+    else if(rank===2)rb='<div class="rb rb3">3</div>';
+
+    const bw=f.match&&!isBlocked?f.score:0;
+    const bColor=isPref?'#1D9E75':isBlocked?'#E24B4A':f.score>=75?'#1D9E75':f.score>=55?'#378ADD':'#BA7517';
+
+    // Indicadors de disponibilitat clars
+    let dispIndicator='';
+    if(isNoMatch){
+      dispIndicator='<span style="font-size:10px;color:#A32D2D">Especialitat no coincident</span>';
+    }else if(isBlocked){
+      const raons=[];
+      if(f.calConflicts>0)raons.push(`📅 Agenda ocupada (${f.calConflicts} sess.)`);
+      if(f.gesConflicts>0)raons.push(`🔒 Ja reservat GESEM (${f.gesConflicts} sess.)`);
+      dispIndicator=`<span style="font-size:10px;color:#791F1F;font-weight:500">${raons.join(' · ')}</span>`;
+    }else{
+      const ddCls=f.hasRealCal?'dd-a':f.disp==='alta'?'dd-a':f.disp==='parcial'?'dd-p':'dd-b';
+      const dispTxt=f.hasRealCal?'Calendari verificat':f.disp==='alta'?'Alta disp.':f.disp==='parcial'?'Parcial':'Poca disp.';
+      const warns=[];
+      if(f.calConflicts>0)warns.push(`<span style="font-size:10px;color:#BA7517">📅 ${f.calConflicts} sess. ocupades agenda</span>`);
+      if(f.gesConflicts>0)warns.push(`<span style="font-size:10px;color:#BA7517">🔒 ${f.gesConflicts} solapament GESEM</span>`);
+      let mc='';if(pc>0&&f.marge!=null){const c=f.marge>=30?'mc-ok':f.marge>=15?'mc-w':'mc-b';mc=`<span class="mc ${c}">${f.marge}% marge</span>`;}
+      dispIndicator=`
+        <span style="display:flex;align-items:center;gap:3px;font-size:11px;color:#6b6b67"><span class="dd ${ddCls}"></span>${dispTxt}${f.hasRealCal?' ✓':''}</span>
+        <span style="font-size:11px;font-weight:500;color:${bColor}" title="Disponibilitat ${f.dispScore||0}pt · Valoració ${f.ratingScore||0}pt · Cost ${f.costScore||0}pt">${bw}%</span>
+        ${mc}${warns.join('')}`;
+    }
+
+    return`<div class="${cls}" id="fc-${f.id}" onclick="selFC(${f.id})">${rb}
+      <div style="display:flex;align-items:flex-start;gap:9px;margin-bottom:7px">
+        <img src="${f.img}" width="42" height="42" style="border-radius:50%;display:block;flex-shrink:0;object-fit:cover;${isBlocked?'opacity:.5':''}"/>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500;${isBlocked?'color:#6b6b67':''}">${f.nom}</div>
+          <div style="font-size:11px;color:#6b6b67">${f.tipus==='intern'?'Intern':'Extern'} · ${f.preu_hora}€/h · ★${f.rating}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px">${f.specs.map(s=>`<span class="${s===esp?'fsp-m':'fsp-o'}">${s}</span>`).join('')}</div>
+      ${!isBlocked&&f.match?`<div style="height:3px;border-radius:2px;background:#f5f4f0;margin:5px 0 4px"><div style="height:100%;border-radius:2px;background:${bColor};width:${bw}%"></div></div>`:''}
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">${dispIndicator}</div>
+    </div>`;
+  }).join('');
+}
+function selFC(id){document.querySelectorAll('.fcard').forEach(c=>c.classList.remove('fsel'));const el=document.getElementById('fc-'+id);if(el)el.classList.add('fsel');}
+
+// ── GENERAR PROPOSTA ───────────────────────────────────────────
+function genProp(){
+  const esp=document.getElementById('p-esp').value;
+  const h=parseInt(document.getElementById('p-hores').value)||16;
+  const hs=parseFloat(document.getElementById('p-hsess').value)||2;
+  const ssw=parseInt(document.getElementById('p-ssw').value)||2;
+  const torn=document.getElementById('p-torn').value;
+  const iniOri=document.getElementById('p-inici').value||'2026-04-14';
+  const pc=parseFloat(document.getElementById('p-preu').value)||75;
+  const client=document.getElementById('p-client').value;
+  const curs=document.getElementById('p-curs').value;
+  const comercial=selectedAgent;
+  const ns=Math.ceil(h/hs);
+  const dist=selDist||(DISTRIBS[ssw]||[[2,4]])[0];
+  // Map per formador: dates que JA TÉ assignades a GESEM
+  const gesReservesPerF={};
+  RESERVES.filter(r=>r.estat!=='cancel'&&r.formadorId!=null).forEach(r=>{
+    if(!gesReservesPerF[r.formadorId])gesReservesPerF[r.formadorId]=new Set();
+    (r.dates||[]).forEach(d=>gesReservesPerF[r.formadorId].add(d));
+  });
+  const tornL=torn==='Qualsevol'?'9:30–11:30h':torn;
+  const sw=Math.ceil(ns/ssw);
+  const agentObj=AGENTS.find(a=>a.nom===comercial);
+  const firstAvail=findFirstAvailable(iniOri,dist);
+  const iniReal=toISO(firstAvail);
+  const deltaMsg=iniReal>iniOri?`Inici ajustat: ${fmtD(firstAvail)} (des de data orientativa ${iniOri})`:'';
+
+  let candList=FORMADORS.filter(f=>f.specs.includes(esp));
+  if(preferredFormadorId!==null){
+    candList=candList.sort((a,b)=>{if(a.id===preferredFormadorId)return -1;if(b.id===preferredFormadorId)return 1;return 0;});
+  }
+  const cands=candList.map(f=>{
+    const dates=buildDates(iniReal,ns,dist);
+    const s=calcScore(f,esp,dates,gesReservesPerF,pc,f.id===preferredFormadorId,tornL);
+    const cF=f.preu_hora*h,cC=pc*h,marge=cC>0?((cC-cF)/cC*100):0;
+    const fGesISO=gesReservesPerF[f.id]||new Set();
+    // Detall per data: lliure / ocupat agenda pròpia / ocupat GESEM (aquest formador)
+    const dateDetail=dates.map(d=>{
+      const iso=toISO(d);
+      const calBusy=s.hasRealCal?isDateBusyForTorn(f.id,iso,tornL):false;
+      const gesBusy=fGesISO.has(iso);
+      return{d,iso,calBusy,gesBusy};
+    });
+    return{f,dates,dateDetail,blocked:s.blocked,gesConflicts:s.gesConflicts||0,calConflicts:s.calConflicts||0,hasRealCal:s.hasRealCal,score:s.score,cF,cC,marge,torn:tornL,hs,ns,h,pc,comercial,client,curs,iniOri,iniReal,isPref:f.id===preferredFormadorId};
+  })
+  .filter(p=>!p.blocked) // Excloure formadors totalment bloquejats
+  .sort((a,b)=>{if(a.isPref)return -1;if(b.isPref)return 1;return b.score-a.score;});
+
+  const rLabels=['1a opció','2a opció','3a opció','Alternativa'];
+  const rColors=['#085041','#0C447C','#3C3489','#5F5E5A'];
+  const rBgs=['#E1F5EE','#E6F1FB','#EEEDFE','#f5f4f0'];
+  const barColors=['#1D9E75','#378ADD','#7F77DD','#888780'];
+  document.getElementById('prop-sub').textContent=`${curs||'Curs'} · ${client||'Client'} · ${cands.length} opcions`;
+
+  let propHTML='';
+  if(deltaMsg)propHTML+=`<div style="background:#FAEEDA;border-radius:8px;padding:7px 11px;margin-bottom:8px;font-size:12px;color:#633806">ℹ ${deltaMsg}</div>`;
+  if(preferredFormadorId!==null)propHTML+=`<div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:7px 11px;margin-bottom:8px;font-size:12px;color:#085041">★ Formador preferit prioritzat. La proposta examina primer la seva disponibilitat.</div>`;
+
+  if(!cands.length){
+    propHTML+=`<div style="background:#fff;border:1.5px solid #7F77DD;border-radius:12px;padding:16px;text-align:center"><div style="font-size:13px;font-weight:500;color:#3C3489;margin-bottom:6px">Cap formador disponible amb els criteris actuals</div><button class="btn btn-p" style="background:#534AB7;border-color:#534AB7" onclick="generateAltCalendars()">Cercar alternatives de calendari amb IA</button></div><div id="alt-calendars"></div>`;
+  }else{
+    propHTML+=`<div class="ps"><span class="psi"><strong>${client||'—'}</strong></span><span class="psi">${curs||'—'}</span><span class="psi"><strong>${h}h</strong> · ${ns} sess. de ${hs}h · ~${sw} setm</span><span class="psi">${tornL}</span><span class="psi">Preu/h: <strong>${pc}€</strong> · Ingressos: <strong>${(pc*h).toFixed(0)}€</strong></span><span class="psi" style="display:flex;align-items:center;gap:5px">Comercial: <span style="width:20px;height:20px;border-radius:50%;background:${agentObj?agentObj.color:'#6b6b67'};display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:#fff">${ini(comercial)}</span><strong>${comercial}</strong></span></div>`;
+    propHTML+=cands.map((p,i)=>{
+      const ri=Math.min(i,3);const mC=p.marge.toFixed(0);const mCl=p.marge>=30?'mc-ok':p.marge>=15?'mc-w':'mc-b';const mColor=p.marge>=30?'#085041':p.marge>=15?'#633806':'#791F1F';
+      // Píndoles de dates amb estat visual per sessió
+      const pills=(p.dateDetail||p.dates.map(d=>({d,iso:toISO(d),calBusy:false,gesBusy:false}))).map(({d,calBusy,gesBusy})=>{
+        const dw=d.getDay()||7;
+        const cls=calBusy?'pill p-c':gesBusy?'pill p-c':'pill p-ok';
+        const icon=calBusy?'📅':gesBusy?'🔒':'';
+        const title=calBusy?'Agenda ocupada en aquest horari':gesBusy?'Ja assignat a GESEM':'Lliure';
+        return`<span class="${cls}" title="${title}">${DL[dw]} ${d.getDate()}/${d.getMonth()+1}${icon}</span>`;
+      }).join('');
+      const waMsg=encodeURIComponent(`Hola ${p.f.nom}! Tenim disponibilitat per al curs "${curs}" del client ${client}? Dates: ${p.dates.slice(0,3).map(d=>fmtD(d)).join(', ')}... (${p.dates.length} sessions de ${hs}h, ${tornL}). Pots confirmar? Gràcies!`);
+      const prefLabel=p.isPref?'Formador preferit pel client':rLabels[ri];
+      const prefBg=p.isPref?'#E1F5EE':rBgs[ri];const prefColor=p.isPref?'#085041':rColors[ri];
+      // Avisos de disponibilitat parcial
+      const availWarns=[];
+      if(p.hasRealCal&&p.calConflicts===0)availWarns.push('<span style="background:#E1F5EE;color:#085041;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500">📅 Agenda verificada ✓</span>');
+      if(p.calConflicts>0)availWarns.push(`<span style="background:#FAEEDA;color:#633806;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500">📅 ${p.calConflicts} sess. ocupades agenda</span>`);
+      if(p.gesConflicts>0)availWarns.push(`<span style="background:#FAEEDA;color:#633806;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500">🔒 ${p.gesConflicts} solapament GESEM</span>`);
+      return`<div class="pr ${i===0?'best':''}" id="pp-${i}" onclick="selP(${i})">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px">
+            <img src="${p.f.img}" width="38" height="38" style="border-radius:50%;display:block;flex-shrink:0;object-fit:cover"/>
+            <div><div style="font-size:13px;font-weight:500">${p.f.nom}${p.isPref?' ★':''}</div><div style="font-size:11px;color:#6b6b67">${p.f.tipus==='intern'?'Intern':'Extern'} · ${p.f.preu_hora}€/h · ★${p.f.rating}</div></div>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            <span style="background:${prefBg};color:${prefColor};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500">${prefLabel}</span>
+            <span class="mc ${mCl}">${mC}% marge</span>
+            ${availWarns.join('')}
+          </div>
+        </div>
+        <div style="height:3px;border-radius:2px;background:#f5f4f0;margin-bottom:5px"><div style="height:100%;border-radius:2px;background:${p.isPref?'#1D9E75':barColors[ri]};width:${p.score}%"></div></div>
+        <div style="display:flex;gap:10px;font-size:11px;margin-bottom:5px;flex-wrap:wrap">
+          <span style="color:${p.score>=75?'#085041':p.score>=55?'#0C447C':'#791F1F'};font-weight:500">Compatibilitat: ${p.score}%</span>
+          <span style="color:#6b6b67">Cost: <strong>${p.cF.toFixed(0)}€</strong></span>
+          <span style="color:#6b6b67">Marge: <strong style="color:${mColor}">${(p.cC-p.cF).toFixed(0)}€</strong></span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px">${pills}</div>
+        <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap;border-top:0.5px solid rgba(0,0,0,0.07);padding-top:8px">
+          <button class="btn btn-sm" style="background:#E1F5EE;border-color:#5DCAA5;color:#085041" onclick="event.stopPropagation();openEmailFormador(${i})">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="vertical-align:-1px;margin-right:2px"><rect x=".5" y="1.5" width="9" height="7" rx="1" stroke="currentColor" stroke-width=".8" fill="none"/><path d=".5 3l4.5 3 4.5-3" stroke="currentColor" stroke-width=".8"/></svg>Email formador
+          </button>
+          <a href="https://wa.me/?text=${waMsg}" target="_blank" onclick="event.stopPropagation()" class="btn btn-sm" style="background:#25D366;border-color:#25D366;color:#fff;text-decoration:none">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="vertical-align:-1px;margin-right:2px"><circle cx="5" cy="5" r="4.5" stroke="white" stroke-width=".7"/><path d="M2.5 7c.5-1 1.5-2.5 3-2.5s2 1 2 1.5-1 .8-1.3.3-.8-1.3-.8-1.3" stroke="white" stroke-width=".6" fill="none"/></svg>WhatsApp
+          </a>
+          <button class="btn btn-sm" onclick="event.stopPropagation();confirmarReserva(${i},false)">Reservar</button>
+          <button class="btn btn-p btn-sm" onclick="event.stopPropagation();confirmarReserva(${i},true)">Reservar + email ↗</button>
+        </div>
+      </div>`;
+    }).join('');
+    if(cands.length<2)propHTML+=`<div style="margin-top:8px;background:#EEEDFE;border-radius:10px;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div style="font-size:12px;color:#3C3489">Poques opcions. Vols alternatives de calendari?</div><button class="btn btn-sm" style="background:#534AB7;border-color:#534AB7;color:#fff" onclick="generateAltCalendars()">Cercar alternatives</button></div><div id="alt-calendars"></div>`;
+    propHTML+=`<div style="text-align:right;margin-top:4px"><button class="btn btn-sm" onclick="showLive()">← Tornar</button></div>`;
+  }
+  document.getElementById('prop-body').innerHTML=propHTML;
+  window._pr=cands;
+  document.getElementById('r-live').style.display='none';document.getElementById('r-prop').style.display='';
+  document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act');b.classList.remove('act-p');});document.getElementById('nb-p').classList.add('act-p');
+}
+
+function generateAltCalendars(){
+  const el=document.getElementById('alt-calendars');if(!el)return;
+  const esp=document.getElementById('p-esp').value;
+  const h=parseInt(document.getElementById('p-hores').value)||16;
+  const hs=parseFloat(document.getElementById('p-hsess').value)||2;
+  const ns=Math.ceil(h/hs);
+  const inici=document.getElementById('p-inici').value||'2026-04-14';
+  const pc=parseFloat(document.getElementById('p-preu').value)||75;
+  const torn=document.getElementById('p-torn').value||'9:30–11:30h';
+  const tornL=torn==='Qualsevol'?'9:30–11:30h':torn;
+
+  el.innerHTML=`<div style="text-align:center;padding:16px;color:#3C3489;font-size:12px"><span class="spinner" style="margin-right:8px"></span>Analitzant alternatives amb agendes reals dels formadors...</div>`;
+
+  // Build gesReservesPerF
+  const gesReservesPerF={};
+  RESERVES.filter(r=>r.estat!=='cancel'&&r.formadorId!=null).forEach(r=>{
+    if(!gesReservesPerF[r.formadorId])gesReservesPerF[r.formadorId]=new Set();
+    (r.dates||[]).forEach(d=>gesReservesPerF[r.formadorId].add(d));
+  });
+
+  setTimeout(()=>{
+    const alts=[
+      {label:'A',desc:'Dl + Dc · mateixa setmana',dist:[1,3],ssw:2,offset:0},
+      {label:'B',desc:'Dm + Dj · +2 setmanes',dist:[2,4],ssw:2,offset:14},
+      {label:'C',desc:'Dl + Dj · distribució àmplia',dist:[1,4],ssw:2,offset:7},
+      {label:'D',desc:'1 sessió/setmana · màxima flexibilitat',dist:[3],ssw:1,offset:0}
+    ];
+
+    el.innerHTML=`<div style="margin-top:10px;font-size:11px;color:#3C3489;font-weight:600;margin-bottom:6px">Alternatives verificades amb agendes reals:</div>`+alts.map(alt=>{
+      const startDate=new Date(inici+'T00:00:00');
+      startDate.setDate(startDate.getDate()+alt.offset);
+      const iniStr=toISO(findFirstAvailable(toISO(startDate),alt.dist));
+      const dates=buildDates(iniStr,ns,alt.dist);
+      const sw=Math.ceil(ns/alt.ssw);
+
+      // Avaluar tots els formadors amb la disponibilitat real
+      const scored=FORMADORS
+        .filter(f=>f.specs.includes(esp))
+        .map(f=>{
+          const s=calcScore(f,esp,dates,gesReservesPerF,pc,f.id===preferredFormadorId,tornL);
+          return{f,s};
+        })
+        .filter(x=>x.s.match&&!x.s.blocked)
+        .sort((a,b)=>{
+          if(a.f.id===preferredFormadorId)return -1;
+          if(b.f.id===preferredFormadorId)return 1;
+          return b.s.score-a.s.score;
+        });
+
+      const best=scored[0];
+      const availCount=scored.length;
+      const calVerified=best&&best.s.hasRealCal;
+
+      // Píndoles de dates verificades per al millor formador
+      const pills=dates.slice(0,6).map(d=>{
+        const iso=toISO(d);const dw=d.getDay()||7;
+        let calBusy=false,gesBusy=false;
+        if(best){
+          const fGes=gesReservesPerF[best.f.id]||new Set();
+          gesBusy=fGes.has(iso);
+          calBusy=best.s.hasRealCal?isDateBusyForTorn(best.f.id,iso,tornL):false;
+        }
+        const cls=(calBusy||gesBusy)?'pill p-c':'pill p-ok';
+        const icon=calBusy?'📅':gesBusy?'🔒':'';
+        return`<span class="${cls}" title="${calBusy?'Agenda ocupada':gesBusy?'GESEM ocupat':'Lliure'}">${DL[dw]} ${d.getDate()}/${d.getMonth()+1}${icon}</span>`;
+      }).join('')+(dates.length>6?`<span style="font-size:10px;color:#6b6b67"> +${dates.length-6}</span>`:'');
+
+      const calBadge=calVerified
+        ?`<span style="background:#E1F5EE;color:#085041;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:500">📅 Agenda verificada</span>`
+        :`<span style="background:#f5f4f0;color:#6b6b67;padding:1px 6px;border-radius:10px;font-size:10px">Sense calendari connectat</span>`;
+
+      const bestLabel=best
+        ?`<span style="font-size:10px;color:#085041">Millor opció: <strong>${best.f.nom}</strong> · ${best.s.score}% compatibilitat</span>`
+        :`<span style="font-size:10px;color:#791F1F;font-weight:500">⚠️ Cap formador disponible</span>`;
+
+      const scoreBar=best?`<div style="height:3px;border-radius:2px;background:#f5f4f0;margin:5px 0 4px"><div style="height:100%;border-radius:2px;background:${best.s.score>=75?'#1D9E75':best.s.score>=55?'#378ADD':'#EF9F27'};width:${best.s.score}%"></div></div>`:'';
+
+      return`<div class="alt-card" style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
+          <span class="badge bpu" style="font-size:11px;padding:2px 8px">Opció ${alt.label}</span>
+          <span style="font-size:11px;color:#6b6b67">${alt.desc} · ~${sw} setm · ${availCount} formador${availCount!==1?'s':''} disponible${availCount!==1?'s':''}</span>
+          ${calBadge}
+        </div>
+        ${scoreBar}
+        ${bestLabel}
+        <div style="display:flex;flex-wrap:wrap;gap:3px;margin:6px 0">${pills||'<span style="font-size:10px;color:#791F1F">No s\'han pogut generar dates</span>'}</div>
+        <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-sm" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489" ${availCount===0?'disabled title="Cap formador disponible"':''} onclick="applyAlt(${JSON.stringify(alt.dist)},${alt.ssw},'${iniStr}')">Aplicar alternativa</button>
+          ${availCount===0?`<span style="font-size:10px;color:#791F1F">⚠️ Cap formador lliure en aquesta distribució</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  },600);
+}
+
+// ── CONFIRMAR RESERVA AMB VERIFICACIÓ ───────────────────────────
+function confirmarReserva(idx,ambEmail){
+  const p=window._pr[idx];if(!p)return;
+  const noCalendar=!hasCalendar(p.f)||calData[p.f.id]===undefined;
+  const parcialConfl=p.calConflicts>0||p.gesConflicts>0;
+
+  // Si no té calendari verificat → avís crític
+  if(noCalendar){
+    const msg=`⚠️ DISPONIBILITAT NO VERIFICADA\n\nEl formador "${p.f.nom}" no té calendari connectat. No es pot confirmar automàticament que estigui lliure les dates proposades.\n\nVols continuar igualment i crear la reserva pendent de confirmació manual?`;
+    if(!confirm(msg))return;
+  } else if(parcialConfl){
+    const parts=[];
+    if(p.calConflicts>0)parts.push(`${p.calConflicts} sessió/ns ocupades a la seva agenda personal (📅)`);
+    if(p.gesConflicts>0)parts.push(`${p.gesConflicts} solapament/s amb altres cursos GESEM (🔒)`);
+    const msg=`⚠️ CONFLICTES DETECTATS\n\n${parts.join('\n')}\n\nVols continuar igualment amb les dates proposades?`;
+    if(!confirm(msg))return;
+  }
+
+  const r=confP(idx);
+  if(ambEmail){openEmailModal(r.id);gv('gest',document.getElementById('nb-gest'));}
+  else{toast('Reserva creada · '+r.id);}
+}
+function applyAlt(dist,ssw,ini){selDist=dist;document.getElementById('p-ssw').value=ssw;document.getElementById('p-inici').value=ini;upD();ua();document.getElementById('r-live').style.display='';document.getElementById('r-prop').style.display='none';document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act','act-p');});document.getElementById('nb-p').classList.add('act');toast('Alternativa aplicada');}
+function selP(i){document.querySelectorAll('.pr').forEach((el,j)=>{el.classList.toggle('sel',j===i);el.style.borderColor=j===i?'#1D9E75':'';});}
+function showLive(){document.getElementById('r-live').style.display='';document.getElementById('r-prop').style.display='none';document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act','act-p');});document.getElementById('nb-p').classList.add('act');}
+
+function confP(idx){
+  const p=window._pr[idx];
+  const res={id:'R'+Date.now(),client:p.client,curs:p.curs,formador:p.f.nom,formadorId:p.f.id,formadorEmail:p.f.email,formadorTel:p.f.tel,comercial:p.comercial,dates:p.dates.map(d=>toISO(d)),torn:p.torn,hs:p.hs,ns:p.ns,h:p.h,pc:p.pc,estat:'pendent-cli',emailEnviat:false,emailFormadorEnviat:false,createdAt:toISO(new Date()),cF:p.cF.toFixed(2),cC:p.cC.toFixed(2),marge:p.marge.toFixed(1),dist:p.dates.length>=2?[p.dates[0].getDay()||7,p.dates[1].getDay()||7]:[p.dates[0]?.getDay()||7]};
+  RESERVES.push(res);if(res.dates.length){calY=parseISO(res.dates[0]).getFullYear();calM=parseISO(res.dates[0]).getMonth();}
+  apiPost('reserves',res);
+  return res;
+}
+
+// ── EMAIL FORMADOR ──────────────────────────────────────────────
+function openEmailFormador(idx){
+  const p=window._pr[idx];if(!p)return;
+  const curs=document.getElementById('p-curs').value;const client=document.getElementById('p-client').value;
+  const sessText=p.dates.map((d,i)=>{const dw=d.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(d)} · ${p.torn} · ${p.hs}h`;}).join('\n');
+  document.getElementById('emailf-title').textContent=`Email al formador · ${p.f.nom}`;
+  document.getElementById('emailf-para').value=p.f.email||'';
+  document.getElementById('emailf-assumpte').value=`Reserva de formació · ${curs} · ${client}`;
+  document.getElementById('emailf-cos').value=`Hola ${p.f.nom},\n\nT'escric per reservar-te les dates per al curs "${curs}" del client ${client}.\n\nCALENDARI PROPOSAT\n${'─'.repeat(40)}\n${sessText}\n\nCaldrà la teva confirmació per formalitzar la reserva. Si tens algun impediment amb alguna data, indica'ns quines i buscarem alternatives.\n\nGràcies i salutacions,\nEquip de gestió docent\nGESEM digital & SoftSkills · www.gesem.es`;
+  document.getElementById('emailf-bg').style.display='flex';
+}
+function copyEmailF(){const full=`Per a: ${document.getElementById('emailf-para').value}\nAssumpte: ${document.getElementById('emailf-assumpte').value}\n\n${document.getElementById('emailf-cos').value}`;navigator.clipboard.writeText(full).then(()=>toast('Text copiat'));}
+
+// ── GESTIÓ RESERVES ─────────────────────────────────────────────
+function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('act'));btn.classList.add('act');renderGest();}
+
+function renderGest(){
+  const fc=document.getElementById('gest-com-f').value;
+  const sort=document.getElementById('gest-sort').value;
+  let list=activeFilter?RESERVES.filter(r=>r.estat===activeFilter):RESERVES.filter(r=>r.estat!=='vf');
+  if(fc)list=list.filter(r=>r.comercial===fc);
+  if(sort==='agent')list.sort((a,b)=>(a.comercial||'').localeCompare(b.comercial||''));
+  else if(sort==='client')list.sort((a,b)=>a.client.localeCompare(b.client));
+  else list.sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+
+  const st={total:RESERVES.filter(r=>r.estat!=='vf').length,'pendent-cli':0,'pendent-form':0,confirmada:0,cancel:0,vf:0};
+  RESERVES.forEach(r=>st[r.estat]=(st[r.estat]||0)+1);
+  const alerta=RESERVES.filter(r=>r.estat==='pendent-cli'&&daysAgo(r.createdAt)>=5);
+  // Actualitzar comptadors inline als chips
+  const upd=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val||'0';};
+  upd('st-total',st.total);
+  upd('st-pc',st['pendent-cli']||0);
+  upd('st-pf',st['pendent-form']||0);
+  upd('st-co',st.confirmada||0);
+  upd('st-ca',st.cancel||0);
+  upd('st-vf',st.vf||0);
+  const alertEl=document.getElementById('gest-alert');
+  if(alerta.length){alertEl.style.display='flex';document.getElementById('gest-alert-txt').textContent=`${alerta.length} reserva(es) porten +5 dies pendents de confirmació del client.`;}
+  else alertEl.style.display='none';
+
+  if(!list.length){document.getElementById('gest-list').innerHTML='<div style="text-align:center;padding:28px;color:#6b6b67;font-size:13px;background:#fff;border-radius:12px">Cap reserva. Genera una proposta des de Petició.</div>';return;}
+
+  const stLabel={'pendent-cli':'Pendent client','pendent-form':'Pendent formador','confirmada':'Confirmada','cancel':'Cancel·lada','vf':'VF · Arxivat'};
+  const stDot={'pendent-cli':'ed-pc','pendent-form':'ed-pf','confirmada':'ed-co','cancel':'ed-ca','vf':'ed-vf'};
+  const agentColor=nom=>{const a=AGENTS.find(x=>x.nom===nom);return a?a.color:'#6b6b67';};
+
+  // Agrupar per agent si el sort és per agent, o mostrar taula plana
+  const byAgent=sort==='agent';
+  if(byAgent){
+    const groups={};list.forEach(r=>{const k=r.comercial||'Sense agent';if(!groups[k])groups[k]=[];groups[k].push(r);});
+    document.getElementById('gest-list').innerHTML=Object.entries(groups).map(([agentNom,rows])=>{
+      const aObj=AGENTS.find(a=>a.nom===agentNom);
+      return`<div class="agent-group">
+        <div class="agent-group-hdr">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;border-radius:50%;background:${aObj?aObj.color:'#888'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff">${ini(agentNom)}</div>
+            <div style="font-size:13px;font-weight:500">${agentNom}</div>
+            <span class="badge bgr">${rows.length} reserva${rows.length!==1?'es':''}</span>
+          </div>
+        </div>
+        ${renderResTable(rows,stLabel,stDot,agentColor)}
+      </div>`;
+    }).join('');
+  }else{
+    document.getElementById('gest-list').innerHTML=`<div class="res-table-wrap">${renderResTable(list,stLabel,stDot,agentColor)}</div>`;
+  }
+}
+
+function renderResTable(list,stLabel,stDot,agentColor){
+  return`<div style="overflow-x:auto"><table class="rt">
+    <thead><tr>
+      <th></th>
+      <th>Agent</th>
+      <th>Client · Curs</th>
+      <th>Formador</th>
+      <th>Dates</th>
+      <th>Estat</th>
+      <th>Dies</th>
+      <th>Accions</th>
+    </tr></thead>
+    <tbody>${list.map(r=>{
+      const dies=daysAgo(r.createdAt);const urgent=r.estat==='pendent-cli'&&dies>=5;
+      const f=FORMADORS.find(x=>x.id===r.formadorId);
+      const datePills=r.dates.slice(0,8).map(d=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`<span class="dp">${DL[dw]} ${dt.getDate()}/${dt.getMonth()+1}</span>`;}).join('')+(r.dates.length>8?`<span style="font-size:9px;color:#6b6b67">+${r.dates.length-8}</span>`:'');
+      const waMsg=encodeURIComponent(`Hola ${r.formador}! Recordatori reserva "${r.curs}" per a ${r.client}. Dates: ${r.dates.slice(0,2).map(d=>fmtD(parseISO(d))).join(', ')}...`);
+      return`<tr class="${urgent?'urgent':''}">
+        <td><span class="estat-dot ${stDot[r.estat]}" title="${stLabel[r.estat]}"></span></td>
+        <td style="white-space:nowrap">
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="width:18px;height:18px;border-radius:50%;background:${agentColor(r.comercial)};display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;color:#fff;flex-shrink:0">${ini(r.comercial||'?')}</span>
+            <span style="font-size:11px">${r.comercial||'—'}</span>
+          </div>
+        </td>
+        <td style="max-width:160px">
+          <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.client}</div>
+          <div style="font-size:11px;color:#6b6b67;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.curs}</div>
+        </td>
+        <td style="white-space:nowrap">
+          <div style="display:flex;align-items:center;gap:5px">
+            ${f?`<img src="${f.img}" width="22" height="22" style="border-radius:50%;flex-shrink:0;object-fit:cover"/>`:''}
+            <span style="font-size:11px">${r.formador}</span>
+          </div>
+        </td>
+        <td style="max-width:220px"><div class="date-pills-row">${datePills}</div><div style="font-size:10px;color:#6b6b67;margin-top:2px">${r.dates.length} sess · ${r.torn}</div></td>
+        <td style="white-space:nowrap">
+          <span class="badge ${r.estat==='confirmada'?'bg':r.estat==='cancel'?'br':r.estat==='pendent-form'?'bb':r.estat==='vf'?'bpu':'ba'}">${stLabel[r.estat]}</span>
+          ${urgent?'<div style="font-size:9px;color:#791F1F;margin-top:2px">⚠ fa '+dies+' d</div>':''}
+        </td>
+        <td style="font-size:10px;color:#6b6b67;white-space:nowrap">${dies===0?'avui':dies===1?'ahir':'fa '+dies+'d'}<br><span style="font-size:9px">${!r.emailEnviat?'📧 pendent':'📧 enviat'}</span></td>
+        <td>
+          <div style="display:flex;gap:3px;align-items:center;flex-wrap:nowrap">
+            ${r.estat==='pendent-cli'?`<button class="btn-icon" onclick="updR('${r.id}','confirmada')" title="Confirmar client" style="background:#E1F5EE;border-color:#5DCAA5;color:#085041;font-size:11px">✓</button>`:''}
+            ${r.estat==='confirmada'?`<button class="btn-icon" onclick="finalitzarVF('${r.id}')" title="Finalitzar i arxivar · VF" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489;font-size:9px;font-weight:500;width:32px;white-space:nowrap">VF</button>`:''}
+            <button class="btn-icon" onclick="openEmailModal('${r.id}')" title="Email comercial" style="background:#E6F1FB;border-color:#85B7EB;color:#0C447C">
+              <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><rect x=".5" y=".5" width="10" height="8" rx="1" stroke="currentColor" stroke-width=".8" fill="none"/><path d=".5 2l5 3.5 5-3.5" stroke="currentColor" stroke-width=".8"/></svg>
+            </button>
+            <button class="btn-icon" onclick="openEmailFormadorFromRes('${r.id}')" title="Email formador" style="background:#E1F5EE;border-color:#5DCAA5;color:#085041">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="3.5" r="2.5" stroke="currentColor" stroke-width=".8" fill="none"/><path d="M1 10c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke="currentColor" stroke-width=".8" fill="none"/></svg>
+            </button>
+            <a href="https://wa.me/?text=${waMsg}" target="_blank" class="btn-icon" title="WhatsApp formador" style="background:#dcfce7;border-color:#86efac;color:#16a34a;text-decoration:none">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width=".8"/><path d="M3 7c.4-.8 1.2-2 2.5-2s1.8.8 1.8 1.3-1 .8-1.3.3-.7-1.3-.7-1.3" stroke="currentColor" stroke-width=".6" fill="none"/></svg>
+            </a>
+            <button class="btn-icon" onclick="gv('canvis',document.getElementById('nb-canvis'));canvisSelReserva('${r.id}')" title="Modificar dates (IA)" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7 1.5l2.5 2.5-6 6H1v-2.5l6-6z" stroke="currentColor" stroke-width=".8" fill="none"/><path d="M6 3l2 2" stroke="currentColor" stroke-width=".8"/></svg>
+            </button>
+            ${r.estat!=='cancel'&&r.estat!=='vf'?`<button class="btn-icon" onclick="updR('${r.id}','cancel')" title="Cancel·lar" style="color:#A32D2D;border-color:#F09595">✕</button>`:''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function updR(id,est){const r=RESERVES.find(x=>x.id===id);if(r){r.estat=est;apiPut('reserves/'+id,r);renderGest();toast({confirmada:'✓ Confirmada','cancel':'Cancel·lada · dates alliberades'}[est]||'Actualitzat');}}
+
+function finalitzarVF(id){
+  const r=RESERVES.find(x=>x.id===id);if(!r)return;
+  r.estat='vf';
+  r.vfAt=toISO(new Date());
+  apiPut('reserves/'+id,r);
+  renderGest();
+  renderArxiu();
+  toast('✓ "'+r.curs+'" finalitzat i arxivat · VF');
+}
+
+// ── EMAIL RESUM PENDENTS PER AGENT ──────────────────────────────
+// ── RESUM PENDENTS PER AGENT (email independent per cada comercial) ─
+let _pendentsAgents=[];
+let _pendentsIdx=0;
+
+function openEmailPendentsPerAgent(){
+  const pendents=RESERVES.filter(r=>r.estat==='pendent-cli'||r.estat==='pendent-form');
+  if(!pendents.length){toast('No hi ha reserves pendents');return;}
+
+  // Agrupar per agent
+  const groups={};
+  pendents.forEach(r=>{
+    const k=r.comercial||'Sense agent';
+    if(!groups[k])groups[k]=[];
+    groups[k].push(r);
+  });
+
+  // Construir array d'agents amb el seu email
+  _pendentsAgents=Object.entries(groups).map(([agent,reserves])=>{
+    const email=agent.toLowerCase().replace(/\s+/g,'.')+'@gesem.es';
+    const avui=new Date().toLocaleDateString('ca-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const assumpte=`GESEM Planner · Reserves pendents de confirmació · ${avui}`;
+    // Construir cos del missatge
+    let cos=`Hola ${agent.split(' ')[0]},\n\n`;
+    cos+=`Et fem arribar el recordatori de les teves reserves pendents de confirmació.\n`;
+    cos+=`Les dates estan BLOQUEJADES al calendari però necessitem la confirmació del client o el VF per tancar-les.\n\n`;
+    cos+=`${'═'.repeat(56)}\n`;
+    cos+=`RESERVES PENDENTS · ${agent.toUpperCase()}\n`;
+    cos+=`${'═'.repeat(56)}\n\n`;
+    reserves.forEach((r,i)=>{
+      const ini=r.dates.length?fmtD(parseISO(r.dates[0])):'—';
+      const fi=r.dates.length?fmtD(parseISO(r.dates[r.dates.length-1])):'—';
+      const dies=daysAgo(r.createdAt);
+      const estat=r.estat==='pendent-cli'?'Pendent client':'Pendent formador';
+      cos+=`${i+1}. ${r.curs}\n`;
+      cos+=`   Client:    ${r.client}\n`;
+      cos+=`   Formador:  ${r.formador}\n`;
+      cos+=`   Dates:     ${ini} → ${fi} · ${r.dates.length} sessions · ${r.torn}\n`;
+      cos+=`   Estat:     ${estat} · fa ${dies} dies\n`;
+      cos+=`   Dates bloquejades:\n`;
+      r.dates.forEach((d,j)=>{
+        const dt=parseISO(d);const dw=dt.getDay()||7;
+        cos+=`     Sessió ${String(j+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)}\n`;
+      });
+      cos+=`\n`;
+    });
+    cos+=`${'─'.repeat(56)}\n`;
+    cos+=`Total: ${reserves.length} reserva${reserves.length!==1?'s':''} pendent${reserves.length!==1?'s':''}\n\n`;
+    cos+=`Accions necessàries:\n`;
+    cos+=`  ✓ Confirmar amb el client i actualitzar l'estat\n`;
+    cos+=`  ✓ Marcar com a VF si el curs ja s'ha impartit\n`;
+    cos+=`  ✓ Cancel·lar si el curs no es farà per alliberar les dates\n\n`;
+    cos+=`Salutacions,\nEquip de gestió docent\nGESEM digital & SoftSkills · www.gesem.es`;
+    return{agent,email,assumpte,cos,reserves};
+  });
+
+  _pendentsIdx=0;
+  renderPendentsModal();
+  document.getElementById('pendents-bg').style.display='flex';
+}
+
+function renderPendentsModal(){
+  const data=_pendentsAgents[_pendentsIdx];
+  if(!data)return;
+  const total=_pendentsAgents.length;
+
+  // Subtítol
+  document.getElementById('pendents-subtitle').textContent=
+    `${data.reserves.length} reserva${data.reserves.length!==1?'s':''} pendent${data.reserves.length!==1?'s':''} · Email ${_pendentsIdx+1} de ${total}`;
+
+  // Navegació per agents (chips)
+  const nav=document.getElementById('pendents-nav');
+  nav.innerHTML='<span style="font-size:11px;color:#6b6b67;font-weight:500;margin-right:4px">Agent:</span>'+
+    _pendentsAgents.map((a,i)=>`
+      <button onclick="goToPendentsAgent(${i})" style="padding:3px 10px;border-radius:20px;border:0.5px solid ${i===_pendentsIdx?'#534AB7':'rgba(0,0,0,0.15)'};background:${i===_pendentsIdx?'#EEEDFE':'transparent'};color:${i===_pendentsIdx?'#3C3489':'#6b6b67'};font-size:11px;font-weight:${i===_pendentsIdx?'500':'400'};cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">
+        ${a.agent.split(' ')[0]}
+        <span style="background:${i===_pendentsIdx?'#534AB7':'rgba(0,0,0,0.12)'};color:${i===_pendentsIdx?'#fff':'#6b6b67'};padding:1px 5px;border-radius:20px;font-size:10px">${a.reserves.length}</span>
+      </button>`).join('');
+
+  // Destinatari i assumpte
+  document.getElementById('pendents-para').textContent=data.email;
+  document.getElementById('pendents-assumpte').textContent=data.assumpte;
+
+  // Cos
+  document.getElementById('pendents-cos').value=data.cos;
+
+  // Botons nav
+  document.getElementById('pendents-prev-btn').disabled=_pendentsIdx===0;
+  document.getElementById('pendents-prev-btn').style.opacity=_pendentsIdx===0?'0.4':'1';
+  document.getElementById('pendents-next-btn').disabled=_pendentsIdx===total-1;
+  document.getElementById('pendents-next-btn').style.opacity=_pendentsIdx===total-1?'0.4':'1';
+
+  // Progrés
+  document.getElementById('pendents-progress').textContent=
+    `${_pendentsIdx+1} / ${total} agents comercials`;
+}
+
+function goToPendentsAgent(i){_pendentsIdx=i;renderPendentsModal();}
+function navPendentsAgent(dir){
+  _pendentsIdx=Math.max(0,Math.min(_pendentsAgents.length-1,_pendentsIdx+dir));
+  renderPendentsModal();
+}
+function copyPendentsEmail(){
+  const data=_pendentsAgents[_pendentsIdx];if(!data)return;
+  const cos=document.getElementById('pendents-cos').value;
+  navigator.clipboard.writeText(`Per a: ${data.email}\nAssumpte: ${data.assumpte}\n\n${cos}`)
+    .then(()=>toast('Email de '+data.agent.split(' ')[0]+' copiat al porta-retalls'));
+}
+function markPendentsEnviat(){
+  const data=_pendentsAgents[_pendentsIdx];if(!data)return;
+  toast('✓ Email de '+data.agent.split(' ')[0]+' marcat com a enviat');
+  // Avançar automàticament al següent si n'hi ha
+  if(_pendentsIdx<_pendentsAgents.length-1){
+    setTimeout(()=>{navPendentsAgent(1);},800);
+  }
+}
+
+// ── MODALS EMAIL ────────────────────────────────────────────────
+function openEmailModal(resId){
+  currentEmailResId=resId;const r=RESERVES.find(x=>x.id===resId);if(!r)return;
+  const sessText=r.dates.map((d,i)=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)} · ${r.torn} · ${r.hs}h`;}).join('\n');
+  document.getElementById('email-modal-title').textContent=`Email al comercial · ${r.comercial}`;
+  document.getElementById('email-de').value='gestio@gesem.es';
+  document.getElementById('email-para').value=(r.comercial||'').toLowerCase().replace(' ','.')+'@gesem.es';
+  document.getElementById('email-assumpte').value=`GESEM Planner · Proposta formació · ${r.curs} · ${r.client}`;
+  document.getElementById('email-cos').value=`Hola ${r.comercial},\n\nT'envio la proposta de formació per al client ${r.client}.\nDates RESERVADES al sistema, pendents de confirmació del client.\n\nDADES\n${'─'.repeat(44)}\nCurs:     ${r.curs}\nClient:   ${r.client}\nFormador: ${r.formador}\nHores:    ${r.h}h · ${r.ns} sessions de ${r.hs}h · ${r.torn}\nTotal:    ${r.cC}€\n\nCALENDARI\n${'─'.repeat(44)}\n${sessText}\n\nIMPORTANT: Dates reservades però no confirmades. Si el client no confirma aviat, s'alliberaran.\n\nSalutacions,\nGESEM digital & SoftSkills · www.gesem.es`;
+  document.getElementById('email-bg').style.display='flex';
+}
+function openEmailFormadorFromRes(resId){
+  const r=RESERVES.find(x=>x.id===resId);if(!r)return;
+  const sessText=r.dates.map((d,i)=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)} · ${r.torn} · ${r.hs}h`;}).join('\n');
+  document.getElementById('emailf-title').textContent=`Email al formador · ${r.formador}`;
+  document.getElementById('emailf-para').value=r.formadorEmail||'';
+  document.getElementById('emailf-assumpte').value=`Reserva de formació · ${r.curs} · ${r.client}`;
+  document.getElementById('emailf-cos').value=`Hola ${r.formador},\n\nConfirmem la reserva per al curs "${r.curs}" del client ${r.client}.\n\nCALENDARI\n${'─'.repeat(40)}\n${sessText}\n\nSi us plau, confirma la recepció d'aquest email.\n\nSalutacions,\nEquip de gestió docent · GESEM digital & SoftSkills`;
+  document.getElementById('emailf-bg').style.display='flex';
+}
+function copyEmail(){const full=`De: ${document.getElementById('email-de').value}\nPer a: ${document.getElementById('email-para').value}\nAssumpte: ${document.getElementById('email-assumpte').value}\n\n${document.getElementById('email-cos').value}`;navigator.clipboard.writeText(full).then(()=>toast('Text copiat'));}
+function markEmailSent(){if(currentEmailResId){const r=RESERVES.find(x=>x.id===currentEmailResId);if(r){r.emailEnviat=true;apiPut('reserves/'+currentEmailResId,r);}}closeEmail();renderGest();toast('Marcat com a enviat');}
+function closeEmail(){document.getElementById('email-bg').style.display='none';}
+document.getElementById('email-bg').addEventListener('click',e=>{if(e.target===document.getElementById('email-bg'))closeEmail();});
+document.getElementById('emailf-bg').addEventListener('click',e=>{if(e.target===document.getElementById('emailf-bg'))document.getElementById('emailf-bg').style.display='none';});
+
+// ── CANVIS: MÒDUL COMPLET ────────────────────────────────────────
+let canvisSelResId=null,canvisTipus='inici',canvisPendingProp=null,canvisPendingApplyIdx=null;
+const TORNS_ALL=['9:30–11:30h','12:00–15:00h','9:00–11:00h','16:00–18:00h'];
+
+function fmtDL(d){const dt=typeof d==='string'?parseISO(d):d;const dw=dt.getDay()||7;return DL[dw]+' '+dt.getDate()+'/'+(dt.getMonth()+1);}
+function addDaysISO(iso,n){const d=parseISO(iso);d.setDate(d.getDate()+n);return toISO(d);}
+
+function renderCanvis(){
+  const stDot={confirmada:'ed-co','pendent-cli':'ed-pc','pendent-form':'ed-pf',cancel:'ed-ca',vf:'ed-vf'};
+  const actives=RESERVES.filter(r=>r.estat!=='cancel'&&r.estat!=='vf');
+  document.getElementById('canvis-reserves-list').innerHTML=actives.length?actives.map(r=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;border:${canvisSelResId===r.id?'2px solid #534AB7':'0.5px solid rgba(0,0,0,0.1)'};background:${canvisSelResId===r.id?'#EEEDFE':'#fff'};cursor:pointer;margin-bottom:6px;transition:all .12s" onclick="canvisSelReserva('${r.id}')">
+      <span class="estat-dot ${stDot[r.estat]||'ed-pc'}"></span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.curs}</div>
+        <div style="font-size:11px;color:#6b6b67;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.client} · ${r.formador}</div>
+        <div style="font-size:10px;color:#6b6b67;margin-top:1px">${r.dates.length} sess · ${r.torn}</div>
+      </div>
+      ${r.canvis&&r.canvis.length?`<span class="badge bpu" style="font-size:9px">${r.canvis.length} canvi${r.canvis.length!==1?'s':''}</span>`:''}
+    </div>`).join(''):'<div style="font-size:12px;color:#6b6b67;padding:8px">No hi ha reserves actives.</div>';
+}
+
+function canvisSelReserva(id){
+  canvisSelResId=id;
+  renderCanvis();
+  const r=RESERVES.find(x=>x.id===id);if(!r)return;
+  document.getElementById('canvis-tipus-section').style.display='';
+  document.getElementById('canvis-rc-empty').style.display='none';
+  document.getElementById('canvis-rc-content').style.display='';
+  renderCanvisForm();
+  canvisRenderHist();
+  // Mostrar la reserva actual
+  document.getElementById('canvis-prop-result').innerHTML=`
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <img src="${FORMADORS.find(f=>f.id===r.formadorId)?.img||''}" width="36" height="36" style="border-radius:50%;object-fit:cover;flex-shrink:0"/>
+        <div>
+          <div style="font-size:13px;font-weight:500">${r.curs} · ${r.client}</div>
+          <div style="font-size:11px;color:#6b6b67">${r.formador} · ${r.dates.length} sessions de ${r.hs}h · ${r.torn}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#6b6b67;margin-bottom:6px">Sessions actuals:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">${r.dates.map(d=>`<span style="padding:2px 6px;border-radius:4px;font-size:10px;background:#f5f4f0;color:#6b6b67;border:0.5px solid rgba(0,0,0,0.1)">${fmtDL(d)}</span>`).join('')}</div>
+    </div>
+    <div style="background:#EEEDFE;border-radius:10px;padding:11px 13px;font-size:12px;color:#3C3489">Selecciona el tipus de canvi i omple el formulari. La IA analitzarà totes les opcions disponibles.</div>`;
+  showCanvisTab('prop',document.getElementById('canvis-tab-prop-btn'));
+}
+
+function selCanviTipus(tipus,btn){
+  canvisTipus=tipus;
+  document.querySelectorAll('[id^="ctb-"]').forEach(b=>{b.style.border='0.5px solid rgba(0,0,0,0.15)';b.style.background='transparent';b.querySelector('span:nth-child(2)').style.color='#1a1a1a';});
+  btn.style.border='2px solid #534AB7';btn.style.background='#EEEDFE';btn.querySelector('span:nth-child(2)').style.color='#3C3489';
+  renderCanvisForm();
+}
+
+function renderCanvisForm(){
+  const r=RESERVES.find(x=>x.id===canvisSelResId);if(!r)return;
+  const fc=document.getElementById('canvis-form-dinamic');
+  const inputStyle='padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit;margin-bottom:7px';
+  if(canvisTipus==='inici'){
+    fc.innerHTML=`<div class="fi"><label>Nova data d'inici desitjada</label><input type="date" id="canvis-fc-inici" value="${r.dates[0]||''}" style="${inputStyle}"/></div>
+    <div style="font-size:11px;color:#6b6b67;margin-bottom:8px;background:#f5f4f0;padding:7px 9px;border-radius:8px">Mantindrà la distribució original (${(r.dist||[2,4]).map(d=>DL[d]).join('·')}) recalculant des de la nova data.</div>`;
+  }else if(canvisTipus==='data'){
+    fc.innerHTML=`<div class="fi"><label>Sessions a modificar</label>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">${r.dates.map((d,i)=>`<label style="display:flex;align-items:center;gap:4px;cursor:pointer;background:#f5f4f0;padding:4px 8px;border-radius:20px;border:0.5px solid rgba(0,0,0,0.12)"><input type="checkbox" value="${d}" id="canvis-cs-${i}" style="accent-color:#534AB7;width:auto"/> <span style="font-size:11px">${fmtDL(d)}</span></label>`).join('')}
+      </div></div>
+      <div class="fi"><label>Data de referència</label><input type="date" id="canvis-fc-inici" value="${r.dates[0]||''}" style="${inputStyle}"/></div>`;
+  }else if(canvisTipus==='horari'){
+    fc.innerHTML=`<div class="fi"><label>Nou torn preferit</label>
+      <select id="canvis-fc-torn" style="${inputStyle}">${TORNS_ALL.map(t=>`<option value="${t}" ${t===r.torn?'selected':''}>${t}</option>`).join('')}<option value="Qualsevol">Qualsevol torn disponible</option></select></div>
+    <div style="font-size:11px;color:#6b6b67;margin-bottom:8px;background:#FAEEDA;padding:7px 9px;border-radius:8px">⚠ El canvi d'horari requerirà confirmació del formador.</div>`;
+  }else if(canvisTipus==='tot'){
+    fc.innerHTML=`<div class="g2" style="margin-bottom:7px">
+      <div class="fi"><label>Nova data d'inici</label><input type="date" id="canvis-fc-inici" value="" style="${inputStyle}"/></div>
+      <div class="fi"><label>Nova distribució</label>
+        <select id="canvis-fc-dist" style="${inputStyle}"><option value="2,4">Dm·Dj</option><option value="1,3">Dl·Dc</option><option value="3,5">Dc·Dv</option><option value="1,4">Dl·Dj</option><option value="1,3,5">Dl·Dc·Dv</option><option value="3">Dimecres</option></select></div>
+    </div>
+    <div class="fi"><label>Nou torn (opcional)</label>
+      <select id="canvis-fc-torn" style="${inputStyle}"><option value="">Mantenir torn actual (${r.torn})</option>${TORNS_ALL.map(t=>`<option value="${t}">${t}</option>`).join('')}</select></div>`;
+  }
+}
+
+function runCanvisIA(){
+  const r=RESERVES.find(x=>x.id===canvisSelResId);if(!r)return;
+  const motiu=document.getElementById('canvis-motiu').value||'Canvi sol·licitat pel client';
+  const canviFormOpt=document.getElementById('canvis-form-opt').value;
+  let novaInici=r.dates[0],novaDistRaw=r.dist||[2,4],nouTorn=r.torn,sessionsACanviar=[];
+  if(canvisTipus==='inici'||canvisTipus==='tot'){novaInici=document.getElementById('canvis-fc-inici')?.value||addDaysISO(r.dates[r.dates.length-1],7);}
+  if(canvisTipus==='data'){novaInici=document.getElementById('canvis-fc-inici')?.value||r.dates[0];document.querySelectorAll('[id^="canvis-cs-"]:checked').forEach(cb=>sessionsACanviar.push(cb.value));if(!sessionsACanviar.length)sessionsACanviar=r.dates.slice();}
+  if(canvisTipus==='horari'){nouTorn=document.getElementById('canvis-fc-torn')?.value||r.torn;}
+  if(canvisTipus==='tot'){const dv=document.getElementById('canvis-fc-dist')?.value||'2,4';novaDistRaw=dv.split(',').map(Number);const tv=document.getElementById('canvis-fc-torn')?.value||'';if(tv)nouTorn=tv;}
+  document.getElementById('canvis-ia-spin').style.display='inline-block';
+  document.getElementById('canvis-ia-icon').style.display='none';
+  showCanvisTab('prop',document.getElementById('canvis-tab-prop-btn'));
+  document.getElementById('canvis-prop-result').innerHTML=`<div style="text-align:center;padding:30px;color:#3C3489;font-size:13px"><span class="spinner" style="width:20px;height:20px;border-width:2.5px;margin-right:8px;border-top-color:#534AB7"></span>Analitzant disponibilitat i generant propostes òptimes...</div>`;
+  setTimeout(()=>{
+    document.getElementById('canvis-ia-spin').style.display='none';
+    document.getElementById('canvis-ia-icon').style.display='';
+    const props=canvisGenerarPropostes(r,canvisTipus,novaInici,novaDistRaw,nouTorn,sessionsACanviar,motiu,canviFormOpt);
+    canvisPendingProp={r,props,motiu,tipusCanvi:canvisTipus,nouTorn,sessionsACanviar};
+    canvisRenderPropostes(props,r,motiu);
+  },1600);
+}
+
+function canvisGenerarPropostes(r,tipus,novaInici,dist,torn,sessACanviar,motiu,canviFormOpt){
+  const allResISO=new Set(RESERVES.filter(x=>x.id!==r.id&&x.estat!=='cancel').flatMap(x=>x.dates));
+  const formActual=FORMADORS.find(f=>f.id===r.formadorId);
+  const props=[];
+
+  if(tipus==='horari'){
+    props.push({tipus:'horari',label:'Canvi de torn · mateix formador',sublabel:'Solució recomanada',formador:formActual,torn,dates:r.dates.slice(),canviForm:false,canviTorn:true,canviDates:false,score:95,color:'best',motiu,desc:`Mateixa distribució de dates, nou torn ${torn}.`});
+    const fAlt=FORMADORS.find(f=>f.id!==r.formadorId&&f.specs.some(s=>formActual?.specs.includes(s))&&f.disp!=='baixa');
+    if(fAlt)props.push({tipus:'horari',label:`${fAlt.nom} · nou torn`,sublabel:'Si el formador no pot al nou torn',formador:fAlt,torn,dates:r.dates.slice(),canviForm:true,canviTorn:true,canviDates:false,score:80,color:'opt2',motiu,desc:`Formador alternatiu amb disponibilitat al torn ${torn}.`});
+    return props;
+  }
+  // Proposta 1: formador actual + noves dates
+  if(formActual&&formActual.disp!=='baixa'){
+    const nd=buildDates(novaInici,r.ns||r.dates.length,dist,allResISO);
+    if(nd.length>0)props.push({tipus,label:`${formActual.nom} · noves dates`,sublabel:'Recomanada · mateix formador',formador:formActual,torn,dates:nd,canviForm:false,canviTorn:torn!==r.torn,canviDates:true,score:95,color:'best',motiu,desc:`Mantenim el formador actual. Nova distribució des de ${fmtDL(novaInici||nd[0])}.`});
+  }
+  // Proposta 2: formador actual + distribució alternativa
+  if(formActual){
+    const altDist=dist.map(d=>d<5?d+1:1).filter((v,i,a)=>a.indexOf(v)===i);
+    const nd2=buildDates(novaInici||r.dates[0],r.ns||r.dates.length,altDist,allResISO);
+    if(nd2.length>0&&JSON.stringify(altDist)!==JSON.stringify(dist))props.push({tipus,label:`${formActual.nom} · dies alternatius`,sublabel:'Canvia distribució de dies',formador:formActual,torn,dates:nd2,dist:altDist,canviForm:false,canviTorn:torn!==r.torn,canviDates:true,score:82,color:'opt2',motiu,desc:`Mateixa formadora, dies ${altDist.map(d=>DL[d]).join('·')} en lloc de ${dist.map(d=>DL[d]).join('·')}.`});
+  }
+  // Proposta 3: formador alternatiu
+  if(canviFormOpt!=='no'){
+    const fAlt=FORMADORS.filter(f=>f.id!==r.formadorId&&f.specs.some(s=>formActual?.specs.includes(s))&&f.disp==='alta').sort((a,b)=>parseFloat(b.rating)-parseFloat(a.rating))[0];
+    if(fAlt){const nd3=buildDates(novaInici||r.dates[0],r.ns||r.dates.length,dist,allResISO);if(nd3.length>0)props.push({tipus,label:`${fAlt.nom} · alta disponibilitat`,sublabel:'Canvi de formador recomanat',formador:fAlt,torn,dates:nd3,canviForm:true,canviTorn:torn!==r.torn,canviDates:true,score:78,color:'opt3',motiu,desc:`Formador/a alternatiu/va amb alta disponibilitat. ★${fAlt.rating}`});}
+  }
+  // Proposta 4: inici molt posterior
+  const iniLluny=addDaysISO(r.dates[r.dates.length-1],21);
+  const nd4=buildDates(iniLluny,r.ns||r.dates.length,dist,allResISO);
+  const f4=canviFormOpt==='prioritat'?(FORMADORS.filter(f=>f.specs.some(s=>formActual?.specs.includes(s))&&f.disp==='alta').sort((a,b)=>parseFloat(b.rating)-parseFloat(a.rating))[0]||formActual):formActual;
+  if(nd4.length>0)props.push({tipus,label:`Inici ${fmtDL(iniLluny)} · màxima flexibilitat`,sublabel:'Opció de darrer recurs',formador:f4,torn,dates:nd4,canviForm:f4?.id!==r.formadorId,canviTorn:torn!==r.torn,canviDates:true,score:60,color:'opt-alt',motiu,desc:`Planificació posterior per assegurar disponibilitat sense restriccions.`});
+  return props;
+}
+
+function canvisRenderPropostes(props,r,motiu){
+  if(!props.length){document.getElementById('canvis-prop-result').innerHTML=`<div style="background:#FCEBEB;border-radius:10px;padding:14px;color:#791F1F;font-size:13px">No s'han trobat alternatives. Prova canviant la data d'inici o permetent canvi de formador.</div>`;return;}
+  const colorMap={best:'1a opció recomanada',opt2:'2a opció',opt3:'3a opció','opt-alt':'Contingència'};
+  const bgMap={best:'#E1F5EE',opt2:'#E6F1FB',opt3:'#EEEDFE','opt-alt':'#FAEEDA'};
+  const tcMap={best:'#085041',opt2:'#0C447C',opt3:'#3C3489','opt-alt':'#633806'};
+  document.getElementById('canvis-prop-result').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+      <div style="font-size:13px;font-weight:500">${props.length} propostes de canvi</div>
+      <div style="font-size:11px;color:#6b6b67">Selecciona la millor opció</div>
+    </div>
+    ${props.map((p,i)=>{
+      const canviTags=[];
+      if(p.canviForm)canviTags.push(`<span class="badge ba" style="font-size:9px">Canvi formador</span>`);
+      if(p.canviTorn)canviTags.push(`<span class="badge bb" style="font-size:9px">Canvi torn</span>`);
+      if(p.canviDates)canviTags.push(`<span class="badge bgr" style="font-size:9px">Noves dates</span>`);
+      const sessOld=r.dates.slice(0,5),sessNew=p.dates.slice(0,5);
+      return`<div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden;margin-bottom:10px;${p.color==='best'?'border:2px solid #1D9E75':''}">
+        <div style="padding:11px 13px;border-bottom:0.5px solid rgba(0,0,0,0.07);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:9px">
+            <img src="${p.formador?.img||''}" width="34" height="34" style="border-radius:50%;object-fit:cover;flex-shrink:0"/>
+            <div><div style="font-size:13px;font-weight:500">${p.label}</div><div style="font-size:11px;color:#6b6b67">${p.sublabel}</div></div>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+            <span style="background:${bgMap[p.color]};color:${tcMap[p.color]};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500">${colorMap[p.color]}</span>
+            <span style="background:#f5f4f0;color:#6b6b67;padding:2px 7px;border-radius:20px;font-size:10px">${p.score}% compat.</span>
+            ${canviTags.join('')}
+          </div>
+        </div>
+        <div style="padding:11px 13px">
+          <div style="font-size:12px;color:#6b6b67;margin-bottom:8px">${p.desc}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:9px">
+              <div style="font-size:10px;font-weight:500;color:#791F1F;margin-bottom:5px">Sessions anteriors</div>
+              <div style="display:flex;flex-wrap:wrap;gap:3px">${sessOld.map(d=>`<span style="padding:2px 6px;border-radius:4px;font-size:10px;background:#FCEBEB;color:#791F1F;border:0.5px solid #F09595;text-decoration:line-through;opacity:.7">${fmtDL(d)}</span>`).join('')}${r.dates.length>5?`<span style="font-size:10px;color:#791F1F">+${r.dates.length-5} més</span>`:''}</div>
+            </div>
+            <div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:9px">
+              <div style="font-size:10px;font-weight:500;color:#085041;margin-bottom:5px">Nova proposta</div>
+              <div style="display:flex;flex-wrap:wrap;gap:3px">${sessNew.map(d=>`<span style="padding:2px 6px;border-radius:4px;font-size:10px;background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5">${fmtDL(d)}</span>`).join('')}${p.dates.length>5?`<span style="font-size:10px;color:#085041">+${p.dates.length-5} més</span>`:''}
+                ${p.canviTorn?`<div style="font-size:10px;color:#0C447C;margin-top:4px;width:100%">Torn: ${p.torn}</div>`:''}
+              </div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#6b6b67;display:flex;align-items:center;gap:6px">
+            <img src="${p.formador?.img||''}" width="20" height="20" style="border-radius:50%;object-fit:cover"/>
+            ${p.formador?.nom||'—'} · ★${p.formador?.rating||'—'} · ${p.formador?.preu_hora||'—'}€/h · Disp. ${p.formador?.disp||'—'}
+          </div>
+        </div>
+        <div style="padding:9px 13px;border-top:0.5px solid rgba(0,0,0,0.07);background:#f5f4f0;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="canvisOpenApplyModal(${i})">Vista prèvia</button>
+          <button class="btn btn-sm" style="background:#E6F1FB;border-color:#85B7EB;color:#0C447C" onclick="canvisPrepareEmail(${i})">Preparar email</button>
+          <button class="btn btn-p btn-sm" onclick="canvisApplyProp(${i})">Aplicar i notificar</button>
+        </div>
+      </div>`;
+    }).join('')}`;
+}
+
+function canvisOpenApplyModal(idx){
+  canvisPendingApplyIdx=idx;
+  const p=canvisPendingProp.props[idx];const r=canvisPendingProp.r;
+  document.getElementById('canvis-apply-title').textContent=`Vista prèvia · ${p.label}`;
+  document.getElementById('canvis-apply-body').innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:#6b6b67;margin-bottom:5px">Comparativa completa:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:#FCEBEB;border:0.5px solid #F09595;border-radius:8px;padding:9px">
+          <div style="font-size:10px;font-weight:500;color:#791F1F;margin-bottom:5px">DATES ANTERIORS</div>
+          ${r.dates.map(d=>`<div style="font-size:11px;color:#791F1F;padding:2px 0">— ${fmtDL(d)} · ${r.torn}</div>`).join('')}
+        </div>
+        <div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:9px">
+          <div style="font-size:10px;font-weight:500;color:#085041;margin-bottom:5px">DATES NOVES ✓</div>
+          ${p.dates.map(d=>`<div style="font-size:11px;color:#085041;padding:2px 0">✓ ${fmtDL(d)} · ${p.torn}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+    ${p.canviForm?`<div style="background:#FAEEDA;border-radius:8px;padding:8px 11px;font-size:12px;color:#633806;margin-bottom:8px">⚠ Canvi de formador: ${r.formador} → ${p.formador?.nom}</div>`:''}
+    <div style="font-size:12px;color:#6b6b67">Motiu: <strong style="color:#1a1a1a">${canvisPendingProp.motiu||'No especificat'}</strong></div>`;
+  document.getElementById('canvis-apply-bg').style.display='flex';
+}
+
+function canvisApplyProp(idx){canvisPendingApplyIdx=idx;canvisApplyChange();}
+
+function canvisApplyChange(){
+  if(canvisPendingApplyIdx===null||!canvisPendingProp)return;
+  const p=canvisPendingProp.props[canvisPendingApplyIdx];const r=canvisPendingProp.r;
+  const antigas=r.dates.slice();
+  r.dates=p.dates.map(d=>typeof d==='string'?d:toISO(d));
+  if(p.canviTorn)r.torn=p.torn;
+  if(p.canviForm&&p.formador){r.formador=p.formador.nom;r.formadorId=p.formador.id;r.formadorEmail=p.formador.email;}
+  if(!r.canvis)r.canvis=[];
+  r.canvis.push({data:toISO(new Date()),tipus:canvisPendingProp.tipusCanvi,motiu:canvisPendingProp.motiu,label:p.label,antigas,noves:r.dates});
+  apiPut('reserves/'+r.id,r);
+  document.getElementById('canvis-apply-bg').style.display='none';
+  renderCanvis();renderGest();canvisRenderHist();
+  canvisSelReserva(r.id);
+  toast('Canvi aplicat · '+r.dates.length+' sessions actualitzades');
+}
+
+function canvisApplyAndEmail(){canvisApplyChange();setTimeout(()=>canvisPrepareEmail(canvisPendingApplyIdx||0),300);}
+
+function canvisPrepareEmail(idx){
+  const p=canvisPendingProp?.props[idx];const r=canvisPendingProp?.r;if(!p||!r)return;
+  showCanvisTab('email',document.getElementById('canvis-tab-email-btn'));
+  const sessOldText=(r.canvis&&r.canvis.length?r.canvis[r.canvis.length-1].antigas:r.dates).map((d,i)=>`  Sessió ${String(i+1).padStart(2,' ')}: ${fmtDL(d)} · ${r.torn}`).join('\n');
+  const sessNewText=p.dates.map((d,i)=>`  Sessió ${String(i+1).padStart(2,' ')}: ${fmtDL(d)} · ${p.torn}`).join('\n');
+  const canviMsg=p.canviForm?`\nIMPORTANT: El formador ha canviat de ${r.formador} a ${p.formador?.nom}. El perfil i l'especialitat es mantenen.\n`:'';
+  const cos=`Hola ${r.comercial},\n\nT'informem d'un canvi en les dates de la formació del client ${r.client}.\n\nMOTIU DEL CANVI: ${canvisPendingProp.motiu||'Petició del client'}\n\n${'═'.repeat(52)}\nDATES ANTERIORS\n${'═'.repeat(52)}\n${sessOldText}\n\n${'═'.repeat(52)}\nNOVA PROPOSTA DE DATES ✓\n${'═'.repeat(52)}\n${sessNewText}\n${canviMsg}\nDETALLS\n${'─'.repeat(44)}\nCurs:     ${r.curs}\nClient:   ${r.client}\nFormador: ${p.formador?.nom||r.formador}\nHores:    ${r.h}h · ${r.ns} sessions de ${r.hs}h · ${p.torn}\n\nSi us plau, confirma amb el client l'acceptació d'aquesta nova proposta.\n\nSalutacions,\nEquip de gestió docent · GESEM digital & SoftSkills · www.gesem.es`;
+  document.getElementById('canvis-email-wrap').innerHTML=`
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
+      <div style="background:#f5f4f0;padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08)">
+        <div style="font-size:11px;font-weight:500;margin-bottom:6px">Email de canvi de dates · editable</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">De</label><input value="gestio@gesem.es" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Per a</label><input id="canvis-em-para" value="${r.comercial.toLowerCase().replace(' ','.')}@gesem.es; ${p.formador?.email||r.formadorEmail||''}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Assumpte</label><input id="canvis-em-assumpte" value="Canvi de dates · ${r.curs} · ${r.client}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
+      </div>
+      <div style="padding:13px">
+        <textarea id="canvis-em-cos" style="width:100%;min-height:280px;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;outline:none;line-height:1.7">${cos}</textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:space-between;margin-top:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" style="background:#E1F5EE;border-color:#5DCAA5;color:#085041" onclick="canvisPrepareEmailFormador(${idx})">Email formador separat</button>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-sm" onclick="canvisCopyEmail()">Copiar text</button>
+        <button class="btn btn-p btn-sm" onclick="toast('Email de canvi marcat com a enviat ✓')">Marcat com a enviat ✓</button>
+      </div>
+    </div>`;
+}
+
+function canvisPrepareEmailFormador(idx){
+  const p=canvisPendingProp?.props[idx];const r=canvisPendingProp?.r;if(!p||!r)return;
+  showCanvisTab('email',document.getElementById('canvis-tab-email-btn'));
+  const sessText=p.dates.map((d,i)=>`  Sessió ${String(i+1).padStart(2,' ')}: ${fmtDL(d)} · ${p.torn}`).join('\n');
+  document.getElementById('canvis-email-wrap').innerHTML=`
+    <div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:8px;padding:8px 11px;margin-bottom:8px;font-size:12px;color:#085041">Email directe al formador · independent del comercial</div>
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
+      <div style="background:#f5f4f0;padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08)">
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Per a</label><input value="${p.formador?.email||''}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Assumpte</label><input value="Actualització dates · ${r.curs} · ${r.client}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
+      </div>
+      <div style="padding:13px">
+        <textarea style="width:100%;min-height:200px;border:none;background:transparent;color:#1a1a1a;font-size:13px;font-family:inherit;resize:vertical;outline:none;line-height:1.65">Hola ${p.formador?.nom},\n\nT'informem que les dates del curs "${r.curs}" per al client ${r.client} han canviat.\n\nNOVES DATES ASSIGNADES\n${'─'.repeat(40)}\n${sessText}\n\nSi tens algun impediment amb alguna d'aquestes dates, si us plau contacta'ns.\n\nGràcies.\nEquip de gestió docent · GESEM digital & SoftSkills</textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:space-between;margin-top:8px">
+      <button class="btn btn-sm" onclick="canvisPrepareEmail(${idx})">← Tornar al comercial</button>
+      <button class="btn btn-p btn-sm" onclick="toast('Email formador marcat com enviat ✓')">Marcat com a enviat ✓</button>
+    </div>`;
+}
+
+function canvisCopyEmail(){
+  const cos=document.getElementById('canvis-em-cos')?.value||'';
+  const assumpte=document.getElementById('canvis-em-assumpte')?.value||'';
+  const para=document.getElementById('canvis-em-para')?.value||'';
+  navigator.clipboard.writeText(`Per a: ${para}\nAssumpte: ${assumpte}\n\n${cos}`).then(()=>toast('Text copiat al porta-retalls'));
+}
+
+function canvisRenderHist(){
+  const r=RESERVES.find(x=>x.id===canvisSelResId);if(!r)return;
+  const el=document.getElementById('canvis-hist-content');if(!el)return;
+  if(!r.canvis||!r.canvis.length){el.innerHTML='<div style="font-size:12px;color:#6b6b67;padding:8px 0">Sense canvis registrats per a aquesta reserva.</div>';return;}
+  el.innerHTML=[{data:r.createdAt,motiu:'Reserva creada',label:'Creació inicial',noves:[]},{...r.canvis[r.canvis.length-1]},...r.canvis.slice(0,-1)].map(c=>`
+    <div style="padding:8px 11px;border-left:2px solid ${c.label==='Creació inicial'?'#1D9E75':'#534AB7'};margin-bottom:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px">
+        <span style="font-size:12px;font-weight:500">${c.label}</span>
+        <span style="font-size:10px;color:#6b6b67">${c.data}</span>
+      </div>
+      <div style="font-size:11px;color:#6b6b67;margin-bottom:4px">Motiu: ${c.motiu||'—'}</div>
+      ${c.noves&&c.noves.length?`<div style="display:flex;flex-wrap:wrap;gap:3px">${c.noves.slice(0,6).map(d=>`<span style="padding:2px 6px;border-radius:4px;font-size:10px;background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5">${fmtDL(d)}</span>`).join('')}${c.noves.length>6?`<span style="font-size:10px;color:#085041">+${c.noves.length-6} més</span>`:''}</div>`:''}
+    </div>`).join('');
+}
+
+function showCanvisTab(id,btn){
+  ['prop','email','hist'].forEach(t=>{const el=document.getElementById('canvis-tab-'+t+'-content');if(el)el.style.display=t===id?'block':'none';});
+  ['canvis-tab-prop-btn','canvis-tab-email-btn','canvis-tab-hist-btn'].forEach(t=>{const el=document.getElementById(t);if(!el)return;const isAct=t.includes(id);el.style.background=isAct?'#534AB7':'';el.style.borderColor=isAct?'#534AB7':'';el.style.color=isAct?'#fff':'';});
+  if(id==='hist')canvisRenderHist();
+}
+
+document.getElementById('canvis-apply-bg').addEventListener('click',e=>{if(e.target===document.getElementById('canvis-apply-bg'))document.getElementById('canvis-apply-bg').style.display='none';});
+
+// ── ARXIU VF ────────────────────────────────────────────────────
+function renderArxiu(){
+  const arxivats=RESERVES.filter(r=>r.estat==='vf').sort((a,b)=>(b.vfAt||'').localeCompare(a.vfAt||''));
+  const el=document.getElementById('arxiu-list');
+  const cnt=document.getElementById('arxiu-count');
+  if(cnt)cnt.textContent=arxivats.length+' curs'+(arxivats.length!==1?'os':'')+' arxivat'+(arxivats.length!==1?'s':'');
+  if(!el)return;
+  if(!arxivats.length){
+    el.innerHTML='<div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;font-size:13px">Cap curs arxivat encara. Els cursos finalitzats apareixeran aquí.</div>';
+    return;
+  }
+  el.innerHTML=arxivats.map(r=>`
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-left:3px solid #534AB7;border-radius:12px;padding:11px 14px;margin-bottom:7px;opacity:.85">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:9px">
+          <img src="${FORMADORS.find(f=>f.id===r.formadorId)?.img||''}" width="28" height="28" style="border-radius:50%;object-fit:cover;flex-shrink:0"/>
+          <div>
+            <div style="font-size:12px;font-weight:500">${r.curs} · <span style="color:#6b6b67;font-weight:400">${r.client}</span></div>
+            <div style="font-size:11px;color:#6b6b67">${r.formador} · ${r.dates.length} sessions · ${r.torn} · Arxivat: ${r.vfAt||'—'}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;align-items:center">
+          <span style="background:#EEEDFE;color:#3C3489;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500">VF</span>
+          <span style="font-size:11px;color:#6b6b67">Cost: ${r.cF}€ · Marge: ${r.marge}%</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── ENTRADES: NAVEGACIÓ TABS ────────────────────────────────────
+function showEntradaTab(id,btn){
+  ['manual','email','massiu'].forEach(t=>{
+    const el=document.getElementById('etab-'+t+'-content');if(el)el.style.display=t===id?'block':'none';
+  });
+  ['etab-manual-btn','etab-email-btn','etab-massiu-btn'].forEach(t=>{
+    const el=document.getElementById(t);if(!el)return;
+    const isAct=t.includes(id);
+    el.style.background=isAct?'#1D9E75':'';
+    el.style.borderColor=isAct?'#1D9E75':'';
+    el.style.color=isAct?'#fff':'';
+  });
+}
+
+// ── ENTRADES: CANAL B - EMAIL ────────────────────────────────────
+function clearEmailEntrada(){
+  const el=document.getElementById('email-entrada-text');if(el)el.value='';
+  document.getElementById('email-extraccio-result').innerHTML=`
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+      <div style="font-size:13px;font-weight:500;color:#1a1a1a">Resultat de l'extracció</div>
+      <div style="font-size:12px">Enganxa un email i clica "Analitzar amb IA"</div>
+    </div>`;
+}
+
+function processarEmailEntrada(){
+  const text=document.getElementById('email-entrada-text')?.value?.trim();
+  if(!text){toast('Enganxa el text del correu primer');return;}
+  document.getElementById('email-ia-spin').style.display='inline-block';
+  document.getElementById('email-ia-icon').style.display='none';
+  document.getElementById('email-extraccio-result').innerHTML=`<div style="text-align:center;padding:30px;color:#3C3489;font-size:13px"><span class="spinner" style="margin-right:8px;border-top-color:#534AB7"></span>Analitzant el missatge...</div>`;
+
+  setTimeout(()=>{
+    document.getElementById('email-ia-spin').style.display='none';
+    document.getElementById('email-ia-icon').style.display='';
+
+    // Simulació extracció IA a partir del text
+    const extracted=extractFromEmail(text);
+    renderEmailExtraccio(extracted);
+  },1200);
+}
+
+function extractFromEmail(text){
+  const t=text.toLowerCase();
+  // Extracció heurística simple (en producció seria una crida a l'API)
+  const cursos=['lideratge','comunicació','excel','vendes','prevenció','atenció al client','treball en equip','habilitats','recursos humans'];
+  const curs=cursos.find(c=>t.includes(c))||'Curs a determinar';
+  const horesMatch=t.match(/(\d+)\s*h/);
+  const hores=horesMatch?parseInt(horesMatch[1]):16;
+  const distribucions=[{k:'dimarts i dijous',v:[2,4],l:'Dm·Dj'},{k:'dilluns i dimecres',v:[1,3],l:'Dl·Dc'},{k:'dimecres i divendres',v:[3,5],l:'Dc·Dv'},{k:'setmanal',v:[3],l:'Dimecres'},{k:'dimarts',v:[2],l:'Dimarts'}];
+  const dist=distribucions.find(d=>t.includes(d.k))||{l:'Dm·Dj',v:[2,4]};
+  const torn=t.includes('matí')||t.includes('mati')?'9:30–11:30h':t.includes('tarda')?'16:00–18:00h':'9:30–11:30h';
+  // Detectar agent
+  const agents=AGENTS.map(a=>a.nom);
+  const agent=agents.find(a=>text.toLowerCase().includes(a.toLowerCase().split(' ')[0].toLowerCase()))||agents[0];
+  // Detectar client
+  const clientMatch=text.match(/empresa\s+([A-Z][a-zA-ZÀ-ú\s]{2,30}?)[\s,\n]/)||text.match(/client\s+([A-Z][a-zA-ZÀ-ú\s]{2,30}?)[\s,\n]/);
+  const client=clientMatch?clientMatch[1].trim():'Client a confirmar';
+  // Detectar data
+  const dataMatch=text.match(/(\d{1,2})[\s\/]*(de\s+)?([a-zA-ZÀ-ú]+)(\s+de\s+\d{4})?/)||text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  return{curs:curs.charAt(0).toUpperCase()+curs.slice(1),client,hores,dist,torn,agent,confiança:72};
+}
+
+function renderEmailExtraccio(d){
+  document.getElementById('email-extraccio-result').innerHTML=`
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
+      <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:12px;font-weight:500">Dades extretes per la IA</div>
+        <span style="background:#EEEDFE;color:#3C3489;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500">${d.confiança}% confiança</span>
+      </div>
+      <div style="padding:13px">
+        <div style="font-size:11px;color:#6b6b67;margin-bottom:10px">Revisa i ajusta si cal abans d'enviar al formulari:</div>
+        <div class="g2" style="gap:8px">
+          <div class="fi"><label>Client</label><input id="ext-client" value="${d.client}" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;width:100%;font-family:inherit"/></div>
+          <div class="fi"><label>Nom del curs</label><input id="ext-curs" value="${d.curs}" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;width:100%;font-family:inherit"/></div>
+          <div class="fi"><label>Hores totals</label><input id="ext-hores" type="number" value="${d.hores}" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;width:100%;font-family:inherit"/></div>
+          <div class="fi"><label>Torn</label>
+            <select id="ext-torn" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;width:100%;font-family:inherit">
+              ${['9:30–11:30h','12:00–15:00h','9:00–11:00h','16:00–18:00h'].map(t=>`<option ${t===d.torn?'selected':''}>${t}</option>`).join('')}
+            </select>
+          </div>
+          <div class="fi"><label>Distribució detectada</label><input id="ext-dist" value="${d.dist.l}" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;width:100%;font-family:inherit"/></div>
+          <div class="fi"><label>Agent comercial</label>
+            <select id="ext-agent" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;width:100%;font-family:inherit">
+              ${AGENTS.map(a=>`<option ${a.nom===d.agent?'selected':''}>${a.nom}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-p" style="width:100%;margin-top:10px" onclick="enviarExtractAlFormulari()">
+          Carregar al formulari de petició →
+        </button>
+      </div>
+    </div>`;
+}
+
+function enviarExtractAlFormulari(){
+  const client=document.getElementById('ext-client')?.value||'';
+  const curs=document.getElementById('ext-curs')?.value||'';
+  const hores=document.getElementById('ext-hores')?.value||'16';
+  const torn=document.getElementById('ext-torn')?.value||'9:30–11:30h';
+  const agent=document.getElementById('ext-agent')?.value||AGENTS[0].nom;
+  // Emplenar el formulari de petició
+  const pc=document.getElementById('p-client');if(pc)pc.value=client;
+  const pcu=document.getElementById('p-curs');if(pcu)pcu.value=curs;
+  const ph=document.getElementById('p-hores');if(ph)ph.value=hores;
+  const pt=document.getElementById('p-torn');if(pt){for(let o of pt.options){if(o.value===torn){pt.value=torn;break;}}}
+  selectedAgent=agent;
+  renderAgentSelector();
+  lf();
+  // Navegar a petició
+  gv('p',document.getElementById('nb-p'));
+  toast('Dades carregades al formulari · Revisa i genera la proposta');
+}
+
+// ── ENTRADES: CANAL C - CÀRREGA MASSIVA ────────────────────────
+function loadMassiuFile(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    document.getElementById('massiu-text').value=text;
+    toast('Fitxer carregat · '+file.name);
+  };
+  reader.readAsText(file);
+}
+
+function processarMassiu(){
+  const text=document.getElementById('massiu-text')?.value?.trim();
+  if(!text){toast('Enganxa dades o puja un fitxer primer');return;}
+  document.getElementById('massiu-ia-spin').style.display='inline-block';
+  document.getElementById('massiu-ia-icon').style.display='none';
+  document.getElementById('massiu-result').innerHTML=`<div style="text-align:center;padding:30px;color:#3C3489;font-size:13px"><span class="spinner" style="margin-right:8px;border-top-color:#534AB7"></span>Analitzant i assignant calendaris...</div>`;
+
+  setTimeout(()=>{
+    document.getElementById('massiu-ia-spin').style.display='none';
+    document.getElementById('massiu-ia-icon').style.display='';
+    const files=parseMassiuText(text);
+    renderMassiuResult(files);
+  },1800);
+}
+
+function parseMassiuText(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')&&!l.toLowerCase().startsWith('client'));
+  const resISO=new Set(RESERVES.filter(r=>r.estat!=='cancel'&&r.estat!=='vf').flatMap(r=>r.dates));
+  return lines.map((line,i)=>{
+    const parts=line.split(/[|\t;]/).map(p=>p.trim());
+    const client=parts[0]||'Client '+(i+1);
+    const curs=parts[1]||'Curs a definir';
+    // Detectar especialitat (columna 3, obligatòria per a l'assignació)
+    const espRaw=parts[2]||'';
+    const esp=CATS.esp.items.find(e=>e.toLowerCase()===espRaw.toLowerCase())||
+              CATS.esp.items.find(e=>e.toLowerCase().includes(espRaw.toLowerCase()))||
+              espRaw||CATS.esp.items[0];
+    const hores=parseInt(parts[3])||16;
+    const ssw=parseInt(parts[4])||2;
+    // Torn: acceptar 'Matí','matí','mati','Tarda','tarda', o el text exacte
+    const tornRaw=(parts[5]||'').toLowerCase();
+    const torn=tornRaw.includes('tarda')||tornRaw.includes('16')?'16:00–18:00h':
+               tornRaw.includes('migdia')||tornRaw.includes('12')?'12:00–15:00h':
+               tornRaw.includes('9:00')?'9:00–11:00h':'9:30–11:30h';
+    const iniRaw=parts[6]||'';
+    const agent=parts[7]?AGENTS.find(a=>a.nom.toLowerCase().includes(parts[7].toLowerCase()))?.nom||AGENTS[0].nom:AGENTS[0].nom;
+    const dist=[2,4];
+    const hs=2;
+    const ns=Math.ceil(hores/hs);
+    // Data d'inici
+    let iniISO='2026-06-01';
+    if(iniRaw){const dm=iniRaw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-]?(\d{2,4})?/);if(dm){const y=dm[3]?parseInt(dm[3])+(dm[3].length===2?2000:0):2026;iniISO=y+'-'+String(dm[2]).padStart(2,'0')+'-'+String(dm[1]).padStart(2,'0');}}
+    // Buscar data real disponible
+    const firstAvail=findFirstAvailable(iniISO,dist);
+    const iniReal=toISO(firstAvail);
+    const dates=buildDates(iniReal,ns,dist,resISO);
+    // Assignar formador usant calcScore: disponibilitat → ranking → cost
+    const pc=75;
+    const candidats=FORMADORS
+      .filter(f=>f.specs.includes(esp))
+      .map(f=>{const s=calcScore(f,esp,dates,resISO,pc,false);return{...f,...s};})
+      .filter(f=>f.match)
+      .sort((a,b)=>b.score-a.score);
+    const formCandidat=candidats[0]||
+      FORMADORS.filter(f=>f.disp!=='baixa').sort((a,b)=>parseFloat(b.rating)-parseFloat(a.rating))[0]||
+      FORMADORS[0];
+    const noEsp=candidats.length===0;
+    // Bloquejar dates per a la resta de la llista
+    dates.forEach(d=>resISO.add(toISO(d)));
+    return{client,curs,esp,hores,ssw,torn,iniISO:iniReal,agent,dist,hs,ns,formador:formCandidat,dates,pc,ok:dates.length>=ns,noEsp,score:candidats[0]?.score||0};
+  });
+}
+
+function renderMassiuResult(files){
+  // Guardar les dades pendents per al botó de confirmar
+  window._massiuPending=files.filter(f=>f.ok).map(f=>({
+    client:f.client,curs:f.curs,
+    formador:f.formador.nom,formadorId:f.formador.id,formadorEmail:f.formador.email,
+    comercial:f.agent,
+    dates:f.dates.map(d=>toISO(d)),
+    torn:f.torn,hs:f.hs,ns:f.ns,h:f.hores,pc:f.pc,
+    cF:(f.formador.preu_hora*f.hores).toFixed(2),
+    cC:(f.pc*f.hores).toFixed(2),
+    marge:((f.pc-f.formador.preu_hora)/f.pc*100).toFixed(1)
+  }));
+
+  const ok=files.filter(f=>f.ok).length;
+  const ko=files.filter(f=>!f.ok).length;
+  document.getElementById('massiu-result').innerHTML=`
+    <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
+      <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+        <div style="font-size:12px;font-weight:500">${files.length} cursos detectats</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="badge bg">${ok} amb calendari</span>
+          ${ko?`<span class="badge br">${ko} sense disponibilitat</span>`:''}
+        </div>
+      </div>
+      <div style="max-height:380px;overflow-y:auto">
+        ${files.map((f,i)=>`
+          <div style="padding:9px 13px;border-bottom:0.5px solid rgba(0,0,0,0.05);display:flex;align-items:flex-start;gap:8px;${!f.ok?'opacity:.6':''}">
+            <span style="width:18px;height:18px;border-radius:50%;background:${f.ok?'#E1F5EE':'#FCEBEB'};display:inline-flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:2px">${f.ok?'✓':'!'}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:500">${f.curs} · <span style="color:#6b6b67;font-weight:400">${f.client}</span></div>
+              <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:2px">
+                <span style="font-size:10px;background:#E6F1FB;color:#0C447C;padding:1px 6px;border-radius:20px;white-space:nowrap">${f.esp}</span>
+                <span style="font-size:11px;color:#6b6b67">${f.formador.nom} · ★${f.formador.rating} · ${f.formador.preu_hora}€/h</span>
+                ${f.score?`<span style="font-size:10px;color:${f.score>=70?'#085041':f.score>=50?'#633806':'#791F1F'};font-weight:500">${f.score}%</span>`:''}
+                ${f.noEsp?`<span style="font-size:10px;color:#BA7517;font-weight:500">⚠ Sense formador per "${f.esp}"</span>`:''}
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:4px">${f.dates.slice(0,5).map(d=>`<span style="padding:1px 5px;border-radius:3px;font-size:9px;background:#E1F5EE;color:#085041">${fmtDL(d)}</span>`).join('')}${f.dates.length>5?`<span style="font-size:9px;color:#6b6b67">+${f.dates.length-5}</span>`:''}</div>
+            </div>
+            <span style="font-size:10px;color:#6b6b67;white-space:nowrap">${f.agent}</span>
+          </div>`).join('')}
+      </div>
+      <div style="padding:10px 13px;border-top:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0;display:flex;gap:7px;justify-content:flex-end">
+        <button class="btn btn-sm" onclick="document.getElementById('massiu-text').value='';document.getElementById('massiu-result').innerHTML='';toast('Netejat')">Netejar</button>
+        <button class="btn btn-p btn-sm" onclick="confirmarMassiu()">
+          Confirmar i reservar ${ok} cursos
+        </button>
+      </div>
+    </div>`;
+}
+
+function confirmarMassiu(){
+  const cursos=window._massiuPending||[];
+  if(!cursos.length){toast('Cap curs per confirmar');return;}
+  cursos.forEach(c=>{
+    const res={
+      id:'R'+Date.now()+Math.random().toString(36).slice(2,6),
+      ...c,
+      estat:'pendent-cli',emailEnviat:false,emailFormadorEnviat:false,
+      createdAt:toISO(new Date()),canvis:[],dist:[2,4]
+    };
+    RESERVES.push(res);
+    apiPost('reserves',res);
+  });
+  window._massiuPending=[];
+  renderGest();
+  toast(`✓ ${cursos.length} curs${cursos.length!==1?'os':''} reservat${cursos.length!==1?'s':''} al sistema`);
+  gv('gest',document.getElementById('nb-gest'));
+}
+
+// ── FORMADORS PAGE ──────────────────────────────────────────────
+// Estat filtre especialitat formadors
+let filtreEsp='';
+
+function initFiltreEsp(){
+  const container=document.getElementById('fsp-chips');if(!container)return;
+  // Recollir totes les especialitats dels formadors
+  const esps=[...new Set(FORMADORS.flatMap(f=>f.specs||[]))].sort();
+  container.innerHTML=esps.map(e=>`<button class="filter-chip" onclick="selFiltreEsp('${e.replace(/'/g,"\\'")}',this)" style="font-size:11px">${e}</button>`).join('');
+}
+
+function selFiltreEsp(esp,btn){
+  filtreEsp=esp;
+  document.querySelectorAll('#fsp-chips .filter-chip, #fsp-all').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  renderFP();
+}
+
+function renderFP(){
+  const q=(document.getElementById('fs-q').value||'').toLowerCase();
+  const ft=document.getElementById('fs-t').value;
+  const sort=document.getElementById('fs-sort')?.value||'nom';
+  let list=FORMADORS.filter(f=>{
+    const matchQ=!q||(f.nom.toLowerCase().includes(q)||f.specs.some(s=>s.toLowerCase().includes(q)));
+    const matchT=!ft||f.tipus===ft;
+    const matchEsp=!filtreEsp||f.specs.includes(filtreEsp);
+    return matchQ&&matchT&&matchEsp;
+  });
+
+  // Càlcul de stats per formador
+  const statsPerF=calcStatsFormadors();
+
+  // Ordenació
+  if(sort==='volum') list=[...list].sort((a,b)=>(statsPerF[b.id]?.hores||0)-(statsPerF[a.id]?.hores||0));
+  else if(sort==='disp') list=[...list].sort((a,b)=>(statsPerF[b.id]?.dispPct||0)-(statsPerF[a.id]?.dispPct||0));
+  else if(sort==='rating') list=[...list].sort((a,b)=>parseFloat(b.rating)-parseFloat(a.rating));
+  else list=[...list].sort((a,b)=>a.nom.localeCompare(b.nom));
+
+  // Banner filtre especialitat
+  const banner=document.getElementById('fp-esp-banner');
+  if(banner){
+    if(filtreEsp){
+      banner.style.display='flex';
+      banner.innerHTML=`<span><strong>${list.length}</strong> formador${list.length!==1?'s':''} disponible${list.length!==1?'s':''} per a <strong>${filtreEsp}</strong></span><button class="btn-g" onclick="selFiltreEsp('',document.getElementById('fsp-all'))" style="font-size:11px;color:#0C447C">Veure tots ×</button>`;
+    }else{
+      banner.style.display='none';
+    }
+  }
+
+  document.getElementById('fp-grid').innerHTML=list.length?list.map(f=>{
+    const st=statsPerF[f.id]||{hores:0,reserves:0,dispPct:100,semColor:'#1D9E75',semLabel:'Alta'};
+    const matchedEsp=filtreEsp&&f.specs.includes(filtreEsp);
+    const waUrl=`https://wa.me/${f.tel?.replace(/\D/g,'')||''}?text=${encodeURIComponent('Hola '+f.nom.split(' ')[0]+', t\'escric des de GESEM per consultar la teva disponibilitat.')}`;
+    const mailUrl=`mailto:${f.email}?subject=Consulta disponibilitat&body=Hola ${f.nom.split(' ')[0]},`;
+    return`<div style="background:#fff;border:${matchedEsp?'2px solid #1D9E75':'0.5px solid rgba(0,0,0,0.1)'};border-radius:12px;padding:12px;cursor:pointer;transition:border-color .12s;position:relative" onmouseenter="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.07)'" onmouseleave="this.style.boxShadow=''" onclick="openFM(${f.id})">
+      <!-- Dot semàfor cantonada -->
+      <div style="position:absolute;top:10px;right:10px;width:9px;height:9px;border-radius:50%;background:${st.semColor}" title="${st.semLabel} · ${st.dispPct}% disponible"></div>
+      ${matchedEsp?`<div style="position:absolute;top:8px;left:8px;background:#1D9E75;color:#fff;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:500">✓ Especialitat</div>`:''}
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;${matchedEsp?'margin-top:16px':''}">
+        <img src="${f.img}" width="40" height="40" style="border-radius:50%;display:block;flex-shrink:0;object-fit:cover"/>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:14px">${f.nom}</div>
+          <div style="font-size:10px;color:#6b6b67">${f.tipus==='intern'?'Intern':'Extern'} · ★${f.rating} · ${f.preu_hora}€/h</div>
+        </div>
+      </div>
+      <!-- Especialitats -->
+      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px">${(f.specs||[]).map(s=>`<span style="padding:2px 6px;border-radius:20px;font-size:10px;font-weight:500;background:${s===filtreEsp&&filtreEsp?'#E1F5EE':'#f5f4f0'};color:${s===filtreEsp&&filtreEsp?'#085041':'#6b6b67'}">${s}</span>`).join('')}</div>
+      <!-- Barra disponibilitat -->
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+          <span style="font-size:10px;color:#6b6b67">Disponibilitat</span>
+          <span style="font-size:10px;font-weight:500;color:${st.semColor}">${st.dispPct}%</span>
+        </div>
+        <div style="height:4px;border-radius:2px;background:#f5f4f0">
+          <div style="height:100%;border-radius:2px;background:${st.semColor};width:${st.dispPct}%"></div>
+        </div>
+      </div>
+      <!-- Footer: badge + volum + contacte -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="badge ${f.tipus==='intern'?'bb':'bg'}" style="font-size:10px">${f.tipus==='intern'?'Intern':'Extern'}</span>
+          ${st.hores>0?`<span style="font-size:10px;color:#534AB7;font-weight:500">${st.hores}h GESEM</span>`:''}
+        </div>
+        <!-- Botons contacte ràpid -->
+        <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+          <a href="${mailUrl}" title="Email directe" style="width:26px;height:26px;border-radius:6px;border:0.5px solid rgba(0,0,0,0.15);background:#E6F1FB;display:inline-flex;align-items:center;justify-content:center;text-decoration:none" onclick="event.stopPropagation()">
+            <svg width="12" height="10" viewBox="0 0 12 10" fill="none"><rect x=".5" y=".5" width="11" height="9" rx="1.5" stroke="#0C447C" stroke-width=".8" fill="none"/><path d=".5 2l5.5 3.5L11.5 2" stroke="#0C447C" stroke-width=".8"/></svg>
+          </a>
+          <a href="${waUrl}" target="_blank" title="WhatsApp directe" style="width:26px;height:26px;border-radius:6px;border:0.5px solid #86efac;background:#dcfce7;display:inline-flex;align-items:center;justify-content:center;text-decoration:none" onclick="event.stopPropagation()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5.5" stroke="#16a34a" stroke-width=".8"/><path d="M3 8.5c.5-1 1.5-2.8 3-2.8s2.2 1 2.2 1.7-1.2 1-1.5.5-.9-1.5-.9-1.5" stroke="#16a34a" stroke-width=".7" fill="none"/></svg>
+          </a>
+          <button title="Copiar telèfon" style="width:26px;height:26px;border-radius:6px;border:0.5px solid rgba(0,0,0,0.15);background:#f5f4f0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer" onclick="event.stopPropagation();navigator.clipboard.writeText('${f.tel||''}').then(()=>toast('Telèfon copiat · ${f.tel||'—'}'))">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M3 1h5a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" stroke="#6b6b67" stroke-width=".8" fill="none"/><circle cx="5.5" cy="8.5" r=".5" fill="#6b6b67"/></svg>
+          </button>
+          ${f.icsUrl?`<button title="Actualitzar calendari" onclick="event.stopPropagation();refreshCal(${f.id}).then(()=>renderFP())" style="width:26px;height:26px;border-radius:6px;border:0.5px solid #5DCAA5;background:#E1F5EE;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px">🔄</button>`:''}
+        </div>
+      </div>
+      ${f.icsUrl?`<div style="margin-top:7px;padding-top:7px;border-top:0.5px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${calData[f.id]!==undefined?'#1D9E75':'#BA7517'};flex-shrink:0"></span><span style="font-size:10px;color:${calData[f.id]!==undefined?'#085041':'#633806'};font-weight:500">${calData[f.id]!==undefined?'Calendari sincronitzat · '+calData[f.id].size+' dies ocupats':'Calendari pendent de sincronitzar'}</span></div>`:''}
+    </div>`;
+  }).join(''):`<div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;text-align:center;color:#6b6b67;font-size:13px;grid-column:1/-1">Cap formador amb els filtres seleccionats.</div>`;
+
+  renderFPDisponibilitat(statsPerF);
+  renderFPVolum(statsPerF);
+}
+
+function calcStatsFormadors(){
+  const HORES_ANY=1800;
+  const stats={};
+  FORMADORS.forEach(f=>{
+    const reserves=RESERVES.filter(r=>r.formadorId===f.id&&r.estat!=='cancel');
+    const hores=reserves.reduce((s,r)=>s+r.dates.length*(parseFloat(r.hs)||2),0);
+    const reservesActives=reserves.filter(r=>r.estat!=='vf').length;
+    // Disponibilitat: percentatge d'hores lliures estimades sobre l'any
+    // Factors: disp declarada + hores ja assignades
+    const dispBase={alta:90,parcial:60,baixa:30}[f.disp]||70;
+    const ocupacioActual=Math.min(50,Math.round(hores/HORES_ANY*100*2));
+    const dispPct=Math.max(5,dispBase-ocupacioActual);
+    const semColor=dispPct>=70?'#1D9E75':dispPct>=40?'#EF9F27':'#E24B4A';
+    const semLabel=dispPct>=70?'Alta disponibilitat':dispPct>=40?'Disponibilitat parcial':'Poc disponible';
+    stats[f.id]={hores,reserves:reservesActives,dispPct,semColor,semLabel,dispBase,ocupacioActual};
+  });
+  return stats;
+}
+
+function renderFPDisponibilitat(stats){
+  const el=document.getElementById('fp-disponibilitat');if(!el)return;
+  const sorted=[...FORMADORS].sort((a,b)=>(stats[b.id]?.dispPct||0)-(stats[a.id]?.dispPct||0));
+  el.innerHTML=sorted.map(f=>{
+    const st=stats[f.id]||{dispPct:0,semColor:'#6b6b67',semLabel:'—',hores:0};
+    return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);cursor:pointer" onclick="openFM(${f.id})" onmouseenter="this.style.background='#fafaf8'" onmouseleave="this.style.background=''">
+      <img src="${f.img}" width="24" height="24" style="border-radius:50%;object-fit:cover;flex-shrink:0"/>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.nom.split(' ')[0]} ${f.nom.split(' ')[1]||''}</div>
+        <div style="height:3px;border-radius:2px;background:#f5f4f0;margin-top:3px">
+          <div style="height:100%;border-radius:2px;background:${st.semColor};width:${st.dispPct}%"></div>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;font-weight:500;color:${st.semColor}">${st.dispPct}%</div>
+        <div style="font-size:9px;color:#6b6b67">${st.semLabel.split(' ')[0]}</div>
+      </div>
+      <div style="width:8px;height:8px;border-radius:50%;background:${st.semColor};flex-shrink:0"></div>
+    </div>`;
+  }).join('');
+}
+
+function renderFPVolum(stats){
+  const el=document.getElementById('fp-volum');if(!el)return;
+  const withHores=FORMADORS.filter(f=>(stats[f.id]?.hores||0)>0).sort((a,b)=>(stats[b.id]?.hores||0)-(stats[a.id]?.hores||0));
+  const maxH=Math.max(...withHores.map(f=>stats[f.id]?.hores||0),1);
+  if(!withHores.length){el.innerHTML='<div style="font-size:12px;color:#6b6b67;padding:8px 0">Sense reserves registrades encara.</div>';return;}
+  el.innerHTML=withHores.map((f,i)=>{
+    const st=stats[f.id];
+    const pct=Math.round(st.hores/maxH*100);
+    const medals=['🥇','🥈','🥉'];
+    return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);cursor:pointer" onclick="openFM(${f.id})" onmouseenter="this.style.background='#fafaf8'" onmouseleave="this.style.background=''">
+      <span style="font-size:13px;width:18px;text-align:center;flex-shrink:0">${medals[i]||String(i+1)}</span>
+      <img src="${f.img}" width="24" height="24" style="border-radius:50%;object-fit:cover;flex-shrink:0"/>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.nom.split(' ')[0]} ${f.nom.split(' ')[1]||''}</div>
+        <div style="height:3px;border-radius:2px;background:#f5f4f0;margin-top:3px">
+          <div style="height:100%;border-radius:2px;background:#534AB7;width:${pct}%"></div>
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:11px;font-weight:500;color:#534AB7">${st.hores}h</div>
+        <div style="font-size:9px;color:#6b6b67">${st.reserves} res.</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openFM(id){
+  eFId=id;fotoDataURL=null;
+  const f=id===-1?{nom:'',email:'',tel:'',tipus:'extern',specs:[],preu_hora:40,agenda:'manual',rating:'4.5',cursos:0,notes:'',img:null,disp:'alta'}:FORMADORS.find(x=>x.id===id);
+  document.getElementById('fm-title').textContent=id===-1?'Nou formador':'Editar · '+f.nom;
+  const prevImg=f.img||makeAv(f.nom||'?',0);
+  const inp='padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit';
+  const noEnter='onkeydown="if(event.key===\'Enter\')event.preventDefault()"';
+  document.getElementById('fm-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div class="foto-prev"><img id="fm-foto-prev" src="${prevImg}" width="56" height="56"/></div>
+      <div><label class="foto-btn" for="fm-foto-inp">Canviar foto</label><input type="file" id="fm-foto-inp" accept="image/*" onchange="loadFoto(this)"/><div style="font-size:10px;color:#6b6b67;margin-top:4px">JPG, PNG · max 2MB</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="grid-column:1/-1"><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Nom complet</label><input id="fm-nom" value="${f.nom}" ${noEnter} style="${inp}"/></div>
+      <div><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Email</label><input id="fm-email" value="${f.email||''}" type="email" ${noEnter} style="${inp}"/></div>
+      <div><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Telèfon</label><input id="fm-tel" value="${f.tel||''}" ${noEnter} style="${inp}"/></div>
+      <div><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Tipus</label><select id="fm-tipus" style="${inp}"><option value="intern" ${f.tipus==='intern'?'selected':''}>Intern</option><option value="extern" ${f.tipus==='extern'?'selected':''}>Extern</option></select></div>
+      <div><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Cost/hora (€)</label><input id="fm-ph" type="number" value="${f.preu_hora||0}" min="0" step="1" ${noEnter} style="${inp}"/></div>
+      <div><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Valoració (0–5)</label><input id="fm-rat" type="number" value="${parseFloat(f.rating||4.5).toFixed(1)}" min="0" max="5" step="0.1" ${noEnter} style="${inp}"/></div>
+      <div><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Cursos impartits</label><input id="fm-cursos" type="number" value="${f.cursos||0}" min="0" step="1" ${noEnter} style="${inp}"/></div>
+      <div><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Disponibilitat</label><select id="fm-disp" style="${inp}"><option value="alta" ${(f.disp||'alta')==='alta'?'selected':''}>Alta</option><option value="parcial" ${f.disp==='parcial'?'selected':''}>Parcial</option><option value="baixa" ${f.disp==='baixa'?'selected':''}>Baixa</option></select></div>
+      <div style="grid-column:1/-1">
+        <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:5px">Especialitats assignades</label>
+        <div id="fm-specs-grid" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">
+          ${CATS.esp.items.map(s=>{
+            const checked=(f.specs||[]).includes(s);
+            return`<label style="display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 9px;border-radius:20px;border:0.5px solid ${checked?'#1D9E75':'rgba(0,0,0,0.15)'};background:${checked?'#E1F5EE':'transparent'};transition:all .12s;user-select:none" id="fmsp-lbl-${s.replace(/\s/g,'_')}">
+              <input type="checkbox" value="${s}" ${checked?'checked':''} onchange="toggleFmSpec(this)" style="accent-color:#1D9E75;width:12px;height:12px;flex-shrink:0"/>
+              <span style="font-size:11px;font-weight:500;color:${checked?'#085041':'#6b6b67'}">${s}</span>
+            </label>`;
+          }).join('')}
+        </div>
+        <div style="display:flex;gap:5px;align-items:center;margin-top:4px">
+          <input type="text" id="fm-nova-esp" placeholder="Afegir nova especialitat..." onkeydown="if(event.key==='Enter'){event.preventDefault();addFmEsp();}" style="flex:1;padding:5px 9px;border:0.5px dashed rgba(0,0,0,0.2);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;font-family:inherit"/>
+          <button class="btn btn-p btn-sm" onclick="addFmEsp()" style="white-space:nowrap">+ Afegir</button>
+        </div>
+        <div style="font-size:10px;color:#6b6b67;margin-top:4px">Les noves especialitats s'afegiran al catàleg global de l'aplicació.</div>
+      </div>
+      <div><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Gestió agenda</label>
+        <select id="fm-agenda" style="${inp}" onchange="toggleIcsUrlPanel(this.value)">
+          <option value="manual" ${(f.agenda||'manual')==='manual'?'selected':''}>Manual GESEM</option>
+          <option value="google" ${f.agenda==='google'?'selected':''}>Google Calendar</option>
+          <option value="outlook" ${f.agenda==='outlook'?'selected':''}>Outlook / Microsoft 365</option>
+          <option value="ical" ${f.agenda==='ical'?'selected':''}>Altre (iCal/ICS)</option>
+        </select>
+      </div>
+      <div style="grid-column:1/-1;display:${(f.agenda&&f.agenda!=='manual')?'block':'none'}" id="fm-ical-panel">
+        <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:4px">URL del calendari (iCal)</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="url" id="fm-icsUrl" value="${f.icsUrl||''}" placeholder="https://calendar.google.com/... o webcal://..." style="flex:1;${inp}" onkeydown="if(event.key==='Enter')event.preventDefault()"/>
+          <button class="btn btn-sm" style="white-space:nowrap;background:#E6F1FB;border-color:#85B7EB;color:#0C447C" onclick="verificarICS()">Verificar ✓</button>
+        </div>
+        <div id="fm-ics-result" style="font-size:10px;margin-top:4px;padding:4px 7px;border-radius:5px;display:none"></div>
+        ${(eFId!==-1&&f.icsUrl)?`<div style="margin-top:6px;display:flex;align-items:center;gap:8px;padding:6px 9px;background:${calData[eFId]!==undefined?'#E1F5EE':'#FAEEDA'};border-radius:8px">
+          <span style="font-size:11px;color:${calData[eFId]!==undefined?'#085041':'#633806'};flex:1">
+            ${calData[eFId]!==undefined?'📅 Calendari sincronitzat · '+calData[eFId].size+' dies ocupats detectats':'⏳ Calendari pendent de sincronitzar'}
+          </span>
+          <button class="btn btn-sm" style="white-space:nowrap;font-size:10px" onclick="forceRefreshModal(${eFId})">🔄 Actualitzar ara</button>
+        </div>`:''}
+        <div style="background:#f5f4f0;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:10px;color:#6b6b67;line-height:1.6">
+          <div id="fm-ical-help"></div>
+        </div>
+      </div>
+      <div style="grid-column:1/-1"><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Notes internes</label><textarea id="fm-notes" style="height:48px;resize:none;${inp}">${f.notes||''}</textarea></div>
+    </div>
+    <div style="margin-top:7px;background:#f5f4f0;padding:6px 9px;border-radius:8px;font-size:11px;color:#6b6b67">El preu/hora al client s'introdueix a cada petició.</div>`;
+  // Mostrar la ajuda correcta
+  requestAnimationFrame(()=>toggleIcsUrlPanel(document.getElementById('fm-agenda')?.value||'manual'));
+  document.getElementById('fm-bg').style.display='flex';
+}
+function loadFoto(input){const file=input.files[0];if(!file)return;if(file.size>2*1024*1024){toast('Fitxer massa gran');return;}const reader=new FileReader();reader.onload=e=>{fotoDataURL=e.target.result;document.getElementById('fm-foto-prev').src=fotoDataURL;};reader.readAsDataURL(file);}
+
+const ICS_HELP={
+  google:`<strong>Google Calendar:</strong><br>1. Obre Google Calendar → Configuració (⚙) → nom del calendari<br>2. "Integrar el calendari" → copia l'<strong>Adreça privada en format iCal</strong><br>3. Enganxa la URL aquí (comença per <code>https://calendar.google.com/calendar/ical/...</code>)`,
+  outlook:`<strong>Outlook / Microsoft 365:</strong><br>1. Outlook Web → Calendari → ⚙ Configuració → Calendaris compartits<br>2. "Publicar calendari" → tria el teu calendari → copiar l'<strong>enllaç ICS</strong><br>3. Alternativa: obre <code>outlook.office.com</code> → dalt dreta Settings → View all → Calendar → Shared calendars`,
+  ical:`<strong>Altre calendari (iCal):</strong><br>Qualsevol app de calendari (Apple, Fastmail, etc.) permet exportar o compartir una URL amb extensió <code>.ics</code> o protocol <code>webcal://</code>. Cerca l'opció "Compartir" o "Publicar calendari".`
+};
+
+function toggleIcsUrlPanel(val){
+  const panel=document.getElementById('fm-ical-panel');
+  const help=document.getElementById('fm-ical-help');
+  if(!panel)return;
+  panel.style.display=(val&&val!=='manual')?'block':'none';
+  if(help)help.innerHTML=ICS_HELP[val]||ICS_HELP.ical;
+}
+
+async function verificarICS(){
+  const url=(document.getElementById('fm-icsUrl')?.value||'').trim();
+  const res=document.getElementById('fm-ics-result');
+  if(!res)return;
+  if(!url){res.style.display='block';res.style.background='#FCEBEB';res.style.color='#791F1F';res.textContent='Introdueix una URL';return;}
+  res.style.display='block';res.style.background='#f5f4f0';res.style.color='#6b6b67';res.textContent='Verificant connexió...';
+  try{
+    const r=await fetch('/api/verificar-ical',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+    const d=await r.json();
+    if(d.ok){res.style.background='#E1F5EE';res.style.color='#085041';res.textContent='✓ '+d.message;}
+    else{res.style.background='#FCEBEB';res.style.color='#791F1F';res.textContent='✗ Error: '+d.error;}
+  }catch(e){res.style.background='#FCEBEB';res.style.color='#791F1F';res.textContent='Error de connexió amb el servidor';}
+}
+
+async function forceRefreshModal(formadorId){
+  const statusEl=document.querySelector('#fm-ical-panel [style*="Actualitzar ara"]')?.previousElementSibling||null;
+  if(statusEl)statusEl.textContent='⏳ Actualitzant...';
+  await fetch('/api/disponibilitat/'+formadorId+'/cache',{method:'DELETE'});
+  try{
+    const r=await fetch('/api/disponibilitat/'+formadorId).then(x=>x.json());
+    calData[formadorId]=new Set(r.busyDates||[]);
+    toast('📅 Calendari actualitzat · '+(r.count||0)+' dies ocupats');
+    // Re-obrir el modal per refrescar l'estat
+    openFM(formadorId);
+  }catch(e){toast('Error actualitzant el calendari');}
+}
+function toggleFmSpec(cb){
+  const lbl=document.getElementById('fmsp-lbl-'+cb.value.replace(/\s/g,'_'));
+  if(!lbl)return;
+  lbl.style.borderColor=cb.checked?'#1D9E75':'rgba(0,0,0,0.15)';
+  lbl.style.background=cb.checked?'#E1F5EE':'transparent';
+  lbl.querySelector('span').style.color=cb.checked?'#085041':'#6b6b67';
+}
+
+function addFmEsp(){
+  const inp=document.getElementById('fm-nova-esp');
+  if(!inp)return;
+  const val=inp.value.trim();
+  if(!val){toast('Escriu el nom de l\'especialitat');return;}
+  if(CATS.esp.items.includes(val)){
+    // Ja existeix: marcar-la si no ho estava
+    const cb=document.querySelector(`#fm-specs-grid input[value="${val}"]`);
+    if(cb&&!cb.checked){cb.checked=true;toggleFmSpec(cb);}
+    inp.value='';
+    toast('Especialitat ja existent · marcada');
+    return;
+  }
+  // Afegir al catàleg global
+  CATS.esp.items.push(val);
+  apiPut('cats/esp',{items:CATS.esp.items});
+  fillSels(); // Actualitza tots els desplegables de l'app
+  initFiltreEsp(); // Actualitza els chips de formadors
+  // Afegir el nou checkbox a la fitxa
+  const grid=document.getElementById('fm-specs-grid');
+  if(grid){
+    const id=val.replace(/\s/g,'_');
+    const lbl=document.createElement('label');
+    lbl.id=`fmsp-lbl-${id}`;
+    lbl.style.cssText='display:flex;align-items:center;gap:5px;cursor:pointer;padding:4px 9px;border-radius:20px;border:1.5px solid #1D9E75;background:#E1F5EE;transition:all .12s;user-select:none';
+    lbl.innerHTML=`<input type="checkbox" value="${val}" checked onchange="toggleFmSpec(this)" style="accent-color:#1D9E75;width:12px;height:12px;flex-shrink:0"/><span style="font-size:11px;font-weight:500;color:#085041">${val}</span>`;
+    grid.appendChild(lbl);
+  }
+  inp.value='';
+  toast('Especialitat "'+val+'" afegida al catàleg global');
+}
+
+function saveFM(){
+  const nom=document.getElementById('fm-nom').value.trim();
+  if(!nom){toast('Nom obligatori');return;}
+  // Llegir especialitats des dels checkboxes
+  const specs=[...document.querySelectorAll('#fm-specs-grid input[type="checkbox"]:checked')].map(cb=>cb.value);
+  if(specs.length===0){toast('Selecciona almenys una especialitat');return;}
+  const rating=parseFloat(document.getElementById('fm-rat').value)||4.5;
+  if(rating<0||rating>5){toast('La valoració ha de ser entre 0 i 5');return;}
+  const agenda=document.getElementById('fm-agenda').value;
+  const icsUrl=(agenda!=='manual'?(document.getElementById('fm-icsUrl')?.value||'').trim():'');
+  const data={nom,email:document.getElementById('fm-email').value,tel:document.getElementById('fm-tel').value,tipus:document.getElementById('fm-tipus').value,preu_hora:parseFloat(document.getElementById('fm-ph').value)||0,specs,agenda,icsUrl,rating:rating.toFixed(1),cursos:parseInt(document.getElementById('fm-cursos').value)||0,notes:document.getElementById('fm-notes').value,disp:document.getElementById('fm-disp').value};
+  if(fotoDataURL){
+    const c=document.createElement('canvas');c.width=42;c.height=42;
+    const x=c.getContext('2d');x.beginPath();x.arc(21,21,21,0,Math.PI*2);x.clip();
+    const img=new Image();
+    img.onload=()=>{x.drawImage(img,0,0,42,42);data.img=c.toDataURL();_saveFM(data);};
+    img.src=fotoDataURL;
+  }else{
+    if(eFId===-1)data.img=makeAv(data.nom,FORMADORS.length);
+    else{const f=FORMADORS.find(x=>x.id===eFId);data.img=f?f.img:makeAv(data.nom,0);}
+    _saveFM(data);
+  }
+}
+function _saveFM(data){
+  if(eFId===-1){
+    data.id=Date.now();
+    FORMADORS.push(data);
+    apiPost('formadors',data);
+  }else{
+    data.id=eFId; // ← fix: sempre usar eFId, no data.id
+    const idx=FORMADORS.findIndex(f=>f.id===eFId);
+    if(idx>-1){
+      FORMADORS[idx]={...FORMADORS[idx],...data};
+      apiPut('formadors/'+eFId,FORMADORS[idx]); // ← fix: eFId en lloc de data.id
+      // Si ha canviat la URL del calendari, invalidar cache
+      if(data.icsUrl!==undefined){
+        delete calData[eFId];
+        if(data.icsUrl){
+          fetch('/api/disponibilitat/'+eFId+'/cache',{method:'DELETE'});
+          fetch('/api/disponibilitat/'+eFId).then(r=>r.json()).then(r=>{
+            calData[eFId]=new Set(r.busyDates||[]);
+            lf();
+          }).catch(()=>{});
+        }
+      }
+    }
+  }
+  closeFM();renderFP();lf();fillSels();toast('Formador desat ✓');
+}
+function closeFM(){document.getElementById('fm-bg').style.display='none';}
+document.getElementById('fm-bg').addEventListener('click',e=>{if(e.target===document.getElementById('fm-bg'))closeFM();});
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+
+// ── INIT: CÀRREGA DE DADES DES DEL SERVIDOR ──────────────────────
+async function initApp(){
+  try{
+    // Cargar catàlegs
+    const catsData=await fetch('/api/cats').then(r=>r.json());
+    Object.keys(catsData).forEach(k=>{if(CATS[k])CATS[k].items=catsData[k];});
+
+    // Carregar agents
+    AGENTS=await fetch('/api/agents').then(r=>r.json());
+    selectedAgent=AGENTS[0]?.nom||'';
+
+    // Carregar formadors
+    const fData=await fetch('/api/formadors').then(r=>r.json());
+    FORMADORS=fData.map(f=>{
+      if(!f.img)f.img=makeAv(f.nom,f.id);
+      return f;
+    });
+
+    // Carregar reserves
+    RESERVES=await fetch('/api/reserves').then(r=>r.json());
+
+    fillSels();upD();upR();lf();renderAgentSelector();
+    document.getElementById('loading-overlay').style.display='none';
+    // Carregar dades de calendaris en segon pla (no bloqueja la UI)
+    loadCalData().then(()=>{
+      const nb=FORMADORS.filter(f=>f.icsUrl).length;
+      if(nb>0){lf();toast('📅 '+nb+' calendari'+(nb!==1?'s':'')+ ' sincronitzat'+(nb!==1?'s':''));}
+    });
+  }catch(e){
+    console.error('Error carregant dades:',e);
+    document.getElementById('loading-overlay').innerHTML='<div style="text-align:center;padding:40px"><div style="font-size:14px;color:#791F1F;font-weight:500">Error de connexió</div><div style="font-size:12px;color:#6b6b67;margin-top:6px">No es pot connectar al servidor. Comprova que el servidor Node.js està en marxa.</div></div>';
+  }
+}
+initApp();
+</script>
+
+<div style="position:fixed;bottom:14px;right:14px;background:#1D9E75;color:#fff;padding:7px 13px;border-radius:8px;font-size:12px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none" id="toast"></div>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" style="position:fixed;inset:0;background:#f5f4f0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px">
+  <div style="width:22px;height:22px;border:2.5px solid rgba(29,158,117,0.3);border-top-color:#1D9E75;border-radius:50%;animation:spin .7s linear infinite"></div>
+  <div style="font-size:13px;color:#6b6b67;font-weight:500">Carregant GESEM Planner...</div>
+</div>
+</body>
+</html>
