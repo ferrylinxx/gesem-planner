@@ -1,0 +1,91 @@
+name: Deploy to GESEM server
+
+# Es dispara automàticament a cada push a la branca main,
+# o manualment des de la pestanya "Actions" → "Run workflow"
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # Si arriba un nou push mentre un deploy està en marxa, cancel·la l'antic
+  group: deploy-prod
+  cancel-in-progress: false  # millor esperar que el deploy en curs acabi
+
+jobs:
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (per validar sintaxi abans del deploy)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies + syntax check
+        run: |
+          npm ci --no-audit --no-fund
+          node -c server.js
+          node -e "new Function(require('fs').readFileSync('public/js/app.js','utf8'))"
+
+      - name: Build deploy archive
+        run: |
+          # Inclou només els fitxers necessaris al servidor.
+          # NO inclou: node_modules, data/, backups/, .env, etc.
+          tar -czf gesem-deploy.tar.gz \
+            server.js \
+            db.js \
+            package.json \
+            package-lock.json \
+            public/ \
+            lib/ \
+            scripts/ \
+            GOOGLE_OAUTH_SETUP.md \
+            README.md
+          ls -lah gesem-deploy.tar.gz
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload archive to server
+        run: |
+          scp -i ~/.ssh/id_ed25519 -P ${{ secrets.DEPLOY_PORT || 22 }} \
+            gesem-deploy.tar.gz \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:~/
+
+      - name: Apply update on server
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -p ${{ secrets.DEPLOY_PORT || 22 }} \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "set -e; \
+             cd /opt/gesem-planner; \
+             tar -xzf ~/gesem-deploy.tar.gz; \
+             npm ci --omit=dev --no-audit --no-fund || npm install --omit=dev --no-audit --no-fund; \
+             sudo systemctl restart gesem-planner; \
+             sleep 2; \
+             sudo systemctl is-active gesem-planner; \
+             rm ~/gesem-deploy.tar.gz"
+
+      - name: Verify deploy
+        run: |
+          # Espera fins a 10s i comprova que l'app respon
+          for i in 1 2 3 4 5; do
+            if curl -fsS -o /dev/null https://planner.gesem.es/ 2>/dev/null \
+               || curl -fsS -o /dev/null http://${{ secrets.DEPLOY_HOST }}:3001/ 2>/dev/null; then
+              echo "✅ App responent"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "⚠️ L'app no respon després del deploy"
+          exit 1

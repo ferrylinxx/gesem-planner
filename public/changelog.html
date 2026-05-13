@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GESEM Planner · Changelog</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="apple-touch-icon" href="/favicon.svg"/>
+<meta name="theme-color" content="#059669"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/styles.css"/>
+<style>
+.cl-wrap{max-width:780px;margin:0 auto;padding:32px 24px}
+.cl-hero{text-align:center;margin-bottom:36px}
+.cl-hero h1{font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px}
+.cl-hero .sub{color:var(--text-muted);font-size:14px}
+.cl-current{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--primary-soft);color:var(--primary-soft-text);
+  padding:5px 12px;border-radius:999px;
+  font-size:11.5px;font-weight:600;letter-spacing:.04em;
+  margin-top:14px;
+}
+.cl-current::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 3px rgba(5,150,105,0.2)}
+.cl-version{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:24px 28px;
+  margin-bottom:18px;
+  box-shadow:var(--shadow-sm);
+}
+.cl-version.latest{border-color:var(--primary);box-shadow:0 0 0 3px rgba(5,150,105,0.08)}
+.cl-vh{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.cl-vnum{
+  font-size:18px;font-weight:700;
+  color:var(--text);
+  display:flex;align-items:center;gap:10px;
+}
+.cl-tag{
+  font-size:9.5px;font-weight:600;letter-spacing:.06em;
+  padding:3px 9px;border-radius:999px;
+  text-transform:uppercase;
+}
+.cl-tag.major{background:var(--accent-violet-soft);color:var(--accent-violet-text)}
+.cl-tag.minor{background:var(--accent-blue-soft);color:var(--accent-blue-text)}
+.cl-tag.patch{background:var(--bg-muted);color:var(--text-muted)}
+.cl-tag.current{background:var(--primary);color:#fff}
+.cl-date{font-size:11.5px;color:var(--text-muted);font-weight:500}
+.cl-vtitle{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px}
+.cl-section{margin-bottom:14px}
+.cl-section:last-child{margin-bottom:0}
+.cl-stitle{
+  font-size:11px;font-weight:700;
+  color:var(--text-subtle);
+  text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:8px;
+}
+.cl-list{list-style:none;padding:0;margin:0}
+.cl-list li{
+  padding:5px 0 5px 22px;position:relative;
+  font-size:13px;color:var(--text);line-height:1.55;
+}
+.cl-list li::before{
+  content:'';position:absolute;left:6px;top:11px;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--primary);
+}
+.cl-list.removed li::before{background:var(--accent-red)}
+.cl-list.fixed li::before{background:var(--accent-amber)}
+.cl-list code{
+  background:var(--bg-muted);
+  padding:1px 6px;border-radius:4px;
+  font-family:ui-monospace,monospace;
+  font-size:11.5px;color:var(--text);
+}
+.cl-list strong{font-weight:600;color:var(--text)}
+@media (max-width:720px){
+  .cl-version{padding:18px 20px}
+  .cl-hero h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+<aside class="sidebar">
+  <a class="logo" href="/dashboard">
+    <div class="lm"><svg width="22" height="22" viewBox="0 0 56 56" fill="none"><rect x="8" y="14" width="36" height="10" rx="2" fill="#A7F3D0" transform="rotate(-4 26 19)"/><rect x="10" y="22" width="36" height="10" rx="2" fill="#34D399"/><rect x="12" y="32" width="36" height="10" rx="2" fill="#059669" transform="rotate(3 30 37)"/></svg></div>
+    <div style="display:flex;flex-direction:column;line-height:1.15">
+      <span>GESEM</span>
+      <span class="logo-g">Planner</span>
+    </div>
+  </a>
+  <div class="nav">
+    <a class="nb" id="nb-p" href="/peticio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
+      <span data-i18n="nav.peticio">Nova petició</span>
+    </a>
+    <a class="nb" id="nb-gest" href="/gestio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+      <span data-i18n="nav.reserves">Reserves</span>
+    </a>
+    <a class="nb" id="nb-canvis" href="/canvis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+      <span data-i18n="nav.canvis">Canvis</span>
+    </a>
+    <a class="nb" id="nb-f" href="/formadors">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span data-i18n="nav.formadors">Formadors</span>
+    </a>
+    <a class="nb" id="nb-entrades" href="/entrades">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      <span data-i18n="nav.entrades">Entrades</span>
+    </a>
+  </div>
+  <div class="sidebar-user">
+    <div class="sidebar-user-av">G</div>
+    <span style="font-weight:600;color:var(--text)">GESEM</span>
+  </div>
+  <div class="sidebar-foot">
+    <a class="sb-foot-item" href="/changelog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span data-i18n="foot.changelog">Changelog</span>
+    </a>
+    <button class="sb-foot-item" onclick="toggleTheme()" aria-label="Canviar tema" id="sb-theme-btn">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <span id="sb-theme-label">Mode fosc</span>
+    </button>
+    <button class="sb-foot-item" id="sb-lang-btn" onclick="openLangMenu(this)" aria-label="Canviar idioma">
+      <span class="lang-flag" style="font-size:14px">🇨🇦</span>
+      <span><span data-i18n="foot.language">Idioma</span> · <span id="sb-lang-current" style="opacity:.7">CA</span></span>
+    </button>
+  </div>
+</aside>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+<div class="main-area">
+<div class="appbar">
+  <button class="mobile-toggle" aria-label="Menú" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Plegar/desplegar sidebar" aria-label="Plegar sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+  <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
+  <div class="appbar-spacer"></div>
+  <div id="appbar-menu-mount"></div>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v29</span>
+</div>
+<div class="content-area">
+
+<div class="cl-wrap">
+
+  <div class="cl-hero">
+    <h1>Historial de canvis</h1>
+    <div class="sub">Tot el que hem afegit a GESEM Planner</div>
+    <div class="cl-current">v29 · actual</div>
+  </div>
+
+  <!-- ════════════ v29 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v29 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">07 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Parser iCal pro: RRULE + TZID + cache persistent · Sincronitzacions que mai més es perden</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔁 Events recurrents (RRULE + EXDATE)</div>
+      <ul class="cl-list">
+        <li>El parser ara expandeix events recurrents segons l'estàndard <strong>RFC 5545</strong>. Si un formador té "Reunió cada dilluns" al seu calendari, l'app ara bloqueja <strong>tots</strong> els dilluns (abans només el primer).</li>
+        <li>Suport per a: <code>FREQ=DAILY/WEEKLY/MONTHLY/YEARLY</code>, <code>INTERVAL</code>, <code>COUNT</code>, <code>UNTIL</code>, <code>BYDAY=MO,WE,FR</code>, <code>BYMONTHDAY=15</code></li>
+        <li><strong>EXDATE</strong> respectat: si un usuari diu "tots els dilluns excepte el 18 de maig", l'app exclou correctament aquesta data</li>
+        <li>Salvaguardes: horitzó de 18 mesos vista, màxim 400 ocurrències per event (evita bombes computacionals)</li>
+        <li>Cobert amb 7 tests unitaris automàtics</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🌍 Timezone correcte (UTC → Madrid)</div>
+      <ul class="cl-list">
+        <li>Events amb sufix <code>Z</code> (UTC) ara es converteixen correctament a wall-clock de <strong>Europe/Madrid</strong> abans d'assignar la data</li>
+        <li>Cas concret cobert: un event Google a les 23:30Z de l'11 de maig es comptabilitza al <strong>dia 12</strong> a Madrid (DST +2h), no al dia 11</li>
+        <li>Usa <code>Intl.DateTimeFormat</code> sense dependències externes</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">💾 Cache de calendari persistent · 3 capes de defensa</div>
+      <ul class="cl-list">
+        <li><strong>Client (localStorage)</strong>: la pàgina restaura les dades de sincronització abans del primer render, evitant el flicker de "pendent de sincronitzar"</li>
+        <li><strong>Servidor (SQLite)</strong>: el cache d'iCal sobreviu reinicis del servei (<code>systemctl restart</code>, deploy, crash)</li>
+        <li><strong>Stale-while-error</strong>: si una sincronització falla per xarxa, l'app retorna dades antigues amb flag <code>stale</code> en lloc de mostrar res</li>
+        <li>Els cards de formador ara mostren <strong>"fa N min"</strong> indicant quan es va sincronitzar per última vegada</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🐛 Fix events all-day TRANSPARENT no detectats</div>
+      <ul class="cl-list fixed">
+        <li><strong>Causa:</strong> Google Calendar marca per defecte tots els events all-day com a <code>TRANSP:TRANSPARENT</code>. El parser els ignorava per ser "no-blocking" segons la spec iCal</li>
+        <li><strong>Conseqüència:</strong> un formador que posava "Vacances" o "Formació externa" en un dia sencer NO sortia com ocupat. Resultat: conflictes invisibles al planificar.</li>
+        <li><strong>Fix:</strong> all-day events compten com ocupats independentment del flag TRANSP (mantenint el comportament estricte només per events amb hora, on TRANSP:TRANSPARENT és un cas legítim)</li>
+        <li>Impacte real: el calendari del Ferran Garola passava de detectar 2 events a detectar tots 5 ✓</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v28 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v28 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">07 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Edició completa d'agents · Preview pre-reserva · Auto-refresc /formadors · UX +</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">👤 Edició completa d'agents comercials</div>
+      <ul class="cl-list">
+        <li><strong>Doble clic</strong> a qualsevol chip d'agent obre un modal d'edició</li>
+        <li>Permet canviar <strong>nom + color</strong> i <strong>pujar foto</strong> pròpia (avatar circular 256×256, alta resolució retina)</li>
+        <li>Tota la <strong>rodona de l'avatar</strong> és clicable per pujar foto · overlay fosc amb càmera al passar el ratolí</li>
+        <li>En renomenar un agent, el sistema migra automàticament <strong>totes les reserves associades</strong> (propagació al servidor + memòria local)</li>
+        <li>Endpoint nou <code>PUT /api/agents/:nom</code> que detecta col·lisions i rebutja noms duplicats</li>
+        <li>Botó d'<strong>eliminar</strong> integrat al modal amb avís si hi ha reserves afectades</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📧 Preview email abans de crear la reserva</div>
+      <ul class="cl-list">
+        <li>"Reservar + email (Comercial)" ara obre primer un <strong>preview editable</strong> del correu</li>
+        <li>4 accions disponibles: Cancel·lar · Copiar · <strong>Crear reserva sense enviar</strong> · <strong>Crear reserva i enviar</strong></li>
+        <li>Si l'usuari cancel·la, la reserva NO es crea (abans es creava sempre)</li>
+        <li>L'editor permet retocar destinatari, assumpte i cos abans de l'enviament SMTP final</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 Reorganització del card de proposta</div>
+      <ul class="cl-list">
+        <li><strong>Email formador</strong> i <strong>WhatsApp</strong> ara queden a l'esquerra del card (acció ràpida)</li>
+        <li>Eliminat el botó <strong>"Reservar"</strong> simple (era confús amb "Reservar + email")</li>
+        <li>L'únic botó d'acció ara és <strong>"Reservar + email (Comercial)"</strong>, alineat a la dreta</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔄 Auto-refresc de calendaris a /formadors</div>
+      <ul class="cl-list">
+        <li>Cada vegada que entres a la pàgina de formadors, es força un <strong>re-fetch de tots els iCal</strong> connectats</li>
+        <li>Toast resum quan acaba la sincronització (a part del cron diari de les 03:00)</li>
+        <li>Garanteix que la pàgina sempre mostra dades fresques sense haver de clicar el botó de refresc manual</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📐 Panell "Nova petició" més ample</div>
+      <ul class="cl-list">
+        <li>Amplada màxima del panell esquerre <strong>420px → 540px</strong> (+28%)</li>
+        <li>Més espai per als formularis sense haver de scrollejar lateralment ni truncar text llarg</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📷 Imatges en alta resolució</div>
+      <ul class="cl-list fixed">
+        <li><strong>Bug:</strong> les fotos es desaven a 42×42 (formadors) i 84×84 (agents) — quedaven pixelades en pantalles retina</li>
+        <li><strong>Fix:</strong> processador d'imatge unificat <code>processAvatarImage()</code>:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>Output 256×256 (suficient per a retina fins 128px de visualització)</li>
+            <li>Cover crop centrat (manté aspect ratio · no deforma)</li>
+            <li>Downsample en 2 passos amb smoothing high-quality</li>
+            <li>JPEG q=0.92 si la font és JPG (3-5× més petit) · PNG si cal transparència</li>
+          </ul>
+        </li>
+        <li>Límit de mida pujat de <strong>2MB → 20MB</strong> (body parser servidor: 32MB per cobrir el padding base64)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🐛 Fix botó "Restaurar esborrany"</div>
+      <ul class="cl-list fixed">
+        <li><strong>Causa:</strong> el banner tenia un <code>onclick="..."function"..."</code> amb cometes dobles dins de cometes dobles, que trencaven el parser HTML</li>
+        <li><strong>Fix:</strong> extret el codi a funcions netes <code>restorePeticioDraftWithToast()</code> i <code>discardPeticioDraftWithToast()</code> sense embolics de cometes</li>
+        <li>Ara el botó "Restaurar" recupera correctament tot el draft (camps, dies bloquejats, dates excloses, agent, formador preferit)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v27 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v27 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">07 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">IA real a /canvis · Suggeridor de formador · Google Calendar 2-way OAuth</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🧠 IA real a la pàgina /canvis</div>
+      <ul class="cl-list">
+        <li>Substituïda la lògica heurística per <strong>crides reals al model Llama 3.3 70B</strong> via Groq (<code>suggestChanges</code> a <code>lib/ai.js</code>)</li>
+        <li>L'IA rep <strong>tot el context</strong>: reserva, motiu del canvi, dates ja ocupades per altres reserves GESEM, festius, formadors alternatius amb les seves especialitats i ratings</li>
+        <li>Genera <strong>3 propostes</strong> amb score, raonament detallat i color codificat (best / opt2 / opt3)</li>
+        <li>Si l'IA falla per qualsevol motiu, <strong>fallback automàtic</strong> a la lògica heurística antiga (sense interrupció per l'usuari)</li>
+        <li>Endpoint nou: <code>POST /api/ai/suggest-changes</code></li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🤖 Suggeridor automàtic del millor formador</div>
+      <ul class="cl-list">
+        <li>Botó nou <strong>"Suggerir IA"</strong> al costat del selector de formador a la pàgina <code>/peticio</code></li>
+        <li>L'IA analitza el <strong>client + curs + especialitat</strong> i puntua tots els formadors segons:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>Continuïtat amb el client (històric de cursos previs) → +25 punts</li>
+            <li>Match d'especialitat exacta → +20 punts</li>
+            <li>Disponibilitat declarada → +15/+5/-10</li>
+            <li>Rating ≥4.5 → +10</li>
+            <li>Marge econòmic òptim → +10/+5/-5</li>
+          </ul>
+        </li>
+        <li>Retorna el <strong>TOP 3</strong> amb raonament curt + marge calculat per a cadascun</li>
+        <li>Endpoint nou: <code>POST /api/ai/suggest-formador</code></li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔗 Google Calendar 2-way sync (OAuth 2.0)</div>
+      <ul class="cl-list">
+        <li>Cada formador pot ara <strong>connectar el seu Google Calendar</strong> directament des del seu perfil amb un sol clic</li>
+        <li>Quan es <strong>confirma una reserva</strong>, el sistema crea automàticament tots els events al calendari del formador (un per sessió, amb torn correcte i descripció completa)</li>
+        <li>Els events porten <strong>extendedProperties</strong> per poder-los identificar i esborrar després si cal</li>
+        <li><strong>Refresh tokens</strong> persistits a SQLite: la connexió no caduca encara que l'access token sí</li>
+        <li>Es manté la lectura iCal antiga com a <strong>fallback</strong>: ningú perd funcionalitat</li>
+        <li>Endpoints nous: <code>/api/google/status</code>, <code>/auth/start</code>, <code>/callback</code>, <code>/connections</code>, <code>/disconnect</code>, <code>/sync-reserva</code></li>
+        <li>Mòdul nou: <code>lib/google.js</code> · <strong>Configuració Cloud Console</strong>: cal afegir <code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code> i <code>GOOGLE_REDIRECT_URI</code> al <code>.env</code> del servidor</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v26 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v26 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">07 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Cron de calendaris · Avatars d'agents · Fix manteniment</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Cron diari de calendaris</div>
+      <ul class="cl-list">
+        <li><strong>Cron al servidor</strong> 🌙 que cada nit a les <strong>03:00</strong> refetcha tots els iCal dels formadors i actualitza la cache (<code>refreshAllCalendarsCache</code> a <code>server.js</code>)</li>
+        <li><strong>Refresc on-demand al carregar Petició</strong>: en obrir <code>/peticio</code>, es dispara un refresc en segon pla de tots els calendaris perquè la proposta es generi amb dades fresques</li>
+        <li><strong>Endpoint manual</strong> <code>POST /api/admin/refresh-calendars</code> per disparar el refresc des de fora (per scripts, monitoring...)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Avatars dels agents comercials</div>
+      <ul class="cl-list fixed">
+        <li>Si un agent té el mateix nom que un formador amb foto, ara <strong>el botó d'agent mostra la foto del formador</strong> en lloc de les inicials. Útil per a Jordi Llopart i altres que apareguin a tots dos llocs.</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Fix mode manteniment</div>
+      <ul class="cl-list fixed">
+        <li><strong>Cause:</strong> el navegador cachejava la pàgina <code>/peticio</code>, així que en activar el manteniment seguia mostrant l'app antiga.</li>
+        <li><strong>Fix:</strong> totes les rutes HTML serveixen ara amb <code>Cache-Control: no-store, no-cache</code> + headers <code>Pragma</code> i <code>Expires</code>. La pàgina de manteniment també.</li>
+        <li><strong>Resultat:</strong> al activar/desactivar el toggle a <code>/admin</code>, la transició és instantània a la pestanya del navegador (només cal recarregar).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v25 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v25 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">06 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Bulk delete · Mode manteniment · Email redissenyat</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Selecció múltiple a Reserves</div>
+      <ul class="cl-list">
+        <li><strong>Checkboxes a la taula</strong> de reserves cancel·lades / arxivades (VF)</li>
+        <li>Capçalera amb <strong>"Seleccionar totes"</strong> i barra superior amb el comptador</li>
+        <li>Botó <strong>🗑 Eliminar seleccionades</strong> amb confirmació prèvia</li>
+        <li>Eliminació en bloc — molt més ràpid per netejar històric</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Mode manteniment</div>
+      <ul class="cl-list">
+        <li><strong>Pàgina <code>/admin</code></strong> nova amb panell de configuració d'administrador (no apareix a la sidebar normal)</li>
+        <li><strong>Toggle de manteniment</strong>: quan està actiu, tots els usuaris veuen <code>/maintenance</code> amb un missatge personalitzable</li>
+        <li><code>/admin</code> i <code>/api/admin/*</code> <strong>queden sempre accessibles</strong> per poder desactivar el mode des de dins</li>
+        <li><strong>API REST</strong> per llegir/escriure l'estat (<code>GET/POST /api/admin/maintenance</code>)</li>
+        <li>L'estat es persisteix a SQLite (mateix store que la resta)</li>
+        <li>Pàgina de manteniment amb auto-refresc cada 60s i logo SVG inline</li>
+        <li>Resum de l'estat de SMTP i IA a <code>/admin</code></li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Email del formador redissenyat</div>
+      <ul class="cl-list fixed">
+        <li><strong>Logo SVG inline</strong> (no més caixa verda buida): el logo de stacked cards ara es renderitza correctament a Gmail, Outlook i la majoria de clients</li>
+        <li><strong>Bloc CALENDARI duplicat eliminat</strong>: la funció <code>stripCalendarBlock()</code> detecta i treu el calendari del cos d'usuari per no aparèixer dues vegades (text + taula)</li>
+        <li><strong>3 cards de resum</strong> amb estadístiques (Sessions / Hores totals / Torn) en colors distintius (verd / blau / lila)</li>
+        <li><strong>Taula de sessions amb files alternades</strong> (zebra striping) per millor lectura</li>
+        <li><strong>Estructura semàntica</strong> amb <code>&lt;table role="presentation"&gt;</code> per màxima compatibilitat amb clients d'email antics</li>
+        <li><strong>Preheader</strong> (text breu que es veu a la safata d'entrada al costat del subject)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v24 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v24 <span class="cl-tag major">Major</span></div>
+      <div class="cl-date">06 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Email del formador amb Acceptar/Declinar + auto-add al calendari (.ics)</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Feature gran (#4)</div>
+      <ul class="cl-list">
+        <li><strong>Botó "✨ Enviar amb confirmació"</strong> al modal d'email del formador. Envia un email <strong>HTML</strong> amb:
+          <ul style="margin-top:6px">
+            <li>Disseny polit (logo GESEM, taula de sessions amb dies de la setmana)</li>
+            <li>Botó verd <strong>✓ Acceptar les dates</strong></li>
+            <li>Botó vermell <strong>✕ Declinar / proposar canvis</strong></li>
+            <li>Fitxer <code>.ics</code> adjunt amb totes les sessions (auto-add al calendari amb un sol clic)</li>
+          </ul>
+        </li>
+        <li><strong>Tokens HMAC signats</strong> (<code>lib/tokens.js</code>): cada link de l'email és únic i caduca a 60 dies. Impossible que un atacant endevini reserves alienes.</li>
+        <li><strong>Pàgina pública de resposta</strong> a <code>/r/:token</code> amb 3 vistes:
+          <ul style="margin-top:6px">
+            <li>View · mostra detalls + botons Accept/Decline si encara no ha respost</li>
+            <li>Accept · "Gràcies!" + descarregar .ics</li>
+            <li>Decline · form per al motiu</li>
+          </ul>
+        </li>
+        <li><strong>Auto-actualització de la reserva</strong>: si formador accepta, l'estat passa a <code>confirmada</code>. Si declina, queda registrat amb el motiu.</li>
+        <li><strong>Notificació automàtica al comercial</strong>: quan formador accepta o declina, el comercial rep email amb la novetat.</li>
+        <li><strong>Generador <code>.ics</code></strong> (<code>lib/ics.js</code>): RFC 5545, suporta múltiples sessions com a VEVENTs separats.</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">UX millorada</div>
+      <ul class="cl-list">
+        <li><strong>Sidebar plegable redissenyada</strong>: amaga TOT el text correctament, mostra <strong>tooltips a la dreta</strong> en hover (descobertes de la funcionalitat amb només icones), animació d'aparició suau, traducció automàtica de les tooltips quan canvies idioma.</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Backend nou</div>
+      <ul class="cl-list">
+        <li><code>POST /api/email/send-formador-confirm</code> · envia HTML + .ics + genera token</li>
+        <li><code>GET /r/:token</code> · pàgina de resposta del formador</li>
+        <li><code>POST /r/:token/decline</code> · processa declinació amb motiu</li>
+        <li><code>GET /r/:token/ics</code> · descarrega el calendari un cop acceptat</li>
+        <li>Variables noves al <code>.env</code>: <code>TOKEN_SECRET</code> (signatura HMAC), <code>BASE_URL</code> (URL pública del servidor)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⚠️ Limitació actual</div>
+      <ul class="cl-list">
+        <li>L'URL del servidor és <code>http://192.168.3.208:3001</code> (LAN GESEM). Si un formador clica el botó des de fora de l'oficina, no podrà accedir-hi. Cal exposar via Cloudflare Tunnel, reverse proxy públic, o VPN. <strong>De moment funciona només dins de la xarxa GESEM.</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v23 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v23 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">06 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Wave 2 · Sidebar plegable, refresh calendaris, sol·licitar URL, save draft formador</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Noves funcionalitats</div>
+      <ul class="cl-list">
+        <li><strong>Sidebar plegable</strong> ◀ · Botó a l'appbar per col·lapsar la sidebar a només icones (60px) — més espai per a la pàgina. Estat persistent a <code>localStorage</code>.</li>
+        <li><strong>Refresc automàtic de calendaris</strong> 🔄 · En crear una nova reserva, el calendari del formador assignat s'invalida i es re-fetcha del seu iCal (en segon pla). La resta de formadors també s'actualitzen amb prioritat menor.</li>
+        <li><strong>Botó "✉️ Demanar URL calendari"</strong> al modal de formador · envia un email amb instruccions detallades (Google Calendar, Outlook, iCloud) perquè el formador comparteixi la seva URL iCal.</li>
+        <li><strong>Save draft del formulari formador</strong> · si omples mig formulari nou i tanques per accident, l'app et proposa restaurar-lo en obrir-lo de nou. Inclou foto, especialitats i tots els camps. Caduca als 7 dies.</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Pendent (Wave 3)</div>
+      <ul class="cl-list">
+        <li>Vista calendari mensual del formador a la pàgina Petició (#3)</li>
+        <li>Botons accept/decline a l'email del formador + auto-add al seu calendari (#4)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v22 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v22 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">06 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Bugfixes + neteja UX (wave 1 de 13)</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Bugs arreglats</div>
+      <ul class="cl-list fixed">
+        <li><strong>"undefined dies ocupats"</strong> a les targetes de formador: <code>calData[id]</code> tenia dues representacions inconsistents. Unificat a <code>{slots, fullDayDates}</code>.</li>
+        <li><strong>Disponibilitat irreal</strong>: ara, si el formador té calendari sincronitzat, el % es calcula <strong>de veritat</strong> (dies laborables ocupats vs lliures als propers 60 dies). Si no, fallback al càlcul antic.</li>
+        <li><strong>Email al formador incloïa dates no disponibles</strong>: ara filtra les ocupades del cos principal i les afegeix com a "ALERTA · caldrà alternatives".</li>
+        <li><strong>Email "De" incorrecte</strong>: 2 modals tenien <code>gestio@gesem.es</code> hardcoded. Ara mostren <code>comunicacions@gesem.cat</code> (coincideix amb el From SMTP real).</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">UX polish</div>
+      <ul class="cl-list">
+        <li><strong>Eliminada la pàgina Dashboard</strong>: <code>/</code> redirigeix ara a <code>/peticio</code>, i <code>/dashboard</code> redirigeix a <code>/peticio</code> per compatibilitat.</li>
+        <li><strong>Tret botó "Copiar telèfon"</strong> de les targetes de formador (només queden Email i WhatsApp directe).</li>
+        <li><strong>Eliminar formador</strong>: nou botó al modal d'edició (només visible quan s'edita un existent), amb confirmació mostrant si té reserves actives.</li>
+        <li><strong>Eliminar reserva permanentment</strong>: nou botó 🗑 a la taula de Gestió per a reserves cancel·lades o arxivades (VF).</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Pendent (Wave 2-3)</div>
+      <ul class="cl-list">
+        <li>Sidebar plegable / desplegable</li>
+        <li>Botó "Sol·licitar URL calendari" al formador</li>
+        <li>Save draft del formulari de formador</li>
+        <li>Refresc automàtic dels calendaris al crear petició</li>
+        <li>Vista calendari mensual del formador a Petició</li>
+        <li>Botons accept/decline a l'email del formador + auto-add al seu calendari</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v21 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v21 <span class="cl-tag major">Major</span></div>
+      <div class="cl-date">06 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">IA real al parser d'emails (Groq + Llama 3.3)</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">IA real (no més heurístiques)</div>
+      <ul class="cl-list">
+        <li><strong>Mòdul <code>lib/ai.js</code></strong> 🤖 que crida l'API de Groq (compatible OpenAI) amb <strong>Llama 3.3 70B</strong></li>
+        <li>Substitueix les regex i keyword matching anteriors a la pàgina <strong>Entrades → Email comercial</strong></li>
+        <li>Precisió esperada: <strong>~95%</strong> en emails complexos (vs ~30% amb heurística)</li>
+        <li>Detecta dates relatives ("passada la Setmana Santa"), sinònims, modalitats híbrides, agents implícits</li>
+        <li>Retorna <strong>"notes" amb què és ambigu</strong> o què falta a l'email — visible com a banner groc al resultat</li>
+        <li><strong>Fallback automàtic</strong> a heurística si l'API falla (sense crash)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Endpoints nous</div>
+      <ul class="cl-list">
+        <li><code>GET /api/ai/status</code> — comprova si l'IA està configurada (sense exposar la key)</li>
+        <li><code>POST /api/ai/test</code> — verifica connexió a Groq sense gastar quota d'inferència</li>
+        <li><code>POST /api/ai/parse-email</code> — analitza un email i retorna els camps estructurats + temps + model utilitzat</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">UX</div>
+      <ul class="cl-list">
+        <li>Header del resultat indica <strong>model</strong> usat i <strong>temps de resposta</strong> (~500-1000ms via Groq)</li>
+        <li>Banner groc <strong>"💡 Notes IA"</strong> quan l'IA detecta ambigüitats</li>
+        <li>Confiança real (0-100) calculada per l'IA segons claredat del email</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Cost</div>
+      <ul class="cl-list">
+        <li><strong>0 €</strong> · Groq free tier inclou 14.400 req/dia (= 600/hora)</li>
+        <li>Velocitat: ~500 tokens/s (10× més ràpid que altres APIs)</li>
+        <li>Privadesa: emails es processen al cloud de Groq</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v20 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v20 <span class="cl-tag major">Major</span></div>
+      <div class="cl-date">06 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Enviament real d'emails (SMTP) + deploy a producció</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Sistema d'emails real</div>
+      <ul class="cl-list">
+        <li><strong>Mòdul SMTP</strong> 📤 amb <code>nodemailer</code>: substitueix el "copiar al portapapers" per enviament directe</li>
+        <li>Configuració via <code>.env</code> (mai al codi committat) carregada per systemd amb <code>EnvironmentFile</code></li>
+        <li>Connexió segura SSL al port 465 a <code>mail.gesem.cat</code></li>
+        <li>3 endpoints nous:
+          <ul style="margin-top:6px">
+            <li><code>GET /api/email/status</code> — comprova si està configurat (sense exposar la contrasenya)</li>
+            <li><code>POST /api/email/test</code> — verifica la connexió SMTP sense enviar</li>
+            <li><code>POST /api/email/send</code> — envia un email amb {to, subject, text/html, replyTo, cc, bcc}</li>
+          </ul>
+        </li>
+        <li>Botó <strong>📤 Enviar</strong> afegit als 3 modals d'email (client, formador, pendents per agent) + funció <code>sendEmailViaSMTP()</code> al frontend</li>
+        <li>Estat visual durant l'enviament: el botó passa a "Enviant..." i la toast mostra "✓ Email enviat a [destinatari]"</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Deploy a producció</div>
+      <ul class="cl-list">
+        <li><strong>App en producció</strong> a <code>http://192.168.3.208:3001</code> (servidor Ubuntu intern de la xarxa GESEM)</li>
+        <li>Servei <strong>systemd</strong> amb auto-restart i hardening (ProtectSystem, NoNewPrivileges, ReadWritePaths)</li>
+        <li>Backup diari programat amb <strong>cron</strong> a les 03:00</li>
+        <li>Scripts de deploy reutilitzables: <code>deploy/setup-server.sh</code>, <code>deploy/gesem-planner.service</code></li>
+        <li>Workflow d'actualització: build ZIP local → SCP → unzip al servidor → restart</li>
+        <li>Autenticació via <strong>SSH keys</strong> (Ed25519) — sense contrasenyes per a futures actualitzacions</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Seguretat</div>
+      <ul class="cl-list">
+        <li><code>.env</code> al servidor amb permisos <code>600</code> (només l'usuari del procés)</li>
+        <li><code>.gitignore</code> exclou <code>.env</code> i <code>.env.local</code> per defecte</li>
+        <li>L'endpoint <code>/api/email/status</code> mai retorna la contrasenya en text pla (la mostra com <code>***</code>)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v19 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v19 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">04 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Sistema d'idiomes (CA / ES) bilingüe</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Internacionalització (i18n)</div>
+      <ul class="cl-list">
+        <li><strong>Sistema d'i18n complet</strong> 🌐 amb suport per a <strong>català</strong> i <strong>castellà</strong> (<code>public/js/i18n.js</code>, ~26 KB)</li>
+        <li><strong>180+ traduccions</strong> que cobreixen sidebar, appbar, formularis, filtres, tabs, KPIs, toasts i confirm dialogs</li>
+        <li><strong>Detecció automàtica</strong> de l'idioma del navegador a la primera visita</li>
+        <li><strong>Persistència</strong> a <code>localStorage</code> — la preferència segueix entre sessions</li>
+        <li><strong>Sense recarregar</strong>: el canvi d'idioma s'aplica instantàniament a tota la pàgina (event <code>langchange</code>)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Selector d'idioma millorat</div>
+      <ul class="cl-list">
+        <li><strong>Popover</strong> al peu de la sidebar amb les 2 opcions visibles (🇨🇦 Català · 🇪🇸 Español)</li>
+        <li>L'idioma actiu es destaca amb fons emerald i <strong>check verd ✓</strong></li>
+        <li>Animació suau d'aparició (slide + fade)</li>
+        <li>Es tanca al clicar fora o seleccionar opció</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Cobertura per pàgina</div>
+      <ul class="cl-list">
+        <li><strong>Petició</strong>: 44 atributs (formulari sencer · sections · placeholders · botons distribució)</li>
+        <li><strong>Canvis</strong>: 30 atributs (4 tipus de canvi · opcions · tabs)</li>
+        <li><strong>Entrades</strong>: 25 atributs (3 tabs · botons IA · arxiu)</li>
+        <li><strong>Formadors</strong>: 22 atributs (cerca · filtres · panells laterals)</li>
+        <li><strong>Gestió</strong>: 21 atributs (chips d'estat · ordenacions)</li>
+        <li><strong>Dashboard</strong>: 20 atributs (KPIs · panel titles · salutació)</li>
+        <li><strong>Toasts a app.js</strong>: 12 missatges dinàmics traduïts amb fallback segur</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v18 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v18 <span class="cl-tag major">Major</span></div>
+      <div class="cl-date">04 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Dashboard, navegació i pàgina 404</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Noves pàgines</div>
+      <ul class="cl-list">
+        <li><strong>Dashboard</strong> 📊 com a pàgina d'inici (<code>/dashboard</code>): KPIs (reserves actives, pendents, facturat mes, hores, formadors), <strong>donut</strong> de distribució per estat, properes 7 sessions, top formadors per hores, top clients per facturat €, alertes automàtiques</li>
+        <li><strong>Pàgina 404</strong> personalitzada amb logo i enllaços a totes les seccions (substitueix <code>Cannot GET</code>)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Millores de navegació</div>
+      <ul class="cl-list">
+        <li><code>/</code> ara redirigeix a <strong>/dashboard</strong> (era <code>/peticio</code>)</li>
+        <li><strong>Logo de la sidebar és clicable</strong> → torna al dashboard</li>
+        <li><strong>Mode fosc i Changelog</strong> al peu de la sidebar (sota usuari)</li>
+        <li>Appbar simplificat: botó únic ⌨️ que obre les dreceres de teclat</li>
+        <li>Headers <code>Cache-Control: no-store</code> al 404 (impedeixen cachejar pàgines inexistents)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Fixes</div>
+      <ul class="cl-list fixed">
+        <li>Estructura HTML del peu de la sidebar: eliminats <code>&lt;span&gt;</code> i <code>&lt;/div&gt;</code> orfes que trencaven el layout</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v17 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v17 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">04 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Polish UX i optimitzacions</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Noves funcionalitats</div>
+      <ul class="cl-list">
+        <li><strong>Mode fosc</strong> 🌙 amb toggle persistent i detecció automàtica del SO</li>
+        <li><strong>Pàgina 404</strong> personalitzada amb enllaços ràpids a totes les seccions</li>
+        <li><strong>Pàgina <code>/changelog</code></strong> (aquesta) amb l'historial complet de versions</li>
+        <li><strong>Save draft</strong> automàtic del formulari Petició a <code>localStorage</code> (banner per restaurar)</li>
+        <li><strong>Estats buits informatius</strong> a Reserves, Canvis i Arxiu (amb CTA)</li>
+        <li><strong>Diàleg de confirmació</strong> polit per accions destructives (cancel·lar reserva, eliminar...)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Millores</div>
+      <ul class="cl-list">
+        <li>Endpoint <code>/api/bootstrap</code>: 4 fetches → 1 sol (latència reduïda)</li>
+        <li>Menú d'opcions a l'app bar (substitueix el toggle de tema de la sidebar)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v16 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v16 <span class="cl-tag minor">Minor</span></div>
+      <div class="cl-date">04 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Performance i mobile</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Noves funcionalitats</div>
+      <ul class="cl-list">
+        <li><strong>Mobile responsive</strong>: sidebar com a drawer lliscant amb backdrop</li>
+        <li><strong>Botó hamburger</strong> a l'app bar (només mòbil) per obrir/tancar la sidebar</li>
+        <li><strong>Keyboard shortcuts</strong> estil Linear:
+          <code>Ctrl+K</code> palette,
+          <code>G</code>+<code>P/R/C/F/E</code> navegació,
+          <code>N</code> nova petició,
+          <code>?</code> ajuda</li>
+        <li><strong>Compressió gzip</strong> al servidor: <code>app.js</code> de 144 KB → 37 KB a la xarxa</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Neteja</div>
+      <ul class="cl-list removed">
+        <li>Eliminats <code>index.html</code> (209 KB), <code>index.html.bak</code> i <code>logos.html</code></li>
+        <li>Alliberats <strong>432 KB</strong> del repositori</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v15 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v15 <span class="cl-tag patch">Patch</span></div>
+      <div class="cl-date">04 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Identitat de marca</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Disseny</div>
+      <ul class="cl-list">
+        <li><strong>Logo nou</strong>: stacked cards en degradat verd (representa reserves apilades)</li>
+        <li><strong>Favicon</strong> SVG escalable a totes les pàgines</li>
+        <li><code>apple-touch-icon</code> i <code>theme-color</code> per a iOS i Chrome mòbil</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v14 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v14 <span class="cl-tag major">Major</span></div>
+      <div class="cl-date">04 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Pàgines separades amb URLs reals</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Arquitectura</div>
+      <ul class="cl-list">
+        <li>SPA monolítica → <strong>5 pàgines independents</strong> (<code>/peticio</code>, <code>/gestio</code>, <code>/canvis</code>, <code>/formadors</code>, <code>/entrades</code>)</li>
+        <li>CSS extret a <code>public/css/styles.css</code></li>
+        <li>JS extret a <code>public/js/app.js</code> amb routing automàtic</li>
+        <li>Botó "Enrere" del navegador funciona, URLs es poden compartir/bookmark</li>
+        <li>Rutes Express netes, redirecció <code>/</code> → <code>/peticio</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v13 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v13 <span class="cl-tag major">Major</span></div>
+      <div class="cl-date">04 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Redisseny estil Notion / Stripe</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Disseny</div>
+      <ul class="cl-list">
+        <li><strong>Sidebar lateral</strong> amb icones (substitueix top nav)</li>
+        <li><strong>Tipografia Inter</strong> (Google Fonts)</li>
+        <li>Paleta off-white càlid + emerald primary</li>
+        <li>Cards amb shadow subtil + hover elevat</li>
+        <li>Botons, badges, pills i inputs refinats</li>
+        <li>Backdrop blur als modals</li>
+        <li>Scrollbars estilats fins</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v12 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v12 <span class="cl-tag major">Major</span></div>
+      <div class="cl-date">04 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Migració a SQLite + sistema de backups</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Backend</div>
+      <ul class="cl-list">
+        <li><strong>SQLite</strong> (<code>better-sqlite3</code>) en mode WAL substitueix els fitxers JSON</li>
+        <li>Atomicitat: impossible corrompre dades per escriptures concurrents</li>
+        <li>Script <code>scripts/migrate.js</code> per migrar JSON → DB</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Backups</div>
+      <ul class="cl-list">
+        <li>Script <code>scripts/backup.js</code> amb online backup (segur amb el servidor actiu)</li>
+        <li><strong>Tasca programada Windows</strong> diària a les 03:00</li>
+        <li>Retenció: últims 14 backups (esborrat automàtic)</li>
+        <li>S'executa també amb bateria, es desperta si l'ordinador estava apagat</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v11 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v11 <span class="cl-tag patch">Patch</span></div>
+      <div class="cl-date">abans de l'auditoria</div>
+    </div>
+    <div class="cl-vtitle">Versió original (punt de partida)</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">Capacitats existents</div>
+      <ul class="cl-list">
+        <li>5 pàgines: Petició, Gestió, Canvis, Formadors, Entrades</li>
+        <li>Integració iCal real per saber disponibilitat de formadors</li>
+        <li>Scoring sofisticat (especialitat, càrrega, disponibilitat, marge)</li>
+        <li>Càlcul automàtic de dates (festius, exclusions, distribució)</li>
+        <li>Plantilles d'email per a clients i formadors (copia al portapapers)</li>
+        <li>Persistència en fitxers JSON</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /content-area -->
+</div><!-- /main-area -->
+</div><!-- /app-shell -->
+
+<div class="toast" id="toast"></div>
+
+<script src="/js/i18n.js" defer></script>
+<script src="/js/shortcuts.js" defer></script>
+</body>
+</html>

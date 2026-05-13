@@ -1,0 +1,52 @@
+# ── Dependencies ────────────────────────────────
+node_modules/
+package-lock.json.bak
+
+# ── Environment + secrets ───────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ── Database & data files (es generen al servidor) ──
+data/
+backups/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# ── Deploy artifacts ────────────────────────────
+*.zip
+deploy/dist/
+
+# ── Logs ────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── OS files ────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Editor / IDE ────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.history/
+
+# ── Temp ────────────────────────────────────────
+tmp/
+temp/
+.cache/
+_test_*.js
+*.tmp

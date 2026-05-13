@@ -1,0 +1,30 @@
+[Unit]
+Description=GESEM Planner - Gestió de reserves de formació
+Documentation=https://github.com/gesem/planner
+After=network.target
+
+[Service]
+Type=simple
+User=fgarola
+Group=fgarola
+WorkingDirectory=/opt/gesem-planner
+Environment="NODE_ENV=production"
+Environment="PORT=3001"
+# Carregar credencials SMTP des d'un fitxer .env (chmod 600)
+EnvironmentFile=-/opt/gesem-planner/.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gesem-planner
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/opt/gesem-planner/data /opt/gesem-planner/backups
+
+[Install]
+WantedBy=multi-user.target

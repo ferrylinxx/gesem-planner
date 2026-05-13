@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GESEM Planner · Petició</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="apple-touch-icon" href="/favicon.svg"/>
+<meta name="theme-color" content="#059669"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<div class="app-shell">
+
+<aside class="sidebar">
+  <a class="logo" href="/dashboard">
+    <div class="lm"><svg width="22" height="22" viewBox="0 0 56 56" fill="none"><rect x="8" y="14" width="36" height="10" rx="2" fill="#A7F3D0" transform="rotate(-4 26 19)"/><rect x="10" y="22" width="36" height="10" rx="2" fill="#34D399"/><rect x="12" y="32" width="36" height="10" rx="2" fill="#059669" transform="rotate(3 30 37)"/></svg></div>
+    <div style="display:flex;flex-direction:column;line-height:1.15">
+      <span>GESEM</span>
+      <span class="logo-g">Planner</span>
+    </div>
+  </a>
+
+  <div class="nav">
+    <a class="nb act" id="nb-p" href="/peticio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>
+      <span data-i18n="nav.peticio">Nova petició</span>
+    </a>
+    <a class="nb" id="nb-gest" href="/gestio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+      <span data-i18n="nav.reserves">Reserves</span>
+    </a>
+    <a class="nb" id="nb-canvis" href="/canvis">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+      <span data-i18n="nav.canvis">Canvis</span>
+    </a>
+    <a class="nb" id="nb-f" href="/formadors">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span data-i18n="nav.formadors">Formadors</span>
+    </a>
+    <a class="nb" id="nb-entrades" href="/entrades">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      <span data-i18n="nav.entrades">Entrades</span>
+    </a>
+  </div>
+  <div class="sidebar-user">
+    <div class="sidebar-user-av">G</div>
+    <span style="font-weight:600;color:var(--text)">GESEM</span>
+  </div>
+  <div class="sidebar-foot">
+    <a class="sb-foot-item" href="/changelog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span data-i18n="foot.changelog">Changelog</span>
+    </a>
+    <button class="sb-foot-item" onclick="toggleTheme()" aria-label="Canviar tema" id="sb-theme-btn">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <span id="sb-theme-label">Mode fosc</span>
+    </button>
+    <button class="sb-foot-item" id="sb-lang-btn" onclick="openLangMenu(this)" aria-label="Canviar idioma">
+      <span class="lang-flag" style="font-size:14px">🇨🇦</span>
+      <span><span data-i18n="foot.language">Idioma</span> · <span id="sb-lang-current" style="opacity:.7">CA</span></span>
+    </button>
+  </div>
+</aside>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+<div class="main-area">
+<div class="appbar">
+  <button class="mobile-toggle" aria-label="Menú" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <button class="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" title="Plegar/desplegar sidebar" aria-label="Plegar sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+  <div class="appbar-title" id="appbar-title" data-i18n="page.peticio">Nova petició</div>
+  <div class="appbar-spacer"></div>
+  <div id="appbar-menu-mount"></div>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v29</span>
+</div>
+<div class="content-area">
+
+<!-- PETICIÓ -->
+<div class="vp act" id="page-p">
+<div class="ml">
+<div class="lc">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:12px;font-weight:500" data-i18n="page.peticio">Nova petició</div>
+    <button class="btn btn-sm" style="color:#6b6b67;font-size:11px" onclick="clearPeticio()">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="vertical-align:-1px;margin-right:3px"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span data-i18n="btn.clear">Netejar</span>
+    </button>
+  </div>
+
+  <div class="sh" style="margin-top:0" data-i18n="pet.section.curs">Dades del curs</div>
+  <div class="fi"><label data-i18n="pet.client">Client</label><input id="p-client" placeholder="Nom de l'empresa client" data-i18n-placeholder="pet.client.ph" oninput="lf()"/></div>
+  <div class="fi"><label data-i18n="pet.curs">Nom del curs</label><input id="p-curs" placeholder="Títol del curs" data-i18n-placeholder="pet.curs.ph" oninput="lf()"/></div>
+  <div class="g2">
+    <div class="fi"><label data-i18n="pet.especialitat">Especialitat</label>
+      <div class="sw"><select id="p-esp" onchange="lf()"></select><button class="bi on" onclick="togIE('esp',this)">+</button></div>
+      <div id="ie-esp"></div>
+    </div>
+    <div class="fi"><label data-i18n="pet.modalitat">Modalitat</label>
+      <div class="sw"><select id="p-modal"></select><button class="bi" onclick="togIE('modal',this)">+</button></div>
+      <div id="ie-modal"></div>
+    </div>
+  </div>
+
+  <!-- FORMADOR PREFERIT -->
+  <div class="sh" data-i18n="pet.section.preferit">Formador preferit (opcional)</div>
+  <div id="form-pref-display"></div>
+  <div class="fi">
+    <div class="sw">
+      <select id="p-form-pref" onchange="setFormPref()">
+        <option value="" data-i18n="pet.preferit">Cap preferència · flux habitual</option>
+      </select>
+    </div>
+    <div style="font-size:10px;color:#6b6b67;margin-top:2px" data-i18n="pet.preferit.help">Si el client demana un formador específic, es prioritzarà a la proposta.</div>
+  </div>
+
+  <div class="sh" data-i18n="pet.section.agent" style="display:flex;align-items:center;gap:8px">Agent comercial <span style="font-size:10px;color:#71717A;font-weight:400;font-style:italic">· doble clic per editar</span></div>
+  <div class="agent-selector" id="agent-selector"></div>
+  <div class="agent-new-form" id="agent-new-form">
+    <div style="font-size:11px;color:#6b6b67;margin-bottom:5px" data-i18n="pet.agent.new">Nou agent:</div>
+    <div style="display:flex;gap:5px;align-items:center">
+      <input type="text" id="agent-new-input" placeholder="Nom complet..." data-i18n-placeholder="pet.agent.placeholder" style="flex:1;padding:5px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:6px;background:#fff;color:#1a1a1a;font-size:12px;font-family:inherit" onkeydown="if(event.key==='Enter')addAgent()"/>
+      <button class="btn btn-p btn-sm" onclick="addAgent()" data-i18n="btn.add">Afegir</button>
+      <button class="btn btn-sm" onclick="document.getElementById('agent-new-form').classList.remove('open')">×</button>
+    </div>
+  </div>
+
+  <div class="sh" data-i18n="pet.section.horari">Horari</div>
+  <div class="g3">
+    <div class="fi"><label data-i18n="pet.hores">Hores totals</label><input type="number" id="p-hores" value="16" min="2" oninput="ua()"/></div>
+    <div class="fi"><label data-i18n="pet.hsess">Hores/sessió</label>
+      <div class="sw"><select id="p-hsess" onchange="ua()"></select><button class="bi" onclick="togIE('hsess',this)">+</button></div>
+      <div id="ie-hsess"></div>
+    </div>
+    <div class="fi"><label data-i18n="pet.ssw">Sess./setm.</label>
+      <select id="p-ssw" onchange="upD();ua()">
+        <option value="1" data-i18n="pet.ssw.1">1/setm</option><option value="2" selected data-i18n="pet.ssw.2">2/setm</option><option value="3" data-i18n="pet.ssw.3">3/setm</option>
+      </select>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="fi"><label data-i18n="pet.torn">Torn preferit</label>
+      <div class="sw"><select id="p-torn" onchange="lf()"></select><button class="bi" onclick="togIE('torn',this)">+</button></div>
+      <div id="ie-torn"></div>
+    </div>
+    <div class="fi">
+      <label style="display:flex;align-items:center;gap:5px"><span data-i18n="pet.inici">Data inici</span> <span style="background:#E6F1FB;color:#0C447C;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:500" data-i18n="pet.inici.tag">orientativa</span></label>
+      <input type="date" id="p-inici" value="2026-04-14" oninput="ua();renderFestiusInfo()"/>
+      <div id="festius-info" style="font-size:10px;color:#6b6b67;margin-top:4px;line-height:1.5"></div>
+    </div>
+  </div>
+  <div class="sh" data-i18n="pet.section.distrib">Distribució de dies</div>
+  <div style="font-size:10px;color:#6b6b67;margin-bottom:5px" id="dh"><span data-i18n="pet.distrib.help">Selecciona la distribució:</span></div>
+  <div class="distrib-opts" id="do"></div>
+  <div class="sh" style="margin-top:10px" data-i18n="pet.section.preu">Preu i restriccions</div>
+  <div class="fi"><label data-i18n="pet.preu">Preu/hora client (€)</label><input type="number" id="p-preu" value="75" min="0" oninput="ua()"/></div>
+  <div style="font-size:10px;color:#6b6b67;margin-bottom:5px"><span data-i18n="pet.bloquejats.help">Dies bloquejats:</span></div>
+  <div class="day-sel" id="bdays">
+    <button class="ds" data-d="1" onclick="togDay(this)" data-i18n="day.mon">Dl</button>
+    <button class="ds" data-d="2" onclick="togDay(this)">Dm</button>
+    <button class="ds" data-d="3" onclick="togDay(this)" data-i18n="day.wed">Dc</button>
+    <button class="ds" data-d="4" onclick="togDay(this)">Dj</button>
+    <button class="ds" data-d="5" onclick="togDay(this)" data-i18n="day.fri">Dv</button>
+  </div>
+  <div style="display:flex;gap:5px;align-items:center;margin-bottom:4px">
+    <input type="date" id="excl-in" style="flex:1;padding:5px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;font-family:inherit"/>
+    <button class="btn btn-sm" onclick="addEx()" data-i18n="pet.excloure">+ Excloure</button>
+  </div>
+  <div id="excl-list"></div>
+  <div class="rsm">
+    <div>
+      <div style="font-size:12px;color:#085041;font-weight:500" id="rsm-t"></div>
+      <div style="font-size:11px;color:#0F6E56;margin-top:1px" id="rsm-e"></div>
+    </div>
+    <button class="btn btn-p" style="font-size:12px" onclick="genProp()" data-i18n="btn.generate">Generar proposta</button>
+  </div>
+</div>
+
+<div class="rc">
+  <div id="r-live">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div style="font-size:13px;font-weight:500" data-i18n="pet.candidats">Formadors candidats</div>
+        <div style="font-size:11px;color:#6b6b67;margin-top:1px" id="fc-sub"><span data-i18n="pet.candidats.sub">Omple el formulari per veure candidats</span></div>
+      </div>
+      <div id="fc-badge" style="display:none;background:#E6F1FB;color:#0C447C;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500"></div>
+    </div>
+    <div id="flive"></div>
+  </div>
+  <div id="r-prop" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div style="font-size:13px;font-weight:500" data-i18n="pet.proposta.title">Proposta generada</div>
+        <div style="font-size:11px;color:#6b6b67;margin-top:1px" id="prop-sub"></div>
+      </div>
+      <button class="btn btn-sm" onclick="showLive()" data-i18n="btn.back">← Tornar</button>
+    </div>
+    <div id="prop-body"></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- MODAL FORMADOR -->
+<div id="fm-bg" class="modal-bg">
+  <div class="modal-box" style="width:500px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div style="font-size:14px;font-weight:500" id="fm-title">Nou formador</div>
+      <button class="btn-g" onclick="closeFM()">✕</button>
+    </div>
+    <div id="fm-body"></div>
+    <div style="display:flex;gap:7px;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap">
+      <button id="fm-delete-btn" class="btn btn-sm" style="display:none;background:#FCEBEB;border-color:#F09595;color:#791F1F" onclick="deleteFormador()">🗑 Eliminar formador</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-sm" onclick="closeFM()">Cancel·lar</button>
+      <button class="btn btn-p btn-sm" onclick="saveFM()">Desar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EMAIL COMERCIAL -->
+<div id="email-bg" class="modal-bg">
+  <div class="modal-box" style="width:660px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div style="font-size:14px;font-weight:500" id="email-modal-title">Email al comercial</div>
+      <button class="btn-g" onclick="closeEmail()">✕</button>
+    </div>
+    <div class="fi"><label>De</label><input id="email-de" value="gestio@gesem.es" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Per a</label><input id="email-para" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Assumpte</label><input id="email-assumpte" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Missatge (editable)</label>
+      <textarea id="email-cos" style="min-height:280px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;line-height:1.6;width:100%"></textarea>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="closeEmail()">Cancel·lar</button>
+      <button class="btn btn-sm" onclick="copyEmail()">Copiar text</button>
+      <button class="btn btn-p btn-sm" onclick="sendEmailGeneric(this)">📤 Enviar</button>
+      <button class="btn btn-p btn-sm" onclick="markEmailSent()">Marcar com a enviat ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EMAIL FORMADOR -->
+<div id="emailf-bg" class="modal-bg">
+  <div class="modal-box" style="width:580px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div style="font-size:14px;font-weight:500" id="emailf-title">Email al formador</div>
+      <button class="btn-g" onclick="document.getElementById('emailf-bg').style.display='none'">✕</button>
+    </div>
+    <div style="background:#E1F5EE;border-radius:8px;padding:8px 11px;margin-bottom:10px;font-size:12px;color:#085041">Email independent de la comunicació amb el comercial. Confirmació directa amb el formador.</div>
+    <div class="fi"><label>Per a (formador)</label><input id="emailf-para" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Assumpte</label><input id="emailf-assumpte" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
+    <div class="fi"><label>Missatge (editable)</label>
+      <textarea id="emailf-cos" style="min-height:220px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:13px;font-family:inherit;resize:vertical;line-height:1.65;width:100%"></textarea>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="document.getElementById('emailf-bg').style.display='none'">Cancel·lar</button>
+      <button class="btn btn-sm" onclick="copyEmailF()">Copiar text</button>
+      <button class="btn btn-p btn-sm" onclick="sendEmailFormador(this)">📤 Enviar simple</button>
+      <button class="btn btn-sm" style="background:#534AB7;color:#fff;border-color:#534AB7" onclick="sendEmailFormadorConfirm(this)">✨ Enviar amb confirmació</button>
+      <button class="btn btn-p btn-sm" onclick="document.getElementById('emailf-bg').style.display='none';toast('Email formador marcat com enviat')">Marcat com a enviat ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESUM PENDENTS PER AGENT -->
+<div id="pendents-bg" class="modal-bg">
+  <div class="modal-box" style="width:680px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div style="font-size:14px;font-weight:500">Recordatori reserves pendents</div>
+        <div style="font-size:11px;color:#6b6b67;margin-top:2px" id="pendents-subtitle"></div>
+      </div>
+      <button class="btn-g" onclick="document.getElementById('pendents-bg').style.display='none'">✕</button>
+    </div>
+    <!-- Navegació agents -->
+    <div id="pendents-nav" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+      <span style="font-size:11px;color:#6b6b67;font-weight:500;margin-right:4px">Agent:</span>
+    </div>
+    <!-- Camp email -->
+    <div style="display:flex;gap:7px;margin-bottom:6px;align-items:center;flex-wrap:wrap">
+      <div style="flex:1;display:flex;align-items:center;gap:6px;background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;padding:5px 9px">
+        <span style="font-size:10px;color:#6b6b67;font-weight:500;white-space:nowrap">Per a:</span>
+        <span id="pendents-para" style="font-size:12px;color:#1a1a1a"></span>
+      </div>
+      <div style="flex:2;display:flex;align-items:center;gap:6px;background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;padding:5px 9px">
+        <span style="font-size:10px;color:#6b6b67;font-weight:500;white-space:nowrap">Assumpte:</span>
+        <span id="pendents-assumpte" style="font-size:12px;color:#1a1a1a"></span>
+      </div>
+    </div>
+    <!-- Cos editable -->
+    <textarea id="pendents-cos" style="width:100%;min-height:320px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;line-height:1.65"></textarea>
+    <!-- Accions -->
+    <div style="display:flex;gap:7px;justify-content:space-between;margin-top:10px;flex-wrap:wrap;align-items:center">
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" id="pendents-prev-btn" onclick="navPendentsAgent(-1)">← Anterior</button>
+        <button class="btn btn-sm" id="pendents-next-btn" onclick="navPendentsAgent(1)">Següent →</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="copyPendentsEmail()">Copiar text</button>
+        <button class="btn btn-p btn-sm" onclick="sendPendentsEmail(this)">📤 Enviar</button>
+        <button class="btn btn-p btn-sm" onclick="markPendentsEnviat()">Marcat com a enviat ✓</button>
+      </div>
+    </div>
+    <div id="pendents-progress" style="margin-top:8px;font-size:11px;color:#6b6b67;text-align:center"></div>
+  </div>
+</div>
+
+</div><!-- /content-area -->
+</div><!-- /main-area -->
+</div><!-- /app-shell -->
+
+<div class="toast" id="toast"></div>
+
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spin"></div>
+  <div class="lbl">Carregant GESEM Planner...</div>
+</div>
+
+<script src="/js/i18n.js" defer></script>
+<script src="/js/shortcuts.js" defer></script>
+<script src="/js/app.js" defer></script>
+</body>
+</html>

@@ -1,716 +1,3 @@
-<!DOCTYPE html>
-<html lang="ca">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>GESEM Planner v11</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#1a1a1a;background:#f5f4f0}
-.topbar-outer{background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.1);padding:8px 0}
-.topbar{width:92%;max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.logo{font-size:14px;font-weight:500;display:flex;align-items:center;gap:7px}
-.lm{width:22px;height:22px;background:#1D9E75;border-radius:5px;display:flex;align-items:center;justify-content:center}
-.logo-g{color:#1D9E75}
-.nav{display:flex;gap:1px}
-.nb{padding:5px 12px;border-radius:8px;border:none;background:transparent;color:#6b6b67;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;transition:all .12s}
-.nb:hover{background:#f5f4f0;color:#1a1a1a}
-.nb.act{background:#E1F5EE;color:#085041}
-.nb.act-p{background:#E6F1FB;color:#0C447C}
-.wrap{width:92%;max-width:1440px;margin:0 auto}
-.ml{display:grid;grid-template-columns:50% 50%;gap:0;width:92%;max-width:1440px;margin:0 auto}
-.lc{border-right:0.5px solid rgba(0,0,0,0.1);background:#fff;padding:12px;overflow-y:auto;max-height:calc(100vh - 44px)}
-.rc{background:#f5f4f0;padding:12px;overflow-y:auto;max-height:calc(100vh - 44px)}
-.sh{font-size:10px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;margin-top:11px}
-.sh:first-child{margin-top:0}
-.fi{display:flex;flex-direction:column;gap:3px;margin-bottom:7px}
-.fi label{font-size:11px;color:#6b6b67;font-weight:500}
-.fi input,.fi select{padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit}
-.fi input:focus,.fi select:focus{outline:none;border-color:#1D9E75;background:#fff}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
-.sw{display:flex;gap:4px;align-items:center}.sw select{flex:1}
-.bi{width:24px;height:24px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:6px;border:0.5px solid rgba(0,0,0,0.18);background:transparent;cursor:pointer;color:#6b6b67;font-size:14px;flex-shrink:0;font-family:inherit}
-.bi:hover{background:#f5f4f0}.bi.on{background:#E6F1FB;border-color:#85B7EB;color:#0C447C}
-.ie{background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.1);border-radius:6px;overflow:hidden;margin-top:3px}
-.ie-it{display:flex;align-items:center;gap:5px;padding:5px 8px;border-bottom:0.5px solid rgba(0,0,0,0.07);font-size:11px}
-.ie-it:last-child{border-bottom:none}.ie-it:hover{background:#fff}.ie-it span{flex:1}
-.ie-add{padding:6px 8px;display:flex;gap:5px;background:#fff}
-.ie-add input{flex:1;padding:4px 7px;border:0.5px solid rgba(0,0,0,0.18);border-radius:4px;background:#f5f4f0;color:#1a1a1a;font-size:11px;font-family:inherit}
-.ie-add input:focus{outline:none;border-color:#1D9E75}
-.day-sel{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
-.ds{width:32px;height:32px;border-radius:50%;border:0.5px solid rgba(0,0,0,0.18);background:transparent;cursor:pointer;font-size:11px;font-weight:500;color:#6b6b67;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;font-family:inherit}
-.ds:hover:not(.disabled-day){border-color:#1D9E75}
-.ds.blocked{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
-.ds.disabled-day{opacity:.3;cursor:not-allowed;pointer-events:none}
-.distrib-opts{display:flex;gap:5px;flex-wrap:wrap}
-.do-btn{padding:5px 11px;border-radius:20px;border:0.5px solid rgba(0,0,0,0.18);background:transparent;cursor:pointer;font-size:11px;font-weight:500;color:#6b6b67;transition:all .15s;font-family:inherit}
-.do-btn:hover:not(:disabled){border-color:#1D9E75;color:#1a1a1a}
-.do-btn.sel{background:#1D9E75;border-color:#1D9E75;color:#fff}
-.do-btn:disabled{opacity:.3;cursor:not-allowed;text-decoration:line-through}
-.excl-tag{background:#FCEBEB;border:0.5px solid #F09595;color:#791F1F;padding:2px 6px;border-radius:20px;font-size:10px;display:inline-flex;align-items:center;gap:3px;cursor:pointer;margin:2px}
-.agent-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
-.agent-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 8px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.12);background:transparent;transition:all .15s;font-family:inherit}
-.agent-btn:hover{border-color:#1D9E75;background:#f5f4f0}
-.agent-btn.sel{border:2px solid #1D9E75;background:#E1F5EE}
-.agent-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#fff}
-.agent-name{font-size:10px;color:#6b6b67;font-weight:500;text-align:center;line-height:1.2;max-width:52px}
-.agent-btn.sel .agent-name{color:#085041}
-.agent-add-btn{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 8px;border-radius:10px;border:0.5px dashed rgba(0,0,0,0.2);background:transparent;font-family:inherit;transition:all .15s}
-.agent-add-btn:hover{border-color:#1D9E75}
-.agent-add-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#6b6b67;background:#f5f4f0}
-.agent-new-form{background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.12);border-radius:10px;padding:8px 10px;margin-top:6px;display:none}
-.agent-new-form.open{display:block}
-/* FORMADOR PREFERIT */
-.form-pref-box{background:#E1F5EE;border:1.5px solid #1D9E75;border-radius:10px;padding:8px 11px;margin-bottom:8px;display:flex;align-items:center;gap:9px}
-.form-pref-clear{background:none;border:none;cursor:pointer;color:#791F1F;font-size:16px;padding:0;font-family:inherit;flex-shrink:0}
-/* BUTTONS */
-.rsm{background:#E1F5EE;border-radius:8px;padding:8px 11px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.btn{padding:6px 13px;border-radius:8px;border:0.5px solid rgba(0,0,0,0.18);background:transparent;color:#1a1a1a;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;transition:all .12s}
-.btn:hover{background:#f5f4f0}
-.btn-p{background:#1D9E75;color:#fff;border-color:#1D9E75}.btn-p:hover{background:#0F6E56}
-.btn-sm{padding:3px 8px;font-size:11px}
-.btn-g{border:none;background:transparent;cursor:pointer;color:#6b6b67;font-size:12px;padding:3px 5px;border-radius:4px;font-family:inherit}
-.btn-g:hover{background:#f5f4f0}
-.btn-icon{width:26px;height:26px;border-radius:6px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;transition:all .12s;font-family:inherit;flex-shrink:0}
-.btn-icon:hover{background:#f5f4f0}
-/* FORMADORS CARDS */
-.fcard{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:10px 12px;margin-bottom:7px;cursor:pointer;position:relative;transition:all .12s}
-.fcard:hover{border-color:#5DCAA5}
-.fcard.r1{border:2px solid #1D9E75}
-.fcard.r2{border-left:3px solid #378ADD}
-.fcard.r3{border-left:3px solid #7F77DD}
-.fcard.rc{border-left:3px solid #E24B4A}
-.fcard.nm{opacity:.4;pointer-events:none}
-.fcard.fsel{background:#E1F5EE}
-.fcard.preferred{border:2px solid #1D9E75;background:#FAFFFE}
-.preferred-badge{position:absolute;top:8px;left:8px;background:#1D9E75;color:#fff;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:500}
-.rb{position:absolute;top:8px;right:8px;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
-.rb1{background:#1D9E75;color:#fff}.rb2{background:#E6F1FB;color:#0C447C}.rb3{background:#EEEDFE;color:#3C3489}
-.fsp-m{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;background:#E1F5EE;color:#085041}
-.fsp-o{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;background:#f5f4f0;color:#6b6b67}
-.dd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dd-a{background:#1D9E75}.dd-p{background:#BA7517}.dd-b{background:#E24B4A}
-.mc{padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
-.mc-ok{background:#E1F5EE;color:#085041}.mc-w{background:#FAEEDA;color:#633806}.mc-b{background:#FCEBEB;color:#791F1F}
-.pr{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .12s}
-.pr:hover{border-color:#5DCAA5}
-.pr.sel{background:#E1F5EE;border-color:#1D9E75}
-.pr.best{border:2px solid #1D9E75}
-.ps{background:#E6F1FB;border-radius:8px;padding:9px 12px;margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap}
-.psi{font-size:12px;color:#0C447C}
-.pill{padding:2px 7px;border-radius:20px;font-size:10px}
-.p-ok{background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5}
-.p-c{background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27}
-/* RESERVES TABLE */
-.res-table-wrap{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden}
-table.rt{width:100%;border-collapse:collapse;font-size:12px}
-table.rt th{text-align:left;padding:8px 10px;font-size:10px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid rgba(0,0,0,0.08);background:#f5f4f0;white-space:nowrap}
-table.rt td{padding:8px 10px;border-bottom:0.5px solid rgba(0,0,0,0.05);vertical-align:middle}
-table.rt tr:last-child td{border-bottom:none}
-table.rt tr:hover td{background:#fafaf8}
-table.rt tr.urgent td{background:#FFF8F0}
-/* DATE PILLS inline */
-.date-pills-row{display:flex;flex-wrap:wrap;gap:2px}
-.dp{padding:1px 5px;border-radius:4px;font-size:10px;background:#E1F5EE;color:#085041;white-space:nowrap}
-/* GESTIÓ */
-.filter-bar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-.filter-chip{padding:5px 11px;border-radius:20px;border:0.5px solid rgba(0,0,0,0.18);background:transparent;cursor:pointer;font-size:11px;font-weight:500;color:#6b6b67;font-family:inherit;transition:all .15s}
-.filter-chip:hover{border-color:#1D9E75;color:#1a1a1a}
-.filter-chip.act{background:#1D9E75;border-color:#1D9E75;color:#fff}
-.alert-banner{background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:8px;padding:8px 12px;font-size:12px;color:#633806;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-/* AGENT GROUP */
-.agent-group{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden;margin-bottom:10px}
-.agent-group-hdr{padding:9px 14px;background:#f5f4f0;border-bottom:0.5px solid rgba(0,0,0,0.08);display:flex;align-items:center;gap:8px;justify-content:space-between}
-/* CANVIS IA */
-.alt-card{background:#fff;border:1.5px solid #7F77DD;border-radius:12px;padding:13px;margin-bottom:9px}
-.canvi-card{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:11px 14px;margin-bottom:8px}
-/* FORMADORS PAGE */
-.foto-prev{width:56px;height:56px;border-radius:50%;overflow:hidden;border:0.5px solid rgba(0,0,0,0.18);flex-shrink:0}
-.foto-prev img{width:56px;height:56px;object-fit:cover;border-radius:50%;display:block}
-.foto-btn{padding:5px 10px;border:0.5px dashed rgba(0,0,0,0.18);border-radius:8px;cursor:pointer;font-size:11px;color:#6b6b67;background:#f5f4f0;display:inline-block}
-.foto-btn:hover{border-color:#1D9E75;color:#085041}
-input[type=file]{display:none}
-/* BADGES */
-.badge{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
-.bg{background:#E1F5EE;color:#085041}.bb{background:#E6F1FB;color:#0C447C}
-.ba{background:#FAEEDA;color:#633806}.br{background:#FCEBEB;color:#791F1F}
-.bgr{background:#f5f4f0;color:#6b6b67}.bpu{background:#EEEDFE;color:#3C3489}
-.estat-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}.ed-pc{background:#BA7517}.ed-pf{background:#378ADD}.ed-co{background:#1D9E75}.ed-ca{background:#E24B4A}.ed-vf{background:#534AB7}
-
-.sv{font-size:18px;font-weight:500}.sl{font-size:10px;color:#6b6b67;margin-top:1px}
-.ec-r{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.07);font-size:12px}
-.ec-r:last-child{border-bottom:none}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.ch{text-align:center;font-size:9px;font-weight:500;color:#6b6b67;padding:3px 0}
-.cc{min-height:54px;border:0.5px solid rgba(0,0,0,0.08);border-radius:3px;padding:3px;background:#fff}
-.cc.ot{opacity:.3;background:#f5f4f0}.cc.fc{background:#FAEEDA}.cc.tc{border-color:#1D9E75;border-width:1.5px}
-.cd{font-size:9px;font-weight:500;color:#6b6b67;margin-bottom:1px}.cc.tc .cd{color:#1D9E75}
-.cev{border-radius:2px;padding:1px 3px;margin-bottom:1px;font-size:8px;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;cursor:pointer}
-.ev-s{background:#E1F5EE;color:#085041}.ev-r{background:#FAEEDA;color:#633806}.ev-f{background:#FCEBEB;color:#791F1F}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:300;align-items:flex-start;justify-content:center;padding-top:24px;overflow-y:auto}
-.modal-box{background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;max-width:96vw;padding:18px;margin-bottom:24px}
-.vp{display:none}.vp.act{display:block}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(83,74,183,0.3);border-top-color:#534AB7;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:14px;right:14px;background:#1D9E75;color:#fff;padding:7px 13px;border-radius:8px;font-size:12px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
-.toast.show{opacity:1}
-</style>
-</head>
-<body>
-<div>
-<div class="topbar-outer">
-  <div class="topbar">
-    <div class="logo">
-      <div class="lm"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="4" height="4" rx="1" fill="white" opacity=".9"/><rect x="7" y="1" width="4" height="4" rx="1" fill="white" opacity=".6"/><rect x="1" y="7" width="4" height="4" rx="1" fill="white" opacity=".6"/><rect x="7" y="7" width="4" height="4" rx="1" fill="white" opacity=".3"/></svg></div>
-      GESEM <span class="logo-g">Planner</span>
-      <span style="font-size:10px;color:#6b6b67;font-weight:400">v11</span>
-    </div>
-    <div class="nav">
-      <button class="nb act" id="nb-p" onclick="gv('p',this)">Petició</button>
-      <button class="nb" id="nb-gest" onclick="gv('gest',this)">Gestió reserves</button>
-      <button class="nb" id="nb-canvis" onclick="gv('canvis',this)">Canvis</button>
-      <button class="nb" id="nb-entrades" onclick="gv('entrades',this)">Entrades</button>
-      <button class="nb" id="nb-f" onclick="gv('f',this)">Formadors</button>
-    </div>
-  </div>
-</div>
-
-<!-- PETICIÓ -->
-<div class="vp act" id="page-p">
-<div class="ml">
-<div class="lc">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-    <div style="font-size:12px;font-weight:500">Nova petició</div>
-    <button class="btn btn-sm" style="color:#6b6b67;font-size:11px" onclick="clearPeticio()">
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="vertical-align:-1px;margin-right:3px"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Netejar
-    </button>
-  </div>
-
-  <div class="sh" style="margin-top:0">Dades del curs</div>
-  <div class="fi"><label>Client</label><input id="p-client" placeholder="Nom de l'empresa client" oninput="lf()"/></div>
-  <div class="fi"><label>Nom del curs</label><input id="p-curs" placeholder="Títol del curs" oninput="lf()"/></div>
-  <div class="g2">
-    <div class="fi"><label>Especialitat</label>
-      <div class="sw"><select id="p-esp" onchange="lf()"></select><button class="bi on" onclick="togIE('esp',this)">+</button></div>
-      <div id="ie-esp"></div>
-    </div>
-    <div class="fi"><label>Modalitat</label>
-      <div class="sw"><select id="p-modal"></select><button class="bi" onclick="togIE('modal',this)">+</button></div>
-      <div id="ie-modal"></div>
-    </div>
-  </div>
-
-  <!-- FORMADOR PREFERIT -->
-  <div class="sh">Formador preferit (opcional)</div>
-  <div id="form-pref-display"></div>
-  <div class="fi">
-    <div class="sw">
-      <select id="p-form-pref" onchange="setFormPref()">
-        <option value="">Cap preferència · flux habitual</option>
-      </select>
-    </div>
-    <div style="font-size:10px;color:#6b6b67;margin-top:2px">Si el client demana un formador específic, es prioritzarà a la proposta.</div>
-  </div>
-
-  <div class="sh">Agent comercial</div>
-  <div class="agent-selector" id="agent-selector"></div>
-  <div class="agent-new-form" id="agent-new-form">
-    <div style="font-size:11px;color:#6b6b67;margin-bottom:5px">Nou agent:</div>
-    <div style="display:flex;gap:5px;align-items:center">
-      <input type="text" id="agent-new-input" placeholder="Nom complet..." style="flex:1;padding:5px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:6px;background:#fff;color:#1a1a1a;font-size:12px;font-family:inherit" onkeydown="if(event.key==='Enter')addAgent()"/>
-      <button class="btn btn-p btn-sm" onclick="addAgent()">Afegir</button>
-      <button class="btn btn-sm" onclick="document.getElementById('agent-new-form').classList.remove('open')">×</button>
-    </div>
-  </div>
-
-  <div class="sh">Horari</div>
-  <div class="g3">
-    <div class="fi"><label>Hores totals</label><input type="number" id="p-hores" value="16" min="2" oninput="ua()"/></div>
-    <div class="fi"><label>Hores/sessió</label>
-      <div class="sw"><select id="p-hsess" onchange="ua()"></select><button class="bi" onclick="togIE('hsess',this)">+</button></div>
-      <div id="ie-hsess"></div>
-    </div>
-    <div class="fi"><label>Sess./setm.</label>
-      <select id="p-ssw" onchange="upD();ua()">
-        <option value="1">1/setm</option><option value="2" selected>2/setm</option><option value="3">3/setm</option>
-      </select>
-    </div>
-  </div>
-  <div class="g2">
-    <div class="fi"><label>Torn preferit</label>
-      <div class="sw"><select id="p-torn" onchange="lf()"></select><button class="bi" onclick="togIE('torn',this)">+</button></div>
-      <div id="ie-torn"></div>
-    </div>
-    <div class="fi">
-      <label style="display:flex;align-items:center;gap:5px">Data inici <span style="background:#E6F1FB;color:#0C447C;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:500">orientativa</span></label>
-      <input type="date" id="p-inici" value="2026-04-14" oninput="ua()"/>
-    </div>
-  </div>
-  <div class="sh">Distribució de dies</div>
-  <div style="font-size:10px;color:#6b6b67;margin-bottom:5px" id="dh">Selecciona la distribució:</div>
-  <div class="distrib-opts" id="do"></div>
-  <div class="sh" style="margin-top:10px">Preu i restriccions</div>
-  <div class="fi"><label>Preu/hora client (€)</label><input type="number" id="p-preu" value="75" min="0" oninput="ua()"/></div>
-  <div style="font-size:10px;color:#6b6b67;margin-bottom:5px">Dies bloquejats:</div>
-  <div class="day-sel" id="bdays">
-    <button class="ds" data-d="1" onclick="togDay(this)">Dl</button>
-    <button class="ds" data-d="2" onclick="togDay(this)">Dm</button>
-    <button class="ds" data-d="3" onclick="togDay(this)">Dc</button>
-    <button class="ds" data-d="4" onclick="togDay(this)">Dj</button>
-    <button class="ds" data-d="5" onclick="togDay(this)">Dv</button>
-  </div>
-  <div style="display:flex;gap:5px;align-items:center;margin-bottom:4px">
-    <input type="date" id="excl-in" style="flex:1;padding:5px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:12px;font-family:inherit"/>
-    <button class="btn btn-sm" onclick="addEx()">+ Excloure</button>
-  </div>
-  <div id="excl-list"></div>
-  <div class="rsm">
-    <div>
-      <div style="font-size:12px;color:#085041;font-weight:500" id="rsm-t"></div>
-      <div style="font-size:11px;color:#0F6E56;margin-top:1px" id="rsm-e"></div>
-    </div>
-    <button class="btn btn-p" style="font-size:12px" onclick="genProp()">Generar proposta</button>
-  </div>
-</div>
-
-<div class="rc">
-  <div id="r-live">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div>
-        <div style="font-size:13px;font-weight:500">Formadors candidats</div>
-        <div style="font-size:11px;color:#6b6b67;margin-top:1px" id="fc-sub">Omple el formulari per veure candidats</div>
-      </div>
-      <div id="fc-badge" style="display:none;background:#E6F1FB;color:#0C447C;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500"></div>
-    </div>
-    <div id="flive"></div>
-  </div>
-  <div id="r-prop" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div>
-        <div style="font-size:13px;font-weight:500">Proposta generada</div>
-        <div style="font-size:11px;color:#6b6b67;margin-top:1px" id="prop-sub"></div>
-      </div>
-      <button class="btn btn-sm" onclick="showLive()">← Tornar</button>
-    </div>
-    <div id="prop-body"></div>
-  </div>
-</div>
-</div>
-</div>
-
-<!-- GESTIÓ RESERVES -->
-<div class="vp" id="page-gest" style="padding:12px">
-<div class="wrap">
-  <div id="gest-alert" style="display:none" class="alert-banner">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" stroke="#BA7517" stroke-width="1"/><path d="M7 4v3.5" stroke="#BA7517" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="10" r=".8" fill="#BA7517"/></svg>
-    <span id="gest-alert-txt"></span>
-    <button class="btn btn-sm" style="margin-left:auto;background:#FAEEDA;border-color:#EF9F27;color:#633806" onclick="openEmailPendentsPerAgent()">Email resum per agent</button>
-  </div>
-  <div class="filter-bar">
-    <button class="filter-chip act" id="fc-all" onclick="setFilter('',this)">Totes <span id="st-total" style="background:rgba(0,0,0,0.1);padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
-    <button class="filter-chip" onclick="setFilter('pendent-cli',this)">Pendent client <span id="st-pc" style="background:#BA7517;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
-    <button class="filter-chip" onclick="setFilter('pendent-form',this)">Pendent formador <span id="st-pf" style="background:#378ADD;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
-    <button class="filter-chip" onclick="setFilter('confirmada',this)">Confirmades <span id="st-co" style="background:#1D9E75;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
-    <button class="filter-chip" onclick="setFilter('cancel',this)">Cancel·lades <span id="st-ca" style="background:#E24B4A;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
-    <button class="filter-chip" onclick="setFilter('vf',this)" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489">VF <span id="st-vf" style="background:#534AB7;color:#fff;padding:0 5px;border-radius:20px;font-size:10px;margin-left:3px"></span></button>
-    <div style="flex:1"></div>
-    <button class="btn btn-sm" style="background:#FAEEDA;border-color:#EF9F27;color:#633806" onclick="openEmailPendentsPerAgent()">
-      <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="vertical-align:-1px;margin-right:3px"><rect x=".5" y="1.5" width="10" height="8" rx="1" stroke="currentColor" stroke-width=".8" fill="none"/><path d=".5 3l5 3.5 5-3.5" stroke="currentColor" stroke-width=".8"/></svg>
-      Resum per agent
-    </button>
-    <select id="gest-com-f" onchange="renderGest()" style="padding:5px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:20px;background:#fff;color:#1a1a1a;font-size:11px;font-family:inherit">
-      <option value="">Tots els agents</option>
-    </select>
-    <select id="gest-sort" onchange="renderGest()" style="padding:5px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:20px;background:#fff;color:#1a1a1a;font-size:11px;font-family:inherit">
-      <option value="data">Per data</option>
-      <option value="agent">Per agent</option>
-      <option value="client">Per client</option>
-    </select>
-  </div>
-  <div id="gest-list"></div>
-</div>
-</div>
-
-<!-- CANVIS -->
-<div class="vp" id="page-canvis">
-<div style="display:grid;grid-template-columns:340px 1fr;gap:0;width:92%;max-width:1440px;margin:0 auto">
-<div style="border-right:0.5px solid rgba(0,0,0,0.1);background:#fff;padding:14px;overflow-y:auto;max-height:calc(100vh - 44px)">
-  <div style="font-size:12px;font-weight:500;margin-bottom:10px">Selecciona la reserva</div>
-  <div id="canvis-reserves-list"></div>
-  <div id="canvis-tipus-section" style="display:none">
-    <div class="sh">Tipus de canvi sol·licitat</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <button style="padding:9px 10px;border-radius:10px;border:2px solid #534AB7;background:#EEEDFE;cursor:pointer;font-family:inherit;text-align:left" id="ctb-inici" onclick="selCanviTipus('inici',this)">
-        <span style="font-size:16px;margin-bottom:3px;display:block">📅</span>
-        <span style="font-size:11px;font-weight:500;color:#3C3489;display:block">Inici més tard</span>
-        <span style="font-size:10px;color:#6b6b67;display:block;margin-top:1px;line-height:1.4">Data d'inici posterior</span>
-      </button>
-      <button style="padding:9px 10px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;font-family:inherit;text-align:left" id="ctb-data" onclick="selCanviTipus('data',this)">
-        <span style="font-size:16px;margin-bottom:3px;display:block">🔄</span>
-        <span style="font-size:11px;font-weight:500;color:#1a1a1a;display:block">Canvi data concreta</span>
-        <span style="font-size:10px;color:#6b6b67;display:block;margin-top:1px;line-height:1.4">Moure sessions concretes</span>
-      </button>
-      <button style="padding:9px 10px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;font-family:inherit;text-align:left" id="ctb-horari" onclick="selCanviTipus('horari',this)">
-        <span style="font-size:16px;margin-bottom:3px;display:block">🕐</span>
-        <span style="font-size:11px;font-weight:500;color:#1a1a1a;display:block">Canvi d'horari</span>
-        <span style="font-size:10px;color:#6b6b67;display:block;margin-top:1px;line-height:1.4">Diferent franja horària</span>
-      </button>
-      <button style="padding:9px 10px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;cursor:pointer;font-family:inherit;text-align:left" id="ctb-tot" onclick="selCanviTipus('tot',this)">
-        <span style="font-size:16px;margin-bottom:3px;display:block">♻️</span>
-        <span style="font-size:11px;font-weight:500;color:#1a1a1a;display:block">Reprogramació total</span>
-        <span style="font-size:10px;color:#6b6b67;display:block;margin-top:1px;line-height:1.4">Totes les dates de nou</span>
-      </button>
-    </div>
-    <div id="canvis-form-dinamic"></div>
-    <div class="fi"><label>Motiu del canvi</label><input type="text" id="canvis-motiu" placeholder="ex: canvi d'agenda del client..."/></div>
-    <div class="fi"><label>Si el formador no té disponibilitat...</label>
-      <select id="canvis-form-opt">
-        <option value="no">Mantenir el mateix formador · altres dates</option>
-        <option value="si">Permetre canvi de formador si cal</option>
-        <option value="prioritat">Prioritzar disponibilitat · qualsevol formador</option>
-      </select>
-    </div>
-    <button style="width:100%;margin-top:4px;padding:9px;font-size:13px;background:#534AB7;color:#fff;border:0.5px solid #534AB7;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px" onclick="runCanvisIA()">
-      <span class="spinner" id="canvis-ia-spin" style="display:none;border-top-color:#fff"></span>
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" id="canvis-ia-icon"><circle cx="6.5" cy="6.5" r="5.5" stroke="white" stroke-width="1"/><path d="M4 6.5l2 2 3-3" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Generar proposta amb IA
-    </button>
-  </div>
-</div>
-<div style="background:#f5f4f0;padding:14px;overflow-y:auto;max-height:calc(100vh - 44px)">
-  <div id="canvis-rc-empty" style="text-align:center;padding:40px 20px;color:#6b6b67">
-    <div style="font-size:32px;margin-bottom:12px">🔄</div>
-    <div style="font-size:14px;font-weight:500;margin-bottom:6px;color:#1a1a1a">Gestió de canvis de dates</div>
-    <div style="font-size:12px;line-height:1.7">Selecciona una reserva i el tipus de canvi.<br>La IA analitzarà totes les opcions i generarà<br>una proposta per al client i el comercial.</div>
-  </div>
-  <div id="canvis-rc-content" style="display:none">
-    <div style="display:flex;gap:1px;margin-bottom:12px">
-      <button class="btn" id="canvis-tab-prop-btn" onclick="showCanvisTab('prop',this)" style="background:#534AB7;border-color:#534AB7;color:#fff;border-radius:8px 0 0 8px;font-size:12px">Proposta IA</button>
-      <button class="btn" id="canvis-tab-email-btn" onclick="showCanvisTab('email',this)" style="border-radius:0;font-size:12px">Email generat</button>
-      <button class="btn" id="canvis-tab-hist-btn" onclick="showCanvisTab('hist',this)" style="border-radius:0 8px 8px 0;font-size:12px">Historial</button>
-    </div>
-    <div id="canvis-tab-prop-content"><div id="canvis-prop-result"></div></div>
-    <div id="canvis-tab-email-content" style="display:none"><div id="canvis-email-wrap"></div></div>
-    <div id="canvis-tab-hist-content" style="display:none">
-      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:13px">
-        <div style="font-size:12px;font-weight:500;margin-bottom:10px">Historial de canvis</div>
-        <div id="canvis-hist-content"></div>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-</div>
-<!-- MODAL CANVIS APPLY -->
-<div id="canvis-apply-bg" class="modal-bg">
-  <div class="modal-box" style="width:500px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
-      <div style="font-size:14px;font-weight:500" id="canvis-apply-title">Vista prèvia del canvi</div>
-      <button class="btn-g" onclick="document.getElementById('canvis-apply-bg').style.display='none'">✕</button>
-    </div>
-    <div id="canvis-apply-body"></div>
-    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap">
-      <button class="btn btn-sm" onclick="document.getElementById('canvis-apply-bg').style.display='none'">Cancel·lar</button>
-      <button class="btn btn-sm" style="background:#E6F1FB;border-color:#85B7EB;color:#0C447C" onclick="canvisApplyAndEmail()">Aplicar i preparar email</button>
-      <button class="btn btn-p btn-sm" onclick="canvisApplyChange()">Aplicar canvi</button>
-    </div>
-  </div>
-</div>
-
-<!-- FORMADORS -->
-<div class="vp" id="page-f" style="padding:12px">
-<div style="width:92%;max-width:1440px;margin:0 auto">
-
-  <!-- Header controls: fila 1 -->
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:7px;flex-wrap:wrap">
-    <input type="text" id="fs-q" placeholder="Cerca per nom o especialitat..." oninput="renderFP()" style="flex:1;min-width:140px;padding:7px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit"/>
-    <select id="fs-t" onchange="renderFP()" style="padding:7px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit">
-      <option value="">Tots</option><option value="intern">Interns</option><option value="extern">Externs</option>
-    </select>
-    <select id="fs-sort" onchange="renderFP()" style="padding:7px 8px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit">
-      <option value="nom">Per nom</option>
-      <option value="volum">Per volum GESEM</option>
-      <option value="disp">Per disponibilitat</option>
-      <option value="rating">Per valoració</option>
-    </select>
-    <button class="btn btn-p" style="font-size:12px" onclick="openFM(-1)">+ Nou formador</button>
-  </div>
-
-  <!-- Filtre per especialitat -->
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
-    <span style="font-size:11px;color:#6b6b67;font-weight:500;white-space:nowrap">Especialitat:</span>
-    <button class="filter-chip act" id="fsp-all" onclick="selFiltreEsp('',this)">Totes</button>
-    <div id="fsp-chips" style="display:flex;gap:5px;flex-wrap:wrap"></div>
-  </div>
-
-  <!-- Two columns: grid + sidebar -->
-  <div style="display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:start">
-
-    <!-- Formadors grid -->
-    <div>
-      <!-- Resultat filtre especialitat -->
-      <div id="fp-esp-banner" style="display:none;background:#E6F1FB;border:0.5px solid #85B7EB;border-radius:8px;padding:8px 12px;margin-bottom:9px;font-size:12px;color:#0C447C;display:flex;align-items:center;justify-content:space-between"></div>
-      <div id="fp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px"></div>
-    </div>
-
-    <!-- Sidebar: disponibilitat i volum -->
-    <div>
-      <!-- Semàfor disponibilitat -->
-      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:13px;margin-bottom:10px">
-        <div style="font-size:11px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
-          Disponibilitat anual
-          <span style="font-size:9px;color:#6b6b67;font-weight:400;text-transform:none">Hores lliures estimades</span>
-        </div>
-        <div id="fp-disponibilitat"></div>
-      </div>
-
-      <!-- Rànquing volum GESEM -->
-      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:13px">
-        <div style="font-size:11px;font-weight:500;color:#6b6b67;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
-          Volum amb GESEM
-          <span style="font-size:9px;color:#6b6b67;font-weight:400;text-transform:none">Hores facturades</span>
-        </div>
-        <div id="fp-volum"></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-</div>
-
-<!-- DASHBOARD -->
-<!-- ENTRADES -->
-<div class="vp" id="page-entrades" style="padding:12px">
-<div class="wrap">
-  <div style="margin-bottom:14px">
-    <div style="font-size:14px;font-weight:500">Entrades de peticions</div>
-    <div style="font-size:12px;color:#6b6b67;margin-top:3px">Tres canals per introduir peticions al sistema</div>
-  </div>
-
-  <!-- TABS CANALS -->
-  <div style="display:flex;gap:1px;margin-bottom:14px">
-    <button class="btn" id="etab-manual-btn" onclick="showEntradaTab('manual',this)" style="background:#1D9E75;border-color:#1D9E75;color:#fff;border-radius:8px 0 0 8px;font-size:12px">Manual</button>
-    <button class="btn" id="etab-email-btn" onclick="showEntradaTab('email',this)" style="border-radius:0;font-size:12px">Email comercial</button>
-    <button class="btn" id="etab-massiu-btn" onclick="showEntradaTab('massiu',this)" style="border-radius:0 8px 8px 0;font-size:12px">Càrrega massiva</button>
-  </div>
-
-  <!-- CANAL A: Manual -->
-  <div id="etab-manual-content">
-    <div style="background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#1D9E75" stroke-width="1"/><path d="M10 6v4.5l3 2" stroke="#1D9E75" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <div>
-        <div style="font-size:13px;font-weight:500;color:#085041">Petició manual</div>
-        <div style="font-size:12px;color:#0F6E56;margin-top:2px">Utilitza el formulari complet de la pestanya <strong>Petició</strong> per introduir manualment un curs amb tots els criteris.</div>
-      </div>
-      <button class="btn btn-p btn-sm" style="flex-shrink:0;white-space:nowrap" onclick="gv('p',document.getElementById('nb-p'))">Anar a Petició →</button>
-    </div>
-  </div>
-
-  <!-- CANAL B: Email comercial -->
-  <div id="etab-email-content" style="display:none">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <!-- Entrada email -->
-      <div>
-        <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
-          <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0;display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:12px;font-weight:500">Cos del missatge del comercial</div>
-            <button class="btn btn-sm" onclick="clearEmailEntrada()">Netejar</button>
-          </div>
-          <textarea id="email-entrada-text" placeholder="Enganxa aquí el cos del correu electrònic del comercial...
-
-Exemple:
-Hola,
-Necessitem organitzar un curs de Lideratge per a l'empresa Grup ABC, unes 16h en sessions de 2h, preferentment dimarts i dijous a partir del 15 de maig, torn de matí.
-Gràcies,
-Marc Abad" style="width:100%;min-height:260px;padding:12px;border:none;background:#fff;color:#1a1a1a;font-size:13px;font-family:inherit;resize:vertical;outline:none;line-height:1.65"></textarea>
-          <div style="padding:10px 13px;border-top:0.5px solid rgba(0,0,0,0.08);display:flex;justify-content:flex-end">
-            <button class="btn btn-p" onclick="processarEmailEntrada()" style="display:flex;align-items:center;gap:6px">
-              <span class="spinner" id="email-ia-spin" style="display:none;border-top-color:#fff"></span>
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" id="email-ia-icon"><circle cx="6.5" cy="6.5" r="5.5" stroke="white" stroke-width="1"/><path d="M4 6.5l2 2 3-3" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
-              Analitzar amb IA
-            </button>
-          </div>
-        </div>
-        <div style="margin-top:8px;background:#E6F1FB;border-radius:8px;padding:8px 11px;font-size:11px;color:#0C447C">
-          La IA llegirà el missatge i extraurà: client, curs, hores, distribució, torn i agent comercial. Podràs revisar i ajustar tot abans de generar la proposta.
-        </div>
-      </div>
-      <!-- Resultat extracció -->
-      <div id="email-extraccio-result">
-        <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="rgba(0,0,0,0.12)" stroke-width="1.5"/><path d="M10 16l4 4 8-8" stroke="rgba(0,0,0,0.2)" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <div style="font-size:13px;font-weight:500;color:#1a1a1a">Resultat de l'extracció</div>
-          <div style="font-size:12px">Enganxa un email i clica "Analitzar amb IA"</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CANAL C: Càrrega massiva -->
-  <div id="etab-massiu-content" style="display:none">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <!-- Entrada -->
-      <div>
-        <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
-          <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0">
-            <div style="font-size:12px;font-weight:500;margin-bottom:2px">Càrrega massiva de cursos</div>
-            <div style="font-size:11px;color:#6b6b67">Enganxa una taula (Excel/CSV) o escriu manualment</div>
-          </div>
-          <!-- Format esperit -->
-          <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#FAEEDA">
-            <div style="font-size:10px;font-weight:500;color:#633806;margin-bottom:4px">Format esperat (columnes):</div>
-            <div style="font-size:10px;color:#633806;font-family:'Courier New',monospace;line-height:1.8">Client | Curs | Especialitat | Hores | Sess/setm | Torn | Data inici | Agent</div>
-          </div>
-          <textarea id="massiu-text" placeholder="Enganxa aquí les files de la taula Excel, o escriu una per línia:
-
-Grup ABC | Lideratge | Lideratge i management | 16 | 2 | Matí | 01/06/2026 | Jordi Llopart
-Farmàcies XY | Comunicació | Comunicació efectiva | 12 | 1 | Tarda | 15/06/2026 | Marc Abad
-Construccions SL | Excel | Excel i eines Office | 8 | 2 | Matí | 22/06/2026 | Raquel Muñoz" style="width:100%;min-height:200px;padding:12px;border:none;background:#fff;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;outline:none;line-height:1.7"></textarea>
-          <div style="padding:10px 13px;border-top:0.5px solid rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#6b6b67">
-              <input type="file" id="massiu-file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="loadMassiuFile(this)"/>
-              <span style="padding:4px 10px;border:0.5px dashed rgba(0,0,0,0.2);border-radius:6px;background:#f5f4f0">📎 Pujar fitxer CSV/Excel</span>
-            </label>
-            <button class="btn btn-p" onclick="processarMassiu()" style="display:flex;align-items:center;gap:6px">
-              <span class="spinner" id="massiu-ia-spin" style="display:none;border-top-color:#fff"></span>
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" id="massiu-ia-icon"><circle cx="6.5" cy="6.5" r="5.5" stroke="white" stroke-width="1"/><path d="M4 6.5l2 2 3-3" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>
-              Assignar calendaris amb IA
-            </button>
-          </div>
-        </div>
-      </div>
-      <!-- Resultat massiu -->
-      <div id="massiu-result">
-        <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="6" y="4" width="20" height="24" rx="3" stroke="rgba(0,0,0,0.15)" stroke-width="1.5" fill="none"/><path d="M10 11h12M10 15h12M10 19h8" stroke="rgba(0,0,0,0.2)" stroke-width="1.2" stroke-linecap="round"/></svg>
-          <div style="font-size:13px;font-weight:500;color:#1a1a1a">Resultat de la càrrega</div>
-          <div style="font-size:12px">Enganxa o puja la taula i clica "Assignar calendaris"</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ARXIU (sempre visible a la part inferior) -->
-  <div style="margin-top:20px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div>
-        <div style="font-size:13px;font-weight:500">Arxiu de cursos finalitzats</div>
-        <div style="font-size:11px;color:#6b6b67;margin-top:2px">Cursos marcats com a VF · Tancats i arxivats</div>
-      </div>
-      <span class="badge bgr" id="arxiu-count">0 cursos arxivats</span>
-    </div>
-    <div id="arxiu-list">
-      <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;font-size:13px">
-        Cap curs arxivat encara. Els cursos finalitzats apareixeran aquí.
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- MODAL FORMADOR -->
-<div id="fm-bg" class="modal-bg">
-  <div class="modal-box" style="width:500px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
-      <div style="font-size:14px;font-weight:500" id="fm-title">Nou formador</div>
-      <button class="btn-g" onclick="closeFM()">✕</button>
-    </div>
-    <div id="fm-body"></div>
-    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:12px">
-      <button class="btn btn-sm" onclick="closeFM()">Cancel·lar</button>
-      <button class="btn btn-p btn-sm" onclick="saveFM()">Desar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL EMAIL COMERCIAL -->
-<div id="email-bg" class="modal-bg">
-  <div class="modal-box" style="width:660px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
-      <div style="font-size:14px;font-weight:500" id="email-modal-title">Email al comercial</div>
-      <button class="btn-g" onclick="closeEmail()">✕</button>
-    </div>
-    <div class="fi"><label>De</label><input id="email-de" value="gestio@gesem.es" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
-    <div class="fi"><label>Per a</label><input id="email-para" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
-    <div class="fi"><label>Assumpte</label><input id="email-assumpte" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
-    <div class="fi"><label>Missatge (editable)</label>
-      <textarea id="email-cos" style="min-height:280px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;line-height:1.6;width:100%"></textarea>
-    </div>
-    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
-      <button class="btn btn-sm" onclick="closeEmail()">Cancel·lar</button>
-      <button class="btn btn-sm" onclick="copyEmail()">Copiar text</button>
-      <button class="btn btn-p btn-sm" onclick="markEmailSent()">Marcar com a enviat ✓</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL EMAIL FORMADOR -->
-<div id="emailf-bg" class="modal-bg">
-  <div class="modal-box" style="width:580px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
-      <div style="font-size:14px;font-weight:500" id="emailf-title">Email al formador</div>
-      <button class="btn-g" onclick="document.getElementById('emailf-bg').style.display='none'">✕</button>
-    </div>
-    <div style="background:#E1F5EE;border-radius:8px;padding:8px 11px;margin-bottom:10px;font-size:12px;color:#085041">Email independent de la comunicació amb el comercial. Confirmació directa amb el formador.</div>
-    <div class="fi"><label>Per a (formador)</label><input id="emailf-para" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
-    <div class="fi"><label>Assumpte</label><input id="emailf-assumpte" style="padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit"/></div>
-    <div class="fi"><label>Missatge (editable)</label>
-      <textarea id="emailf-cos" style="min-height:220px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:13px;font-family:inherit;resize:vertical;line-height:1.65;width:100%"></textarea>
-    </div>
-    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap">
-      <button class="btn btn-sm" onclick="document.getElementById('emailf-bg').style.display='none'">Cancel·lar</button>
-      <button class="btn btn-sm" onclick="copyEmailF()">Copiar text</button>
-      <button class="btn btn-p btn-sm" onclick="document.getElementById('emailf-bg').style.display='none';toast('Email formador marcat com enviat')">Marcat com a enviat ✓</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL RESUM PENDENTS PER AGENT -->
-<div id="pendents-bg" class="modal-bg">
-  <div class="modal-box" style="width:680px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div>
-        <div style="font-size:14px;font-weight:500">Recordatori reserves pendents</div>
-        <div style="font-size:11px;color:#6b6b67;margin-top:2px" id="pendents-subtitle"></div>
-      </div>
-      <button class="btn-g" onclick="document.getElementById('pendents-bg').style.display='none'">✕</button>
-    </div>
-    <!-- Navegació agents -->
-    <div id="pendents-nav" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
-      <span style="font-size:11px;color:#6b6b67;font-weight:500;margin-right:4px">Agent:</span>
-    </div>
-    <!-- Camp email -->
-    <div style="display:flex;gap:7px;margin-bottom:6px;align-items:center;flex-wrap:wrap">
-      <div style="flex:1;display:flex;align-items:center;gap:6px;background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;padding:5px 9px">
-        <span style="font-size:10px;color:#6b6b67;font-weight:500;white-space:nowrap">Per a:</span>
-        <span id="pendents-para" style="font-size:12px;color:#1a1a1a"></span>
-      </div>
-      <div style="flex:2;display:flex;align-items:center;gap:6px;background:#f5f4f0;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;padding:5px 9px">
-        <span style="font-size:10px;color:#6b6b67;font-weight:500;white-space:nowrap">Assumpte:</span>
-        <span id="pendents-assumpte" style="font-size:12px;color:#1a1a1a"></span>
-      </div>
-    </div>
-    <!-- Cos editable -->
-    <textarea id="pendents-cos" style="width:100%;min-height:320px;padding:11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;color:#1a1a1a;font-size:12px;font-family:'Courier New',monospace;resize:vertical;line-height:1.65"></textarea>
-    <!-- Accions -->
-    <div style="display:flex;gap:7px;justify-content:space-between;margin-top:10px;flex-wrap:wrap;align-items:center">
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-sm" id="pendents-prev-btn" onclick="navPendentsAgent(-1)">← Anterior</button>
-        <button class="btn btn-sm" id="pendents-next-btn" onclick="navPendentsAgent(1)">Següent →</button>
-      </div>
-      <div style="display:flex;gap:6px">
-        <button class="btn btn-sm" onclick="copyPendentsEmail()">Copiar text</button>
-        <button class="btn btn-p btn-sm" onclick="markPendentsEnviat()">Marcat com a enviat ✓</button>
-      </div>
-    </div>
-    <div id="pendents-progress" style="margin-top:8px;font-size:11px;color:#6b6b67;text-align:center"></div>
-  </div>
-</div>
-</div>
-
-<script>
 // ── DADES ──────────────────────────────────────────────────────
 const CATS={
   esp:{items:['Lideratge i management','Comunicació efectiva','Vendes i negociació','Excel i eines Office','Prevenció de riscos','Atenció al client','Treball en equip','Habilitats digitals','Recursos humans','Finances per no financers','Idiomes','Presentacions efectives']},
@@ -718,7 +5,25 @@ const CATS={
   hsess:{items:['1.5','2','2.5','3','4']},
   torn:{items:['9:30–11:30h','12:00–15:00h','9:00–11:00h','16:00–18:00h','Qualsevol']}
 };
-const FESTIUS={'2026-01-01':"Cap d'any",'2026-01-06':'Reis','2026-04-03':'Divendres Sant','2026-04-06':'Pasqua','2026-04-23':'Sant Jordi','2026-05-01':'Treball','2026-06-24':'Sant Joan','2026-08-15':'Assumpció','2026-09-11':'Diada','2026-09-24':'La Mercè','2026-10-12':'Hispanitat','2026-11-01':'Tots Sants','2026-12-06':'Constitució','2026-12-08':'Immaculada','2026-12-25':'Nadal','2026-12-26':'Sant Esteve'};
+// FESTIUS · es popula via /api/bootstrap amb dades calculades al servidor
+// Format: { 'YYYY-MM-DD': { nom: 'Sant Joan', tipus: 'autonomic' } }
+// Inclou Espanya + Catalunya + Barcelona (3 nivells). Pasqua mòbil calculada
+// automàticament. Festius en diumenge omesos (no es traslladen a Espanya).
+// Fallback per si el bootstrap falla: festius mínims hard-coded de l'any actual
+let FESTIUS = (function fallback(){
+  const y = new Date().getFullYear();
+  return {
+    [y+'-01-01']: { nom: "Cap d'Any", tipus: 'estatal' },
+    [y+'-01-06']: { nom: 'Reis', tipus: 'estatal' },
+    [y+'-05-01']: { nom: 'Festa del Treball', tipus: 'estatal' },
+    [y+'-08-15']: { nom: 'Assumpció', tipus: 'estatal' },
+    [y+'-09-11']: { nom: 'Diada', tipus: 'autonomic' },
+    [y+'-10-12']: { nom: "Festa Nacional d'Espanya", tipus: 'estatal' },
+    [y+'-12-08']: { nom: 'Immaculada', tipus: 'estatal' },
+    [y+'-12-25']: { nom: 'Nadal', tipus: 'estatal' },
+    [y+'-12-26']: { nom: 'Sant Esteve', tipus: 'autonomic' },
+  };
+})();
 const DISTRIBS={1:[[1],[2],[3],[4],[5]],2:[[2,4],[1,3],[3,5],[1,4],[1,5],[2,5]],3:[[1,3,5],[2,4,5],[1,2,4],[1,3,4],[2,3,5]]};
 const DLABELS={'1':'Dilluns','2':'Dimarts','3':'Dimecres','4':'Dijous','5':'Divendres','2,4':'Dm·Dj','1,3':'Dl·Dc','3,5':'Dc·Dv','1,4':'Dl·Dj','1,5':'Dl·Dv','2,5':'Dm·Dv','1,3,5':'Dl·Dc·Dv','2,4,5':'Dm·Dj·Dv','1,2,4':'Dl·Dm·Dj','1,3,4':'Dl·Dc·Dj','2,3,5':'Dm·Dc·Dv'};
 const DL=['','Dl','Dm','Dc','Dj','Dv'];
@@ -738,6 +43,41 @@ function toISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'
 function fmtD(d){return d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear();}
 function parseISO(s){return new Date(s+'T00:00:00');}
 function isFest(d){return!!FESTIUS[toISO(d)];}
+// Retorna l'objecte {nom, tipus} del festiu d'una data, o null si no és festiu
+function getFestiu(d){
+  const iso = typeof d === 'string' ? d : toISO(d);
+  const f = FESTIUS[iso];
+  if (!f) return null;
+  // Suportem el format antic (string) per si quedessin caches obsolets
+  if (typeof f === 'string') return { nom: f, tipus: 'estatal' };
+  return f;
+}
+
+// Pinta una petita llista dels festius dins el rang previst del curs
+// (~90 dies a partir de la data d'inici). Es crida quan canvia p-inici.
+function renderFestiusInfo(){
+  const el = document.getElementById('festius-info');
+  if (!el) return;
+  const iniStr = document.getElementById('p-inici')?.value;
+  if (!iniStr) { el.innerHTML = ''; return; }
+  const ini = parseISO(iniStr);
+  const horizon = new Date(ini); horizon.setDate(horizon.getDate() + 90);
+  const matches = Object.entries(FESTIUS)
+    .filter(([iso]) => {
+      const d = parseISO(iso);
+      return d >= ini && d <= horizon;
+    })
+    .sort()
+    .slice(0, 6);
+  if (!matches.length) { el.innerHTML = ''; return; }
+  const colorByTipus = { estatal:'#0C447C', autonomic:'#085041', local:'#633806' };
+  const labelByTipus = { estatal:'ES', autonomic:'CAT', local:'BCN' };
+  el.innerHTML = '🇪🇸 Festius pròxims: ' + matches.map(([iso, info]) => {
+    const f = typeof info === 'string' ? { nom: info, tipus: 'estatal' } : info;
+    const d = parseISO(iso);
+    return `<span style="display:inline-block;background:rgba(0,0,0,0.04);border-radius:8px;padding:1px 6px;margin:1px 2px"><strong>${d.getDate()}/${d.getMonth()+1}</strong> ${f.nom} <span style="color:${colorByTipus[f.tipus]};font-size:9px;font-weight:600">${labelByTipus[f.tipus]}</span></span>`;
+  }).join('');
+}
 function daysAgo(iso){return Math.floor((Date.now()-parseISO(iso).getTime())/86400000);}
 
 function makeAv(nom,idx,sz=42){
@@ -759,9 +99,50 @@ async function apiDel(path){try{await fetch('/api/'+path,{method:'DELETE'});}cat
 let RESERVES=[],bDays=new Set(),exclD=new Set(),selDist=null,calY=2026,calM=3,eFId=-1,openIE={},activeFilter='',currentEmailResId=null,fotoDataURL=null;
 
 // ── DADES DE CALENDARIS EN TEMPS REAL ─────────────────────────────
-// calData[id] = { slots:[{date,startMin,endMin}], fullDayDates:Set<isoDate> }
+// calData[id] = { slots:[{date,startMin,endMin}], fullDayDates:Set<isoDate>, syncedAt:ms }
 const calData={};
 let calDataLoaded=false;
+const CAL_CACHE_KEY='gesem.calData.v1';
+const CAL_CACHE_TTL=24*60*60*1000; // 24h: després d'això es força fetch fresc
+
+// Persisteix calData a localStorage. Important: serialitzem el Set com a array
+// perquè JSON no suporta Sets nativament.
+function persistCalData(){
+  try{
+    const out={};
+    Object.entries(calData).forEach(([id,cd])=>{
+      out[id]={
+        slots:cd.slots||[],
+        fullDayDates:[...(cd.fullDayDates||new Set())],
+        syncedAt:cd.syncedAt||Date.now(),
+      };
+    });
+    localStorage.setItem(CAL_CACHE_KEY,JSON.stringify(out));
+  }catch(e){/* localStorage ple o desactivat — silenci */}
+}
+
+// Restaura calData des de localStorage (es crida al carregar la pàgina)
+// Així evitem el flicker de "Calendari pendent de sincronitzar" abans que
+// loadCalData() acabi de fer el fetch.
+function restoreCalDataFromCache(){
+  try{
+    const raw=localStorage.getItem(CAL_CACHE_KEY);
+    if(!raw)return;
+    const data=JSON.parse(raw);
+    Object.entries(data).forEach(([id,cd])=>{
+      // Saltem entrades caducades (>24h sense sync)
+      if(cd.syncedAt&&Date.now()-cd.syncedAt>CAL_CACHE_TTL)return;
+      calData[id]={
+        slots:cd.slots||[],
+        fullDayDates:new Set(cd.fullDayDates||[]),
+        syncedAt:cd.syncedAt||0,
+      };
+    });
+  }catch(e){/* JSON corrupte: el sobreescriurem al primer save */}
+}
+// Restaurem immediatament en carregar el script (síncron) per tenir dades
+// disponibles abans que renderFP/lf/etc s'executin
+restoreCalDataFromCache();
 
 // Mapa de torns a minuts del dia (start/end)
 const TORN_MINUTS={
@@ -821,21 +202,35 @@ async function loadCalData(){
         const r=await fetch('/api/disponibilitat/'+f.id).then(x=>x.json());
         calData[f.id]={
           slots: r.slots||[],
-          fullDayDates: new Set(r.fullDayDates||[])
+          fullDayDates: new Set(r.fullDayDates||[]),
+          syncedAt: Date.now(),
         };
-      }catch(e){calData[f.id]={slots:[],fullDayDates:new Set()};}
+      }catch(e){
+        // Si ja teníem dades en cache de localStorage, NO les sobreescrivim amb buit:
+        // és preferible mostrar dades una mica antigues que "pendent de sincronitzar".
+        if(!calData[f.id]){
+          calData[f.id]={slots:[],fullDayDates:new Set(),syncedAt:0};
+        }
+      }
     }));
-  }finally{calDataLoaded=true;}
+  }finally{
+    calDataLoaded=true;
+    persistCalData();
+  }
 }
 
-async function refreshCal(formadorId){
+async function refreshCal(formadorId, opts){
+  const silent = opts && opts.silent === true;
   await fetch('/api/disponibilitat/'+formadorId+'/cache',{method:'DELETE'});
   try{
     const r=await fetch('/api/disponibilitat/'+formadorId).then(x=>x.json());
-    calData[formadorId]={slots:r.slots||[],fullDayDates:new Set(r.fullDayDates||[])};
-    const total=(r.fullDayDates||[]).length+(r.slots||[]).length;
-    toast('📅 Calendari actualitzat · '+total+' events detectats');
-  }catch(e){toast('Error actualitzant calendari');}
+    calData[formadorId]={slots:r.slots||[],fullDayDates:new Set(r.fullDayDates||[]),syncedAt:Date.now()};
+    persistCalData();
+    if(!silent){
+      const total=(r.fullDayDates||[]).length+(r.slots||[]).length;
+      toast('📅 Calendari actualitzat · '+total+' events detectats');
+    }
+  }catch(e){if(!silent)toast('Error actualitzant calendari');}
 }
 
 // ── NAVEGACIÓ ───────────────────────────────────────────────────
@@ -844,6 +239,9 @@ function gv(id,btn){
   document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act');b.classList.remove('act-p');});
   document.getElementById('page-'+id).classList.add('act');
   if(btn)btn.classList.add('act');else{const nb=document.getElementById('nb-'+id);if(nb)nb.classList.add('act');}
+  // Actualitzar títol de l'appbar
+  const titles={p:'Nova petició',gest:'Gestió de reserves',canvis:'Gestió de canvis',f:'Formadors',entrades:'Entrades de peticions'};
+  const t=document.getElementById('appbar-title');if(t&&titles[id])t.textContent=titles[id];
   if(id==='gest')renderGest();
   if(id==='entrades'){renderArxiu();}
   if(id==='f'){renderFP();initFiltreEsp();}
@@ -871,8 +269,20 @@ function togIE(cat,btn){
 function renderIE(cat){let h='<div class="ie">';CATS[cat].items.forEach((it,i)=>{h+=`<div class="ie-it" id="ie-i-${cat}-${i}"><span>${it}</span><button class="btn-g" style="font-size:10px" onclick="startIEed('${cat}',${i})">editar</button><button class="btn-g" style="color:#A32D2D;font-size:13px" onclick="delIE('${cat}',${i})">×</button></div>`;});h+=`<div class="ie-add"><input type="text" id="ie-n-${cat}" placeholder="Nova..." onkeydown="if(event.key==='Enter')addIE('${cat}')"/><button class="btn btn-p btn-sm" onclick="addIE('${cat}')">+</button></div></div>`;document.getElementById('ie-'+cat).innerHTML=h;}
 function startIEed(cat,i){document.getElementById(`ie-i-${cat}-${i}`).innerHTML=`<input type="text" value="${CATS[cat].items[i]}" id="ie-e-${cat}-${i}" style="flex:1;padding:3px 6px;border:0.5px solid #1D9E75;border-radius:4px;background:#fff;color:#1a1a1a;font-size:11px;font-family:inherit" onkeydown="if(event.key==='Enter')saveIEed('${cat}',${i})"/><button class="btn btn-p btn-sm" onclick="saveIEed('${cat}',${i})">OK</button><button class="btn btn-sm" onclick="renderIE('${cat}')">×</button>`;document.getElementById(`ie-e-${cat}-${i}`).focus();}
 function saveIEed(cat,i){const el=document.getElementById(`ie-e-${cat}-${i}`);if(!el)return;const v=el.value.trim();if(!v)return;CATS[cat].items[i]=v;apiPut('cats/'+cat,{items:CATS[cat].items});fillSels();renderIE(cat);lf();toast('Actualitzat');}
-function addIE(cat){const el=document.getElementById('ie-n-'+cat);const v=el?el.value.trim():'';if(!v||CATS[cat].items.includes(v)){toast(v?'Ja existeix':'Buit');return;}CATS[cat].items.push(v);apiPut('cats/'+cat,{items:CATS[cat].items});fillSels();renderIE(cat);toast('Afegit');}
-function delIE(cat,i){if(CATS[cat].items.length<=1){toast('Mínim 1');return;}CATS[cat].items.splice(i,1);apiPut('cats/'+cat,{items:CATS[cat].items});fillSels();renderIE(cat);toast('Eliminat');}
+function addIE(cat){const el=document.getElementById('ie-n-'+cat);const v=el?el.value.trim():'';if(!v||CATS[cat].items.includes(v)){toast(v?'Ja existeix':'Buit');return;}CATS[cat].items.push(v);apiPut('cats/'+cat,{items:CATS[cat].items});fillSels();renderIE(cat);toast(typeof t==="function"?t("toast.afegit"):"Afegit");}
+async function delIE(cat,i){
+  if(CATS[cat].items.length<=1){toast(typeof t==="function"?t("toast.minim"):"Mínim 1");return;}
+  const item=CATS[cat].items[i];
+  const ok=await confirmDialog({
+    title:'Eliminar de la llista?',
+    message:`Vols eliminar <strong>${item}</strong> de ${cat}?`,
+    confirmText:'Eliminar',danger:true,
+  });
+  if(!ok)return;
+  CATS[cat].items.splice(i,1);
+  apiPut('cats/'+cat,{items:CATS[cat].items});
+  fillSels();renderIE(cat);toast(typeof t==="function"?t("toast.eliminat"):"Eliminat");
+}
 
 // ── FORMADOR PREFERIT ───────────────────────────────────────────
 function setFormPref(){
@@ -894,18 +304,286 @@ function setFormPref(){
 }
 function clearFormPref(){preferredFormadorId=null;document.getElementById('p-form-pref').value='';document.getElementById('form-pref-display').innerHTML='';lf();}
 
+// Demanar a l'IA quin formador és millor per a la petició actual
+async function suggestFormadorAI(btn){
+  const client=document.getElementById('p-client')?.value?.trim();
+  const curs=document.getElementById('p-curs')?.value?.trim();
+  const especialitat=document.getElementById('p-esp')?.value;
+  if(!client||!curs){toast('Omple Client i Nom del curs primer');return;}
+
+  const wrap=document.getElementById('ai-formador-suggest');
+  const orig=btn.textContent;btn.disabled=true;btn.textContent='Pensant...';
+  if(wrap){wrap.style.display='block';wrap.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:#3C3489"><span class="spinner" style="width:13px;height:13px;border-width:2px;border-top-color:#534AB7"></span>L\'IA està analitzant l\'històric...</div>';}
+
+  try{
+    const peticio={
+      client,curs,
+      especialitat,
+      modalitat:document.getElementById('p-modal')?.value,
+      hores:parseInt(document.getElementById('p-hores')?.value)||16,
+      preuHora:parseInt(document.getElementById('p-preu')?.value)||75,
+    };
+    const res=await fetch('/api/ai/suggest-formador',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({peticio}),
+    });
+    const data=await res.json();
+    if(!res.ok||!data.ok)throw new Error(data.error||'Error');
+    const top=data.parsed?.top3||[];
+    if(!top.length){wrap.innerHTML='<div style="color:#6b6b67">Sense suggeriments</div>';return;}
+
+    wrap.innerHTML=`
+      <div style="font-size:11px;color:#3C3489;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">🤖 Top 3 IA · ${data.model||'Llama 3.3'}${data.ms?` · ${data.ms}ms`:''}</div>
+      ${data.parsed.resum?`<div style="font-size:12px;color:#3C3489;margin-bottom:8px;font-style:italic">"${data.parsed.resum}"</div>`:''}
+      ${top.map((s,i)=>{
+        const f=FORMADORS.find(x=>x.id===s.formadorId)||FORMADORS.find(x=>x.nom===s.nom);
+        const initials=(s.nom||'?').split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase();
+        return`<div style="display:flex;gap:8px;padding:7px;background:#fff;border-radius:8px;margin-bottom:5px;border:1px solid rgba(0,0,0,0.06);align-items:center">
+          ${f&&f.img?`<img src="${f.img}" width="28" height="28" style="border-radius:50%;object-fit:cover;flex-shrink:0"/>`:`<div style="width:28px;height:28px;border-radius:50%;background:#534AB7;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0">${initials}</div>`}
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600">${i+1}. ${s.nom} <span style="font-size:10px;color:#5DCAA5;font-weight:600">${s.score}%</span> ${s.marge_pct!=null?`<span style="font-size:9.5px;color:#0C447C;background:#E6F1FB;padding:1px 5px;border-radius:6px">marge ${s.marge_pct}%</span>`:''}</div>
+            <div style="font-size:10.5px;color:#6b6b67;line-height:1.45">${s.rao_principal||(s.raons||[]).join(' · ')}</div>
+          </div>
+          ${f?`<button class="btn btn-sm btn-p" style="font-size:10.5px;padding:4px 9px;flex-shrink:0" onclick="(function(){document.getElementById('p-form-pref').value=${f.id};setFormPref();})();this.disabled=true;this.textContent='✓ Triat'">Triar</button>`:''}
+        </div>`;
+      }).join('')}`;
+  }catch(e){
+    wrap.innerHTML=`<div style="color:#791F1F">Error: ${e.message}</div>`;
+  }finally{
+    btn.disabled=false;btn.textContent=orig;
+  }
+}
+
 // ── AGENTS ─────────────────────────────────────────────────────
 function renderAgentSelector(){
   document.getElementById('agent-selector').innerHTML=AGENTS.map(a=>{
     const isSel=selectedAgent===a.nom;
     const parts=a.nom.split(' ');
-    return`<button class="agent-btn ${isSel?'sel':''}" onclick="selectAgent('${a.nom}')" title="${a.nom}"><div class="agent-av" style="background:${a.color}">${ini(a.nom)}</div><div class="agent-name">${parts[0]+(parts.length>1?'<br>'+parts.slice(1).join(' '):'')}</div></button>`;
+    // Prioritat: 1) imatge pròpia de l'agent, 2) imatge d'un formador amb el mateix nom, 3) inicials
+    const ownImg=a.img && !String(a.img).includes('data:image/svg')?a.img:null;
+    const matchedFormador=ownImg?null:FORMADORS.find(f=>f.nom===a.nom && f.img && !String(f.img).includes('data:image/svg'));
+    const imgSrc=ownImg||matchedFormador?.img;
+    const avHtml=imgSrc
+      ? `<div class="agent-av" style="background:${a.color};overflow:hidden;padding:0"><img src="${imgSrc}" alt="${a.nom}" style="width:100%;height:100%;object-fit:cover;display:block"/></div>`
+      : `<div class="agent-av" style="background:${a.color}">${ini(a.nom)}</div>`;
+    return`<button class="agent-btn ${isSel?'sel':''}" onclick="selectAgent('${a.nom}')" ondblclick="event.preventDefault();editAgent('${a.nom.replace(/'/g,"\\'")}')" title="${a.nom} · doble clic per editar">${avHtml}<div class="agent-name">${parts[0]+(parts.length>1?'<br>'+parts.slice(1).join(' '):'')}</div></button>`;
   }).join('')+`<button class="agent-add-btn" onclick="document.getElementById('agent-new-form').classList.toggle('open')" title="Afegir agent"><div class="agent-add-icon">+</div><div class="agent-name" style="color:#6b6b67">Afegir</div></button>`;
   const cf=document.getElementById('gest-com-f');
   if(cf)cf.innerHTML='<option value="">Tots els agents</option>'+AGENTS.map(a=>`<option value="${a.nom}">${a.nom}</option>`).join('');
 }
 function selectAgent(nom){selectedAgent=nom;renderAgentSelector();}
-function addAgent(){const inp=document.getElementById('agent-new-input');const nom=inp.value.trim();if(!nom){toast('Escriu el nom');return;}if(AGENTS.find(a=>a.nom===nom)){toast('Ja existeix');return;}const a={nom,color:AV_COLORS[AGENTS.length%AV_COLORS.length]};AGENTS.push(a);apiPost('agents',a);selectedAgent=nom;inp.value='';document.getElementById('agent-new-form').classList.remove('open');renderAgentSelector();toast('Agent afegit');}
+
+// ── EDIT AGENT (doble clic al chip) ────────────────────────────
+function editAgent(nom){
+  const a=AGENTS.find(x=>x.nom===nom);
+  if(!a)return;
+  // Crea l'overlay si no existeix
+  let bg=document.getElementById('agent-edit-bg');
+  if(!bg){
+    bg=document.createElement('div');
+    bg.id='agent-edit-bg';
+    bg.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;align-items:center;justify-content:center';
+    bg.innerHTML=`<div style="background:#fff;border-radius:14px;padding:18px 20px;width:400px;max-width:90vw;box-shadow:0 12px 40px rgba(0,0,0,0.18)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <label for="agent-edit-foto-inp" id="agent-edit-av-wrap" title="Clica per canviar la foto" style="position:relative;flex-shrink:0;cursor:pointer;display:block">
+          <div id="agent-edit-av" style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:18px;transition:filter .15s"></div>
+          <div id="agent-edit-av-overlay" style="position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;opacity:0;transition:opacity .15s;pointer-events:none">📷</div>
+          <input type="file" id="agent-edit-foto-inp" accept="image/*" style="display:none" onchange="loadAgentFoto(this)"/>
+        </label>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">Editar agent comercial</div>
+          <div id="agent-edit-original" style="font-size:11px;color:#71717A"></div>
+          <div style="font-size:10px;color:#71717A;margin-top:2px">Clica l'avatar per pujar foto · JPG/PNG max 20MB</div>
+        </div>
+        <button id="agent-edit-foto-rm" type="button" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;padding:4px 8px;border-radius:6px;font-size:10px;cursor:pointer" onclick="removeAgentFoto()">Treure foto</button>
+      </div>
+      <style>#agent-edit-av-wrap:hover #agent-edit-av-overlay{opacity:1}</style>
+      <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Nom complet</label>
+      <input type="text" id="agent-edit-nom" style="width:100%;padding:7px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box" onkeydown="if(event.key==='Enter')saveAgentEdit();if(event.key==='Escape')closeAgentEdit()"/>
+      <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin:10px 0 5px">Color de l'avatar <span style="font-weight:400;color:#9CA3AF">(visible si no hi ha foto)</span></label>
+      <div id="agent-edit-colors" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      <div id="agent-edit-warn" style="display:none;margin-top:10px;padding:7px 10px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:7px;font-size:11px;color:#92400E"></div>
+      <div style="display:flex;justify-content:space-between;gap:8px;margin-top:14px">
+        <button class="btn btn-sm" style="background:#FEE2E2;border-color:#FCA5A5;color:#991B1B" onclick="deleteAgent()">🗑 Eliminar</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="closeAgentEdit()">Cancel·lar</button>
+          <button class="btn btn-p btn-sm" onclick="saveAgentEdit()">Desar</button>
+        </div>
+      </div>
+    </div>`;
+    bg.addEventListener('click',e=>{if(e.target===bg)closeAgentEdit();});
+    document.body.appendChild(bg);
+  }
+  // Marca l'agent en edició + reset de l'estat de foto pendent
+  bg.dataset.editingNom=nom;
+  bg.dataset.pendingImg=''; // si l'usuari puja una foto nova, es desa aquí
+  bg.dataset.imgRemoved='';
+  document.getElementById('agent-edit-nom').value=a.nom;
+  document.getElementById('agent-edit-original').textContent='Editant: '+a.nom;
+  const av=document.getElementById('agent-edit-av');
+  av.style.background=a.color;
+  // Prioritat: imatge pròpia → formador match → inicials
+  const ownImg=a.img && !String(a.img).includes('data:image/svg')?a.img:null;
+  const matchedFormador=ownImg?null:FORMADORS.find(f=>f.nom===a.nom && f.img && !String(f.img).includes('data:image/svg'));
+  const initialImg=ownImg||matchedFormador?.img;
+  const rmBtn=document.getElementById('agent-edit-foto-rm');
+  if(initialImg){
+    av.innerHTML=`<img id="agent-edit-img" src="${initialImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+    av.style.padding='0';
+    if(rmBtn)rmBtn.style.display=ownImg?'block':'none'; // només es pot treure la foto pròpia
+  }else{
+    av.textContent=ini(a.nom);av.style.padding='';
+    if(rmBtn)rmBtn.style.display='none';
+  }
+  // Pinta colors triables
+  const cw=document.getElementById('agent-edit-colors');
+  cw.innerHTML=AV_COLORS.map(c=>`<button type="button" data-color="${c}" onclick="pickAgentColor(this)" style="width:26px;height:26px;border-radius:50%;border:${c===a.color?'2.5px solid #1a1a1a':'1px solid rgba(0,0,0,0.15)'};background:${c};cursor:pointer;padding:0"></button>`).join('');
+  // Warning si hi ha reserves amb aquest nom
+  const reservesAmb=(window.RESERVES||[]).filter(r=>r.comercial===a.nom).length;
+  const warn=document.getElementById('agent-edit-warn');
+  if(reservesAmb>0){warn.style.display='block';warn.innerHTML=`⚠️ Aquest agent té <strong>${reservesAmb}</strong> reserva${reservesAmb>1?'s':''} associades. Si el renomenes, s'actualitzaran totes automàticament. Si l'elimines, perdran l'agent assignat.`;}
+  else warn.style.display='none';
+  bg.style.display='flex';
+  setTimeout(()=>document.getElementById('agent-edit-nom').focus(),50);
+}
+
+function pickAgentColor(btn){
+  document.querySelectorAll('#agent-edit-colors button').forEach(b=>{b.style.border='1px solid rgba(0,0,0,0.15)';});
+  btn.style.border='2.5px solid #1a1a1a';
+  document.getElementById('agent-edit-av').style.background=btn.dataset.color;
+}
+
+function loadAgentFoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>20*1024*1024){toast('Fitxer massa gran (max 20MB)');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    processAvatarImage(e.target.result,cropped=>{
+      const bg=document.getElementById('agent-edit-bg');
+      if(bg){bg.dataset.pendingImg=cropped;bg.dataset.imgRemoved='';}
+      const av=document.getElementById('agent-edit-av');
+      av.innerHTML=`<img id="agent-edit-img" src="${cropped}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+      av.style.padding='0';
+      const rmBtn=document.getElementById('agent-edit-foto-rm');
+      if(rmBtn)rmBtn.style.display='block';
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+// Helper compartit: processa una imatge per a avatars/perfils
+//  · 256×256 (suficient per a retina fins ~128px de visualització)
+//  · Cover crop centrat (manté aspect ratio · NO deforma)
+//  · Smoothing high-quality en 2 passos (downsample progressiu) per evitar pixelació
+//  · JPEG quality 0.92 si no cal transparència — PNG en cas contrari
+function processAvatarImage(dataURL, cb, opts={}){
+  const target=opts.size||256;
+  const isPng=String(dataURL).startsWith('data:image/png');
+  const img=new Image();
+  img.onload=()=>{
+    // Pas 1: si la imatge original és gran (>2× target), fem un primer downsample a 2× target
+    // perquè drawImage en un sol pas pot quedar pixelat amb factors d'escala extrems.
+    let src=img,sw=img.width,sh=img.height;
+    const maxScale=2;
+    if(Math.min(sw/target,sh/target)>maxScale){
+      const ratio=Math.max((target*maxScale)/sw,(target*maxScale)/sh);
+      const w1=Math.round(sw*ratio),h1=Math.round(sh*ratio);
+      const c1=document.createElement('canvas');c1.width=w1;c1.height=h1;
+      const x1=c1.getContext('2d');
+      x1.imageSmoothingEnabled=true;x1.imageSmoothingQuality='high';
+      x1.drawImage(img,0,0,w1,h1);
+      src=c1;sw=w1;sh=h1;
+    }
+    // Pas 2: cover crop centrat sobre el target final
+    const c=document.createElement('canvas');c.width=target;c.height=target;
+    const ctx=c.getContext('2d');
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    const r=Math.max(target/sw,target/sh);
+    const w=sw*r,h=sh*r;
+    ctx.drawImage(src,(target-w)/2,(target-h)/2,w,h);
+    // Per a PNG conservem la qualitat lossless; per a la resta usem JPEG q=0.92 (3-5× més petit)
+    const out=isPng?c.toDataURL('image/png'):c.toDataURL('image/jpeg',0.92);
+    cb(out);
+  };
+  img.src=dataURL;
+}
+
+function removeAgentFoto(){
+  const bg=document.getElementById('agent-edit-bg');
+  if(!bg)return;
+  bg.dataset.pendingImg='';
+  bg.dataset.imgRemoved='1';
+  const oldNom=bg.dataset.editingNom;
+  const a=AGENTS.find(x=>x.nom===oldNom);
+  const av=document.getElementById('agent-edit-av');
+  av.innerHTML=ini(a?.nom||'?');
+  av.style.padding='';
+  document.getElementById('agent-edit-foto-rm').style.display='none';
+  const inp=document.getElementById('agent-edit-foto-inp');
+  if(inp)inp.value='';
+}
+
+function closeAgentEdit(){
+  const bg=document.getElementById('agent-edit-bg');
+  if(bg)bg.style.display='none';
+}
+
+async function saveAgentEdit(){
+  const bg=document.getElementById('agent-edit-bg');
+  const oldNom=bg?.dataset.editingNom;
+  const a=AGENTS.find(x=>x.nom===oldNom);
+  if(!a){closeAgentEdit();return;}
+  const newNom=document.getElementById('agent-edit-nom').value.trim();
+  if(!newNom){toast('El nom no pot estar buit');return;}
+  const selBtn=document.querySelector('#agent-edit-colors button[style*="2.5px"]');
+  const newColor=selBtn?.dataset.color||a.color;
+  if(newNom!==oldNom && AGENTS.find(x=>x.nom===newNom)){toast('Ja existeix un agent amb aquest nom');return;}
+  // Resoldre la imatge a desar
+  const pendingImg=bg.dataset.pendingImg||'';
+  const imgRemoved=bg.dataset.imgRemoved==='1';
+  let finalImg;
+  if(pendingImg)finalImg=pendingImg;          // nova foto pujada
+  else if(imgRemoved)finalImg=null;            // explícitament treta
+  else finalImg=a.img||null;                   // mantenir l'existent
+  // Actualitzar al servidor (PUT amb nom antic com a key)
+  try{
+    const r=await fetch('/api/agents/'+encodeURIComponent(oldNom),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:newNom,color:newColor,img:finalImg})});
+    if(!r.ok){const d=await r.json().catch(()=>({}));toast('Error: '+(d.error||r.status));return;}
+    const result=await r.json();
+    a.nom=newNom;a.color=newColor;a.img=finalImg||null;
+    // Propagació local a reserves (el servidor ja ho ha fet, però mantenim memòria sincronitzada)
+    if(newNom!==oldNom){
+      (window.RESERVES||[]).forEach(r=>{if(r.comercial===oldNom)r.comercial=newNom;});
+      if(selectedAgent===oldNom)selectedAgent=newNom;
+      if(typeof renderGest==='function')renderGest();
+    }
+    renderAgentSelector();
+    closeAgentEdit();
+    const updated=result.reservesUpdated||0;
+    toast('✓ Agent actualitzat'+(updated>0?' · '+updated+' reserves migrades':''));
+  }catch(e){toast('Error de connexió: '+e.message);}
+}
+
+async function deleteAgent(){
+  const bg=document.getElementById('agent-edit-bg');
+  const oldNom=bg?.dataset.editingNom;
+  if(!oldNom)return;
+  const reservesAmb=(window.RESERVES||[]).filter(r=>r.comercial===oldNom).length;
+  const msg=reservesAmb>0
+    ?`Eliminar "${oldNom}"? Hi ha ${reservesAmb} reserva${reservesAmb>1?'s':''} amb aquest agent que perdran l'assignació.`
+    :`Eliminar "${oldNom}"?`;
+  if(!confirm(msg))return;
+  const idx=AGENTS.findIndex(x=>x.nom===oldNom);
+  if(idx<0){closeAgentEdit();return;}
+  AGENTS.splice(idx,1);
+  await fetch('/api/agents/'+encodeURIComponent(oldNom),{method:'DELETE'});
+  if(selectedAgent===oldNom)selectedAgent=AGENTS[0]?.nom||null;
+  renderAgentSelector();
+  closeAgentEdit();
+  toast('✓ Agent eliminat');
+}
+function addAgent(){const inp=document.getElementById('agent-new-input');const nom=inp.value.trim();if(!nom){toast(typeof t==="function"?t("toast.write_name"):"Escriu el nom");return;}if(AGENTS.find(a=>a.nom===nom)){toast(typeof t==="function"?t("toast.exists"):"Ja existeix");return;}const a={nom,color:AV_COLORS[AGENTS.length%AV_COLORS.length]};AGENTS.push(a);apiPost('agents',a);selectedAgent=nom;inp.value='';document.getElementById('agent-new-form').classList.remove('open');renderAgentSelector();toast(typeof t==="function"?t("toast.agent_added"):"Agent afegit");}
 
 // ── DIES / DISTRIBUCIÓ ──────────────────────────────────────────
 function upD(){
@@ -933,12 +611,49 @@ function upR(){
   document.getElementById('rsm-t').innerHTML=`<strong>${ns} sessions</strong> · <strong>${hs}h/sessió</strong> · ~<strong>${sw} setmanes</strong>`;
   document.getElementById('rsm-e').textContent=pc>0?`Ingressos estimats: ${(pc*h).toFixed(0)}€`:'';
 }
-function clearPeticio(){document.getElementById('p-client').value='';document.getElementById('p-curs').value='';document.getElementById('p-hores').value='16';document.getElementById('p-inici').value='2026-04-14';document.getElementById('p-preu').value='75';document.getElementById('excl-in').value='';bDays=new Set();exclD=new Set();selDist=null;preferredFormadorId=null;document.getElementById('p-form-pref').value='';document.getElementById('form-pref-display').innerHTML='';document.querySelectorAll('.ds').forEach(b=>b.classList.remove('blocked'));renderExcl();upD();upR();lf();document.getElementById('r-live').style.display='';document.getElementById('r-prop').style.display='none';document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act','act-p');});document.getElementById('nb-p').classList.add('act');toast('Petició netejada');}
+function clearPeticio(){document.getElementById('p-client').value='';document.getElementById('p-curs').value='';document.getElementById('p-hores').value='16';document.getElementById('p-inici').value='2026-04-14';document.getElementById('p-preu').value='75';document.getElementById('excl-in').value='';bDays=new Set();exclD=new Set();selDist=null;preferredFormadorId=null;document.getElementById('p-form-pref').value='';document.getElementById('form-pref-display').innerHTML='';document.querySelectorAll('.ds').forEach(b=>b.classList.remove('blocked'));renderExcl();upD();upR();lf();document.getElementById('r-live').style.display='';document.getElementById('r-prop').style.display='none';document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act','act-p');});document.getElementById('nb-p').classList.add('act');clearPeticioDraft();toast(typeof t==="function"?t("toast.netejada"):"Petició netejada");}
 
 // ── DATES ──────────────────────────────────────────────────────
 function validDay(d){const dw=d.getDay();if(dw===0||dw===6)return false;if(bDays.has(dw))return false;if(isFest(d))return false;if(exclD.has(toISO(d)))return false;return true;}
 function buildDates(startStr,n,dist,extraExcl){const res=[];const cur=new Date(startStr+'T00:00:00');let it=0;while(res.length<n&&it<500){const dw=cur.getDay()||7;if(dist.includes(dw)&&validDay(cur)&&(!extraExcl||!extraExcl.has(toISO(cur))))res.push(new Date(cur));cur.setDate(cur.getDate()+1);it++;}return res;}
 function findFirstAvailable(startStr,dist){const cur=new Date(startStr+'T00:00:00');for(let i=0;i<60;i++){const dw=cur.getDay()||7;if(dist.includes(dw)&&validDay(cur))return new Date(cur);cur.setDate(cur.getDate()+1);}return new Date(startStr+'T00:00:00');}
+
+// Construeix el detall de dates per a un formador:
+// - Les dates originals (algunes poden estar ocupades → taronja)
+// - Per cada data ocupada, afegeix una data de substitució lliure (→ verd amb ↩)
+// Retorna array de {d, iso, calBusy, gesBusy, isReplacement}
+function buildDateDetailWithReplacements(f, dates, tornL, fGesISO, hasRealCal){
+  const detail=[];
+  const usedIsos=new Set(dates.map(d=>toISO(d)));
+  let busyCount=0;
+  for(const d of dates){
+    const iso=toISO(d);
+    const calBusy=hasRealCal?isDateBusyForTorn(f.id,iso,tornL):false;
+    const gesBusy=fGesISO.has(iso);
+    detail.push({d,iso,calBusy,gesBusy,isReplacement:false});
+    if(calBusy||gesBusy)busyCount++;
+  }
+  if(busyCount>0&&dates.length>0){
+    // Busca dates de substitució lliures a partir de l'endemà de l'última data
+    const last=dates[dates.length-1];
+    const nextDay=new Date(last.getTime()+86400000);
+    // Busquem busyCount*3 candidats per tenir marge si alguns també estan ocupats
+    const candidates=buildDates(toISO(nextDay),busyCount*3,dates.length>=2?[dates[0].getDay()||7,dates[1].getDay()||7]:[dates[0].getDay()||7],usedIsos);
+    let added=0;
+    for(const d of candidates){
+      if(added>=busyCount)break;
+      const iso=toISO(d);
+      const calBusy=hasRealCal?isDateBusyForTorn(f.id,iso,tornL):false;
+      const gesBusy=fGesISO.has(iso);
+      if(!calBusy&&!gesBusy){
+        detail.push({d,iso,calBusy:false,gesBusy:false,isReplacement:true});
+        usedIsos.add(iso);
+        added++;
+      }
+    }
+  }
+  return detail;
+}
 
 // ── PUNTUACIÓ ──────────────────────────────────────────────────
 // gesReservesPerF: Map<formadorId, Set<isoDate>> — només dates d'aquest formador a GESEM
@@ -1131,7 +846,11 @@ function genProp(){
   const agentObj=AGENTS.find(a=>a.nom===comercial);
   const firstAvail=findFirstAvailable(iniOri,dist);
   const iniReal=toISO(firstAvail);
-  const deltaMsg=iniReal>iniOri?`Inici ajustat: ${fmtD(firstAvail)} (des de data orientativa ${iniOri})`:'';
+  // Si la data orientativa és un festiu, ho indiquem al missatge per claredat
+  const iniFestiu = getFestiu(iniOri);
+  const deltaMsg = iniReal>iniOri
+    ? `Inici ajustat: ${fmtD(firstAvail)} (des de data orientativa ${iniOri}${iniFestiu?` · festiu: ${iniFestiu.nom}`:''})`
+    : '';
 
   let candList=FORMADORS.filter(f=>f.specs.includes(esp));
   if(preferredFormadorId!==null){
@@ -1142,14 +861,11 @@ function genProp(){
     const s=calcScore(f,esp,dates,gesReservesPerF,pc,f.id===preferredFormadorId,tornL);
     const cF=f.preu_hora*h,cC=pc*h,marge=cC>0?((cC-cF)/cC*100):0;
     const fGesISO=gesReservesPerF[f.id]||new Set();
-    // Detall per data: lliure / ocupat agenda pròpia / ocupat GESEM (aquest formador)
-    const dateDetail=dates.map(d=>{
-      const iso=toISO(d);
-      const calBusy=s.hasRealCal?isDateBusyForTorn(f.id,iso,tornL):false;
-      const gesBusy=fGesISO.has(iso);
-      return{d,iso,calBusy,gesBusy};
-    });
-    return{f,dates,dateDetail,blocked:s.blocked,gesConflicts:s.gesConflicts||0,calConflicts:s.calConflicts||0,hasRealCal:s.hasRealCal,score:s.score,cF,cC,marge,torn:tornL,hs,ns,h,pc,comercial,client,curs,iniOri,iniReal,isPref:f.id===preferredFormadorId};
+    // Detall per data: originals (algunes ocupades) + substitucions per les ocupades
+    const dateDetail=buildDateDetailWithReplacements(f,dates,tornL,fGesISO,s.hasRealCal);
+    // Dates confirmades per a la reserva: originals lliures + substitucions (excloent les ocupades)
+    const confirmedDates=dateDetail.filter(x=>!x.calBusy&&!x.gesBusy).map(x=>x.d);
+    return{f,dates,confirmedDates,dateDetail,blocked:s.blocked,gesConflicts:s.gesConflicts||0,calConflicts:s.calConflicts||0,hasRealCal:s.hasRealCal,score:s.score,cF,cC,marge,torn:tornL,hs,ns,h,pc,comercial,client,curs,iniOri,iniReal,isPref:f.id===preferredFormadorId};
   })
   .filter(p=>!p.blocked) // Excloure formadors totalment bloquejats
   .sort((a,b)=>{if(a.isPref)return -1;if(b.isPref)return 1;return b.score-a.score;});
@@ -1171,13 +887,18 @@ function genProp(){
     propHTML+=cands.map((p,i)=>{
       const ri=Math.min(i,3);const mC=p.marge.toFixed(0);const mCl=p.marge>=30?'mc-ok':p.marge>=15?'mc-w':'mc-b';const mColor=p.marge>=30?'#085041':p.marge>=15?'#633806':'#791F1F';
       // Píndoles de dates amb estat visual per sessió
-      const pills=(p.dateDetail||p.dates.map(d=>({d,iso:toISO(d),calBusy:false,gesBusy:false}))).map(({d,calBusy,gesBusy})=>{
+      const _detail=p.dateDetail||p.dates.map(d=>({d,iso:toISO(d),calBusy:false,gesBusy:false,isReplacement:false}));
+      const _busyInDetail=_detail.filter(x=>x.calBusy||x.gesBusy).length;
+      const _replCount=_detail.filter(x=>x.isReplacement).length;
+      const pills=_detail.map(({d,calBusy,gesBusy,isReplacement})=>{
         const dw=d.getDay()||7;
-        const cls=calBusy?'pill p-c':gesBusy?'pill p-c':'pill p-ok';
-        const icon=calBusy?'📅':gesBusy?'🔒':'';
-        const title=calBusy?'Agenda ocupada en aquest horari':gesBusy?'Ja assignat a GESEM':'Lliure';
-        return`<span class="${cls}" title="${title}">${DL[dw]} ${d.getDate()}/${d.getMonth()+1}${icon}</span>`;
-      }).join('');
+        const isBusy=calBusy||gesBusy;
+        const cls=isBusy?'pill p-c':'pill p-ok';
+        const icon=calBusy?'📅':gesBusy?'🔒':isReplacement?'↩':'';
+        const borderStyle=isReplacement?'border-style:dashed':'';
+        const title=calBusy?'Agenda ocupada · substituïda':gesBusy?'GESEM ocupat · substituïda':isReplacement?'Data de substitució · lliure':'Lliure';
+        return`<span class="${cls}" style="${borderStyle}" title="${title}">${DL[dw]} ${d.getDate()}/${d.getMonth()+1}${icon}</span>`;
+      }).join('')+(_busyInDetail>0?`<span style="font-size:10px;color:#633806;margin-left:3px">+${_replCount} substit.</span>`:'');
       const waMsg=encodeURIComponent(`Hola ${p.f.nom}! Tenim disponibilitat per al curs "${curs}" del client ${client}? Dates: ${p.dates.slice(0,3).map(d=>fmtD(d)).join(', ')}... (${p.dates.length} sessions de ${hs}h, ${tornL}). Pots confirmar? Gràcies!`);
       const prefLabel=p.isPref?'Formador preferit pel client':rLabels[ri];
       const prefBg=p.isPref?'#E1F5EE':rBgs[ri];const prefColor=p.isPref?'#085041':rColors[ri];
@@ -1205,15 +926,15 @@ function genProp(){
           <span style="color:#6b6b67">Marge: <strong style="color:${mColor}">${(p.cC-p.cF).toFixed(0)}€</strong></span>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px">${pills}</div>
-        <div style="display:flex;gap:5px;justify-content:flex-end;flex-wrap:wrap;border-top:0.5px solid rgba(0,0,0,0.07);padding-top:8px">
+        <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;border-top:0.5px solid rgba(0,0,0,0.07);padding-top:8px">
           <button class="btn btn-sm" style="background:#E1F5EE;border-color:#5DCAA5;color:#085041" onclick="event.stopPropagation();openEmailFormador(${i})">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="vertical-align:-1px;margin-right:2px"><rect x=".5" y="1.5" width="9" height="7" rx="1" stroke="currentColor" stroke-width=".8" fill="none"/><path d=".5 3l4.5 3 4.5-3" stroke="currentColor" stroke-width=".8"/></svg>Email formador
           </button>
           <a href="https://wa.me/?text=${waMsg}" target="_blank" onclick="event.stopPropagation()" class="btn btn-sm" style="background:#25D366;border-color:#25D366;color:#fff;text-decoration:none">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="vertical-align:-1px;margin-right:2px"><circle cx="5" cy="5" r="4.5" stroke="white" stroke-width=".7"/><path d="M2.5 7c.5-1 1.5-2.5 3-2.5s2 1 2 1.5-1 .8-1.3.3-.8-1.3-.8-1.3" stroke="white" stroke-width=".6" fill="none"/></svg>WhatsApp
           </a>
-          <button class="btn btn-sm" onclick="event.stopPropagation();confirmarReserva(${i},false)">Reservar</button>
-          <button class="btn btn-p btn-sm" onclick="event.stopPropagation();confirmarReserva(${i},true)">Reservar + email ↗</button>
+          <div style="flex:1"></div>
+          <button class="btn btn-p btn-sm" onclick="event.stopPropagation();confirmarReserva(${i},true)">Reservar + email (Comercial) ↗</button>
         </div>
       </div>`;
     }).join('');
@@ -1279,19 +1000,27 @@ function generateAltCalendars(){
       const availCount=scored.length;
       const calVerified=best&&best.s.hasRealCal;
 
-      // Píndoles de dates verificades per al millor formador
-      const pills=dates.slice(0,6).map(d=>{
-        const iso=toISO(d);const dw=d.getDay()||7;
-        let calBusy=false,gesBusy=false;
-        if(best){
-          const fGes=gesReservesPerF[best.f.id]||new Set();
-          gesBusy=fGes.has(iso);
-          calBusy=best.s.hasRealCal?isDateBusyForTorn(best.f.id,iso,tornL):false;
-        }
-        const cls=(calBusy||gesBusy)?'pill p-c':'pill p-ok';
-        const icon=calBusy?'📅':gesBusy?'🔒':'';
-        return`<span class="${cls}" title="${calBusy?'Agenda ocupada':gesBusy?'GESEM ocupat':'Lliure'}">${DL[dw]} ${d.getDate()}/${d.getMonth()+1}${icon}</span>`;
-      }).join('')+(dates.length>6?`<span style="font-size:10px;color:#6b6b67"> +${dates.length-6}</span>`:'');
+      // Píndoles verificades per al millor formador, amb substitucions per les dates ocupades
+      let altDetail=[];
+      if(best){
+        const fGes=gesReservesPerF[best.f.id]||new Set();
+        altDetail=buildDateDetailWithReplacements(best.f,dates,tornL,fGes,best.s.hasRealCal);
+      } else {
+        altDetail=dates.map(d=>({d,iso:toISO(d),calBusy:false,gesBusy:false,isReplacement:false}));
+      }
+      const altBusy=altDetail.filter(x=>x.calBusy||x.gesBusy).length;
+      const altRepl=altDetail.filter(x=>x.isReplacement).length;
+      const pills=altDetail.slice(0,7).map(({d,calBusy,gesBusy,isReplacement})=>{
+        const dw=d.getDay()||7;
+        const isBusy=calBusy||gesBusy;
+        const cls=isBusy?'pill p-c':'pill p-ok';
+        const icon=calBusy?'📅':gesBusy?'🔒':isReplacement?'↩':'';
+        const bStyle=isReplacement?'border-style:dashed':'';
+        const title=calBusy?'Agenda ocupada · substituïda':gesBusy?'GESEM ocupat · substituïda':isReplacement?'Substitució · lliure':'Lliure';
+        return`<span class="${cls}" style="${bStyle}" title="${title}">${DL[dw]} ${d.getDate()}/${d.getMonth()+1}${icon}</span>`;
+      }).join('')
+      +(altDetail.length>7?`<span style="font-size:10px;color:#6b6b67"> +${altDetail.length-7}</span>`:'')
+      +(altBusy>0?`<span style="font-size:10px;color:#633806;margin-left:3px">+${altRepl} substit.</span>`:'');
 
       const calBadge=calVerified
         ?`<span style="background:#E1F5EE;color:#085041;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:500">📅 Agenda verificada</span>`
@@ -1339,17 +1068,43 @@ function confirmarReserva(idx,ambEmail){
     if(!confirm(msg))return;
   }
 
+  // Si l'usuari ha clicat "Reservar + email", obrim primer el modal de PREVIEW
+  // SENSE crear encara la reserva. La reserva es crearà només si confirma l'enviament.
+  if(ambEmail){
+    openPreviewBeforeReserva(idx);
+    return;
+  }
+
+  // Cas "Reservar" simple (sense email) — manté el comportament antic
   const r=confP(idx);
-  if(ambEmail){openEmailModal(r.id);gv('gest',document.getElementById('nb-gest'));}
-  else{toast('Reserva creada · '+r.id);}
+  if(typeof clearPeticioDraft==='function')clearPeticioDraft();
+  refreshAllCalendars(p.f.id).catch(e=>console.warn('Refresh cal failed:',e));
+  toast('Reserva creada · '+r.id);
 }
-function applyAlt(dist,ssw,ini){selDist=dist;document.getElementById('p-ssw').value=ssw;document.getElementById('p-inici').value=ini;upD();ua();document.getElementById('r-live').style.display='';document.getElementById('r-prop').style.display='none';document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act','act-p');});document.getElementById('nb-p').classList.add('act');toast('Alternativa aplicada');}
+
+// Refrescar caches de calendaris després d'una nova reserva
+// opts.showToast=true → mostra UNA SOLA toast resum al final (no una per formador)
+async function refreshAllCalendars(priorityId, opts){
+  const showToast = opts && opts.showToast === true;
+  const withCal=FORMADORS.filter(f=>f.icsUrl);
+  if(!withCal.length)return;
+  // Primer el formador assignat (prioritat) — silenci per evitar 1 toast per formador
+  if(priorityId!=null){
+    try{await refreshCal(priorityId,{silent:true});}catch(e){}
+  }
+  // La resta sense bloqueig (també silencios)
+  await Promise.all(withCal.filter(f=>f.id!==priorityId).map(f=>refreshCal(f.id,{silent:true}).catch(()=>{})));
+  if(showToast)toast(`📅 ${withCal.length} calendaris actualitzats`);
+}
+function applyAlt(dist,ssw,ini){selDist=dist;document.getElementById('p-ssw').value=ssw;document.getElementById('p-inici').value=ini;upD();ua();document.getElementById('r-live').style.display='';document.getElementById('r-prop').style.display='none';document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act','act-p');});document.getElementById('nb-p').classList.add('act');toast(typeof t==="function"?t("toast.alt.applied"):"Alternativa aplicada");}
 function selP(i){document.querySelectorAll('.pr').forEach((el,j)=>{el.classList.toggle('sel',j===i);el.style.borderColor=j===i?'#1D9E75':'';});}
 function showLive(){document.getElementById('r-live').style.display='';document.getElementById('r-prop').style.display='none';document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act','act-p');});document.getElementById('nb-p').classList.add('act');}
 
 function confP(idx){
   const p=window._pr[idx];
-  const res={id:'R'+Date.now(),client:p.client,curs:p.curs,formador:p.f.nom,formadorId:p.f.id,formadorEmail:p.f.email,formadorTel:p.f.tel,comercial:p.comercial,dates:p.dates.map(d=>toISO(d)),torn:p.torn,hs:p.hs,ns:p.ns,h:p.h,pc:p.pc,estat:'pendent-cli',emailEnviat:false,emailFormadorEnviat:false,createdAt:toISO(new Date()),cF:p.cF.toFixed(2),cC:p.cC.toFixed(2),marge:p.marge.toFixed(1),dist:p.dates.length>=2?[p.dates[0].getDay()||7,p.dates[1].getDay()||7]:[p.dates[0]?.getDay()||7]};
+  // Usar confirmedDates (lliures: originals lliures + substitucions), mai les dates ocupades
+  const datesPerReserva=(p.confirmedDates&&p.confirmedDates.length>0)?p.confirmedDates:p.dates;
+  const res={id:'R'+Date.now(),client:p.client,curs:p.curs,formador:p.f.nom,formadorId:p.f.id,formadorEmail:p.f.email,formadorTel:p.f.tel,comercial:p.comercial,dates:datesPerReserva.map(d=>toISO(d)),torn:p.torn,hs:p.hs,ns:p.ns,h:p.h,pc:p.pc,estat:'pendent-cli',emailEnviat:false,emailFormadorEnviat:false,createdAt:toISO(new Date()),cF:p.cF.toFixed(2),cC:p.cC.toFixed(2),marge:p.marge.toFixed(1),dist:datesPerReserva.length>=2?[datesPerReserva[0].getDay()||7,datesPerReserva[1].getDay()||7]:[datesPerReserva[0]?.getDay()||7]};
   RESERVES.push(res);if(res.dates.length){calY=parseISO(res.dates[0]).getFullYear();calM=parseISO(res.dates[0]).getMonth();}
   apiPost('reserves',res);
   return res;
@@ -1359,14 +1114,27 @@ function confP(idx){
 function openEmailFormador(idx){
   const p=window._pr[idx];if(!p)return;
   const curs=document.getElementById('p-curs').value;const client=document.getElementById('p-client').value;
-  const sessText=p.dates.map((d,i)=>{const dw=d.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(d)} · ${p.torn} · ${p.hs}h`;}).join('\n');
+
+  // Separar dates disponibles vs ocupades (no incloure ocupades al text principal)
+  const availDates=[];const busyDates=[];
+  p.dates.forEach(d=>{
+    const iso=toISO(d);
+    const busy=hasCalendar(p.f) && calData[p.f.id]!==undefined && isDateBusyForTorn(p.f.id,iso,p.torn);
+    (busy?busyDates:availDates).push(d);
+  });
+
+  const sessText=availDates.map((d,i)=>{const dw=d.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(d)} · ${p.torn} · ${p.hs}h`;}).join('\n');
+  const busyNote=busyDates.length
+    ? `\n\n⚠️ AQUESTES DATES SEMBLEN OCUPADES A LA TEVA AGENDA i NO les he inclòs:\n${busyDates.map(d=>{const dw=d.getDay()||7;return`  · ${DL[dw]} ${fmtD(d)}`;}).join('\n')}\nCaldrà buscar dates alternatives per aquestes sessions.`
+    : '';
+
   document.getElementById('emailf-title').textContent=`Email al formador · ${p.f.nom}`;
   document.getElementById('emailf-para').value=p.f.email||'';
   document.getElementById('emailf-assumpte').value=`Reserva de formació · ${curs} · ${client}`;
-  document.getElementById('emailf-cos').value=`Hola ${p.f.nom},\n\nT'escric per reservar-te les dates per al curs "${curs}" del client ${client}.\n\nCALENDARI PROPOSAT\n${'─'.repeat(40)}\n${sessText}\n\nCaldrà la teva confirmació per formalitzar la reserva. Si tens algun impediment amb alguna data, indica'ns quines i buscarem alternatives.\n\nGràcies i salutacions,\nEquip de gestió docent\nGESEM digital & SoftSkills · www.gesem.es`;
+  document.getElementById('emailf-cos').value=`Hola ${p.f.nom},\n\nT'escric per reservar-te les dates per al curs "${curs}" del client ${client}.\n\nCALENDARI PROPOSAT (${availDates.length} sessions)\n${'─'.repeat(40)}\n${sessText||'  (sense dates disponibles confirmades)'}${busyNote}\n\nCaldrà la teva confirmació per formalitzar la reserva.\n\nGràcies i salutacions,\nEquip de gestió docent\nGESEM digital & SoftSkills · www.gesem.es`;
   document.getElementById('emailf-bg').style.display='flex';
 }
-function copyEmailF(){const full=`Per a: ${document.getElementById('emailf-para').value}\nAssumpte: ${document.getElementById('emailf-assumpte').value}\n\n${document.getElementById('emailf-cos').value}`;navigator.clipboard.writeText(full).then(()=>toast('Text copiat'));}
+function copyEmailF(){const full=`Per a: ${document.getElementById('emailf-para').value}\nAssumpte: ${document.getElementById('emailf-assumpte').value}\n\n${document.getElementById('emailf-cos').value}`;navigator.clipboard.writeText(full).then(()=>toast(typeof t==="function"?t("toast.copiat"):"Text copiat"));}
 
 // ── GESTIÓ RESERVES ─────────────────────────────────────────────
 function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('act'));btn.classList.add('act');renderGest();}
@@ -1395,7 +1163,17 @@ function renderGest(){
   if(alerta.length){alertEl.style.display='flex';document.getElementById('gest-alert-txt').textContent=`${alerta.length} reserva(es) porten +5 dies pendents de confirmació del client.`;}
   else alertEl.style.display='none';
 
-  if(!list.length){document.getElementById('gest-list').innerHTML='<div style="text-align:center;padding:28px;color:#6b6b67;font-size:13px;background:#fff;border-radius:12px">Cap reserva. Genera una proposta des de Petició.</div>';return;}
+  if(!list.length){
+    const isFiltered=activeFilter||fc;
+    document.getElementById('gest-list').innerHTML=emptyState({
+      icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>',
+      title:isFiltered?'Cap reserva amb aquests filtres':'Encara no hi ha cap reserva',
+      desc:isFiltered?'Prova de canviar els filtres o esborrar-los per veure totes les reserves.':'Les reserves apareixeran aquí. Comença creant-ne una des de la pàgina Petició.',
+      ctaLabel:isFiltered?null:'Crear primera reserva →',
+      ctaHref:isFiltered?null:'/peticio',
+    });
+    return;
+  }
 
   const stLabel={'pendent-cli':'Pendent client','pendent-form':'Pendent formador','confirmada':'Confirmada','cancel':'Cancel·lada','vf':'VF · Arxivat'};
   const stDot={'pendent-cli':'ed-pc','pendent-form':'ed-pf','confirmada':'ed-co','cancel':'ed-ca','vf':'ed-vf'};
@@ -1424,8 +1202,12 @@ function renderGest(){
 }
 
 function renderResTable(list,stLabel,stDot,agentColor){
-  return`<div style="overflow-x:auto"><table class="rt">
+  // Mostrar barra de bulk si hi ha elements seleccionables (cancel·lades o VF)
+  const hasDeletable=list.some(r=>r.estat==='cancel'||r.estat==='vf');
+  return`${hasDeletable?`<div id="bulk-bar" style="display:none;background:var(--bg-muted);border-bottom:1px solid var(--border);padding:9px 14px;align-items:center;gap:10px;font-size:12.5px"><span id="bulk-count" style="font-weight:600">0 seleccionades</span><div style="flex:1"></div><button class="btn btn-sm" onclick="bulkClearSelection()">Desseleccionar</button><button class="btn btn-sm btn-danger" style="background:var(--accent-red);color:#fff;border-color:var(--accent-red)" onclick="bulkDeleteReserves()">🗑 Eliminar seleccionades</button></div>`:''}
+  <div style="overflow-x:auto"><table class="rt">
     <thead><tr>
+      ${hasDeletable?`<th style="width:28px;padding:8px"><input type="checkbox" id="bulk-select-all" onchange="bulkToggleAll(this)" title="Seleccionar totes"/></th>`:''}
       <th></th>
       <th>Agent</th>
       <th>Client · Curs</th>
@@ -1440,7 +1222,9 @@ function renderResTable(list,stLabel,stDot,agentColor){
       const f=FORMADORS.find(x=>x.id===r.formadorId);
       const datePills=r.dates.slice(0,8).map(d=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`<span class="dp">${DL[dw]} ${dt.getDate()}/${dt.getMonth()+1}</span>`;}).join('')+(r.dates.length>8?`<span style="font-size:9px;color:#6b6b67">+${r.dates.length-8}</span>`:'');
       const waMsg=encodeURIComponent(`Hola ${r.formador}! Recordatori reserva "${r.curs}" per a ${r.client}. Dates: ${r.dates.slice(0,2).map(d=>fmtD(parseISO(d))).join(', ')}...`);
+      const canDelete=(r.estat==='cancel'||r.estat==='vf');
       return`<tr class="${urgent?'urgent':''}">
+        ${hasDeletable?`<td style="padding:8px">${canDelete?`<input type="checkbox" class="bulk-cb" data-id="${r.id}" onchange="bulkUpdateBar()"/>`:''}</td>`:''}
         <td><span class="estat-dot ${stDot[r.estat]}" title="${stLabel[r.estat]}"></span></td>
         <td style="white-space:nowrap">
           <div style="display:flex;align-items:center;gap:4px">
@@ -1481,6 +1265,7 @@ function renderResTable(list,stLabel,stDot,agentColor){
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7 1.5l2.5 2.5-6 6H1v-2.5l6-6z" stroke="currentColor" stroke-width=".8" fill="none"/><path d="M6 3l2 2" stroke="currentColor" stroke-width=".8"/></svg>
             </button>
             ${r.estat!=='cancel'&&r.estat!=='vf'?`<button class="btn-icon" onclick="updR('${r.id}','cancel')" title="Cancel·lar" style="color:#A32D2D;border-color:#F09595">✕</button>`:''}
+            ${r.estat==='cancel'||r.estat==='vf'?`<button class="btn-icon" onclick="deleteReserva('${r.id}')" title="Eliminar permanentment" style="background:#FCEBEB;border-color:#F09595;color:#791F1F">🗑</button>`:''}
           </div>
         </td>
       </tr>`;
@@ -1488,7 +1273,96 @@ function renderResTable(list,stLabel,stDot,agentColor){
   </table></div>`;
 }
 
-function updR(id,est){const r=RESERVES.find(x=>x.id===id);if(r){r.estat=est;apiPut('reserves/'+id,r);renderGest();toast({confirmada:'✓ Confirmada','cancel':'Cancel·lada · dates alliberades'}[est]||'Actualitzat');}}
+async function deleteReserva(id){
+  const r=RESERVES.find(x=>x.id===id);
+  if(!r)return;
+  const ok=await confirmDialog({
+    title:'Eliminar reserva permanentment?',
+    message:`<strong>${r.client}</strong> · ${r.curs}<br>Aquesta acció <strong>no es pot desfer</strong>. Es perdran totes les dades d'aquesta reserva.`,
+    confirmText:'Sí, eliminar',danger:true,
+  });
+  if(!ok)return;
+  try{
+    await fetch('/api/reserves/'+id,{method:'DELETE'});
+    RESERVES=RESERVES.filter(x=>x.id!==id);
+    renderGest();
+    toast('Reserva eliminada permanentment');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+// ── BULK SELECTION & DELETE ──────────────────────────────────
+function bulkUpdateBar(){
+  const checked=document.querySelectorAll('.bulk-cb:checked');
+  const bar=document.getElementById('bulk-bar');
+  const count=document.getElementById('bulk-count');
+  if(!bar)return;
+  if(checked.length>0){
+    bar.style.display='flex';
+    if(count)count.textContent=checked.length+' seleccionades';
+  }else{
+    bar.style.display='none';
+  }
+  // Sincronitzar el "select all"
+  const all=document.querySelectorAll('.bulk-cb');
+  const sa=document.getElementById('bulk-select-all');
+  if(sa)sa.checked=all.length>0&&checked.length===all.length;
+}
+function bulkToggleAll(input){
+  document.querySelectorAll('.bulk-cb').forEach(cb=>cb.checked=input.checked);
+  bulkUpdateBar();
+}
+function bulkClearSelection(){
+  document.querySelectorAll('.bulk-cb').forEach(cb=>cb.checked=false);
+  const sa=document.getElementById('bulk-select-all');if(sa)sa.checked=false;
+  bulkUpdateBar();
+}
+async function bulkDeleteReserves(){
+  const ids=[...document.querySelectorAll('.bulk-cb:checked')].map(cb=>cb.dataset.id);
+  if(!ids.length){toast('Cap reserva seleccionada');return;}
+  const ok=await confirmDialog({
+    title:`Eliminar ${ids.length} reserva${ids.length===1?'':'s'} permanentment?`,
+    message:`Eliminaràs <strong>${ids.length}</strong> reserva${ids.length===1?'':'s'} de l'historial. Aquesta acció <strong>no es pot desfer</strong>.`,
+    confirmText:`Sí, eliminar ${ids.length}`,danger:true,
+  });
+  if(!ok)return;
+  let deleted=0;let failed=0;
+  for(const id of ids){
+    try{
+      await fetch('/api/reserves/'+id,{method:'DELETE'});
+      RESERVES=RESERVES.filter(x=>x.id!==id);
+      deleted++;
+    }catch(e){failed++;}
+  }
+  renderGest();
+  toast(failed?`✓ ${deleted} eliminades · ${failed} errors`:`✓ ${deleted} eliminades`);
+}
+
+async function updR(id,est){
+  const r=RESERVES.find(x=>x.id===id);
+  if(!r)return;
+  // Confirmar només si és una acció destructiva (cancel·lar)
+  if(est==='cancel'){
+    const ok=await confirmDialog({
+      title:'Cancel·lar reserva?',
+      message:`<strong>${r.client}</strong> · ${r.curs}<br>Les ${r.dates?.length||0} sessions s'alliberaran. Aquesta acció es pot revertir canviant l'estat a "Pendent".`,
+      confirmText:'Sí, cancel·lar',danger:true,
+    });
+    if(!ok)return;
+  }
+  r.estat=est;
+  apiPut('reserves/'+id,r);
+  renderGest();
+  toast({confirmada:'✓ Confirmada','cancel':'Cancel·lada · dates alliberades'}[est]||'Actualitzat');
+  // Auto-sync amb Google Calendar quan es confirma (silenciós si no està connectat)
+  if(est==='confirmada'){
+    fetch('/api/google/sync-reserva',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reservaId:id})})
+      .then(x=>x.json()).then(d=>{
+        if(d&&d.ok&&d.created&&d.created.length){
+          toast('📅 '+d.created.length+' events creats al Google Calendar');
+        }
+      }).catch(()=>{/* silent */});
+  }
+}
 
 function finalitzarVF(id){
   const r=RESERVES.find(x=>x.id===id);if(!r)return;
@@ -1617,12 +1491,104 @@ function markPendentsEnviat(){
   }
 }
 
+// ── PREVIEW · ABANS DE CREAR LA RESERVA ────────────────────────
+// Construeix les mateixes dades que tindria la reserva i mostra el modal
+// d'email al comercial. La reserva NO es crea fins que l'usuari clica "Enviar".
+function openPreviewBeforeReserva(idx){
+  const p=window._pr[idx];if(!p)return;
+  // Construïm un objecte "reserva temporal" idèntic al que generarà confP
+  const datesPerReserva=(p.confirmedDates&&p.confirmedDates.length>0)?p.confirmedDates:p.dates;
+  const tmp={
+    id:'(pendent de crear)',
+    client:p.client,curs:p.curs,
+    formador:p.f.nom,formadorId:p.f.id,formadorEmail:p.f.email,formadorTel:p.f.tel,
+    comercial:p.comercial,
+    dates:datesPerReserva.map(d=>toISO(d)),
+    torn:p.torn,hs:p.hs,ns:p.ns,h:p.h,pc:p.pc,
+    cF:p.cF.toFixed(2),cC:p.cC.toFixed(2),
+  };
+  const sessText=tmp.dates.map((d,i)=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)} · ${tmp.torn} · ${tmp.hs}h`;}).join('\n');
+  document.getElementById('email-modal-title').textContent=`Previsualitzant email al comercial · ${tmp.comercial}`;
+  document.getElementById('email-de').value='comunicacions@gesem.cat';
+  document.getElementById('email-para').value=(tmp.comercial||'').toLowerCase().replace(' ','.')+'@gesem.es';
+  document.getElementById('email-assumpte').value=`GESEM Planner · Proposta formació · ${tmp.curs} · ${tmp.client}`;
+  document.getElementById('email-cos').value=`Hola ${tmp.comercial},\n\nT'envio la proposta de formació per al client ${tmp.client}.\nDates RESERVADES al sistema, pendents de confirmació del client.\n\nDADES\n${'─'.repeat(44)}\nCurs:     ${tmp.curs}\nClient:   ${tmp.client}\nFormador: ${tmp.formador}\nHores:    ${tmp.h}h · ${tmp.ns} sessions de ${tmp.hs}h · ${tmp.torn}\nTotal:    ${tmp.cC}€\n\nCALENDARI\n${'─'.repeat(44)}\n${sessText}\n\nIMPORTANT: Dates reservades però no confirmades. Si el client no confirma aviat, s'alliberaran.\n\nSalutacions,\nGESEM digital & SoftSkills · www.gesem.es`;
+  // Marquem el mode "preview pre-reserva" perquè els botons sàpiguen què fer
+  window._previewPendingIdx=idx;
+  // Reescrivim els botons inferiors del modal: substituïm "Enviar"/"Marcar com a enviat"
+  // pels d'aquesta acció especial (Crear reserva + Enviar / Crear reserva sense enviar)
+  const bg=document.getElementById('email-bg');
+  const actionsBar=bg?.querySelector('.modal-box > div:last-child');
+  if(actionsBar){
+    actionsBar.innerHTML=`
+      <button class="btn btn-sm" onclick="closeEmail();window._previewPendingIdx=null">Cancel·lar</button>
+      <button class="btn btn-sm" onclick="copyEmail()">Copiar text</button>
+      <button class="btn btn-sm" style="background:#fff" onclick="confirmPreviewSenseEmail()">Crear reserva sense enviar</button>
+      <button class="btn btn-p btn-sm" onclick="confirmPreviewAndSend()">📤 Crear reserva i enviar email</button>
+    `;
+  }
+  document.getElementById('email-bg').style.display='flex';
+}
+
+async function confirmPreviewAndSend(){
+  const idx=window._previewPendingIdx;
+  if(idx==null){toast('Sessió de previsualització perduda');return;}
+  // 1) Crear la reserva ara
+  const r=confP(idx);
+  if(typeof clearPeticioDraft==='function')clearPeticioDraft();
+  refreshAllCalendars(r.formadorId).catch(()=>{});
+  currentEmailResId=r.id;
+  window._previewPendingIdx=null;
+  // 2) Enviar l'email amb el contingut actual del modal (sendEmailGeneric llegeix els camps)
+  // Reactivem la barra d'accions estàndard perquè sendEmailGeneric/markEmailSent funcionin bé al re-obrir
+  const btn=document.querySelector('#email-bg .btn-p');
+  if(typeof sendEmailGeneric==='function'){
+    await sendEmailGeneric(btn);
+  }
+  // 3) Marcar com a enviat i tancar
+  if(r){r.emailEnviat=true;apiPut('reserves/'+r.id,r);}
+  closeEmail();
+  // Restaurar barra d'accions per defecte
+  resetEmailModalActions();
+  if(typeof renderGest==='function')renderGest();
+  if(typeof gv==='function')gv('gest',document.getElementById('nb-gest'));
+  toast('✅ Reserva creada i email enviat al comercial');
+}
+
+function confirmPreviewSenseEmail(){
+  const idx=window._previewPendingIdx;
+  if(idx==null){toast('Sessió de previsualització perduda');return;}
+  const r=confP(idx);
+  if(typeof clearPeticioDraft==='function')clearPeticioDraft();
+  refreshAllCalendars(r.formadorId).catch(()=>{});
+  window._previewPendingIdx=null;
+  closeEmail();
+  resetEmailModalActions();
+  if(typeof renderGest==='function')renderGest();
+  toast('Reserva creada sense enviar email · '+r.id);
+}
+
+function resetEmailModalActions(){
+  const bg=document.getElementById('email-bg');
+  const actionsBar=bg?.querySelector('.modal-box > div:last-child');
+  if(actionsBar){
+    actionsBar.innerHTML=`
+      <button class="btn btn-sm" onclick="closeEmail()">Cancel·lar</button>
+      <button class="btn btn-sm" onclick="copyEmail()">Copiar text</button>
+      <button class="btn btn-p btn-sm" onclick="sendEmailGeneric(this)">📤 Enviar</button>
+      <button class="btn btn-p btn-sm" onclick="markEmailSent()">Marcar com a enviat ✓</button>
+    `;
+  }
+}
+
 // ── MODALS EMAIL ────────────────────────────────────────────────
 function openEmailModal(resId){
+  // Si abans s'havia obert en mode preview, restaurar la barra d'accions estàndard
+  resetEmailModalActions();
   currentEmailResId=resId;const r=RESERVES.find(x=>x.id===resId);if(!r)return;
   const sessText=r.dates.map((d,i)=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)} · ${r.torn} · ${r.hs}h`;}).join('\n');
   document.getElementById('email-modal-title').textContent=`Email al comercial · ${r.comercial}`;
-  document.getElementById('email-de').value='gestio@gesem.es';
+  document.getElementById('email-de').value='comunicacions@gesem.cat';
   document.getElementById('email-para').value=(r.comercial||'').toLowerCase().replace(' ','.')+'@gesem.es';
   document.getElementById('email-assumpte').value=`GESEM Planner · Proposta formació · ${r.curs} · ${r.client}`;
   document.getElementById('email-cos').value=`Hola ${r.comercial},\n\nT'envio la proposta de formació per al client ${r.client}.\nDates RESERVADES al sistema, pendents de confirmació del client.\n\nDADES\n${'─'.repeat(44)}\nCurs:     ${r.curs}\nClient:   ${r.client}\nFormador: ${r.formador}\nHores:    ${r.h}h · ${r.ns} sessions de ${r.hs}h · ${r.torn}\nTotal:    ${r.cC}€\n\nCALENDARI\n${'─'.repeat(44)}\n${sessText}\n\nIMPORTANT: Dates reservades però no confirmades. Si el client no confirma aviat, s'alliberaran.\n\nSalutacions,\nGESEM digital & SoftSkills · www.gesem.es`;
@@ -1630,18 +1596,19 @@ function openEmailModal(resId){
 }
 function openEmailFormadorFromRes(resId){
   const r=RESERVES.find(x=>x.id===resId);if(!r)return;
+  window._emailfResId=resId; // exposat per al botó "Enviar amb confirmació"
   const sessText=r.dates.map((d,i)=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)} · ${r.torn} · ${r.hs}h`;}).join('\n');
   document.getElementById('emailf-title').textContent=`Email al formador · ${r.formador}`;
   document.getElementById('emailf-para').value=r.formadorEmail||'';
   document.getElementById('emailf-assumpte').value=`Reserva de formació · ${r.curs} · ${r.client}`;
-  document.getElementById('emailf-cos').value=`Hola ${r.formador},\n\nConfirmem la reserva per al curs "${r.curs}" del client ${r.client}.\n\nCALENDARI\n${'─'.repeat(40)}\n${sessText}\n\nSi us plau, confirma la recepció d'aquest email.\n\nSalutacions,\nEquip de gestió docent · GESEM digital & SoftSkills`;
+  document.getElementById('emailf-cos').value=`Hola ${r.formador},\n\nConfirmem la reserva per al curs "${r.curs}" del client ${r.client}.\n\nCALENDARI\n${'─'.repeat(40)}\n${sessText}\n\nSi us plau, confirma la recepció d'aquest email amb els botons inferiors.\n\nSalutacions,\nEquip de gestió docent · GESEM digital & SoftSkills`;
   document.getElementById('emailf-bg').style.display='flex';
 }
-function copyEmail(){const full=`De: ${document.getElementById('email-de').value}\nPer a: ${document.getElementById('email-para').value}\nAssumpte: ${document.getElementById('email-assumpte').value}\n\n${document.getElementById('email-cos').value}`;navigator.clipboard.writeText(full).then(()=>toast('Text copiat'));}
-function markEmailSent(){if(currentEmailResId){const r=RESERVES.find(x=>x.id===currentEmailResId);if(r){r.emailEnviat=true;apiPut('reserves/'+currentEmailResId,r);}}closeEmail();renderGest();toast('Marcat com a enviat');}
+function copyEmail(){const full=`De: ${document.getElementById('email-de').value}\nPer a: ${document.getElementById('email-para').value}\nAssumpte: ${document.getElementById('email-assumpte').value}\n\n${document.getElementById('email-cos').value}`;navigator.clipboard.writeText(full).then(()=>toast(typeof t==="function"?t("toast.copiat"):"Text copiat"));}
+function markEmailSent(){if(currentEmailResId){const r=RESERVES.find(x=>x.id===currentEmailResId);if(r){r.emailEnviat=true;apiPut('reserves/'+currentEmailResId,r);}}closeEmail();renderGest();toast(typeof t==="function"?t("toast.email_marked"):"Marcat com a enviat");}
 function closeEmail(){document.getElementById('email-bg').style.display='none';}
-document.getElementById('email-bg').addEventListener('click',e=>{if(e.target===document.getElementById('email-bg'))closeEmail();});
-document.getElementById('emailf-bg').addEventListener('click',e=>{if(e.target===document.getElementById('emailf-bg'))document.getElementById('emailf-bg').style.display='none';});
+document.getElementById('email-bg')?.addEventListener('click',e=>{if(e.target===document.getElementById('email-bg'))closeEmail();});
+document.getElementById('emailf-bg')?.addEventListener('click',e=>{if(e.target===document.getElementById('emailf-bg'))document.getElementById('emailf-bg').style.display='none';});
 
 // ── CANVIS: MÒDUL COMPLET ────────────────────────────────────────
 let canvisSelResId=null,canvisTipus='inici',canvisPendingProp=null,canvisPendingApplyIdx=null;
@@ -1662,7 +1629,12 @@ function renderCanvis(){
         <div style="font-size:10px;color:#6b6b67;margin-top:1px">${r.dates.length} sess · ${r.torn}</div>
       </div>
       ${r.canvis&&r.canvis.length?`<span class="badge bpu" style="font-size:9px">${r.canvis.length} canvi${r.canvis.length!==1?'s':''}</span>`:''}
-    </div>`).join(''):'<div style="font-size:12px;color:#6b6b67;padding:8px">No hi ha reserves actives.</div>';
+    </div>`).join(''):emptyState({
+      icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>',
+      title:'No hi ha reserves actives',
+      desc:'Per fer canvis a una reserva, primer cal que existeixi i estigui en estat actiu.',
+      ctaLabel:'Crear reserva →',ctaHref:'/peticio',
+    });
 }
 
 function canvisSelReserva(id){
@@ -1725,7 +1697,7 @@ function renderCanvisForm(){
   }
 }
 
-function runCanvisIA(){
+async function runCanvisIA(){
   const r=RESERVES.find(x=>x.id===canvisSelResId);if(!r)return;
   const motiu=document.getElementById('canvis-motiu').value||'Canvi sol·licitat pel client';
   const canviFormOpt=document.getElementById('canvis-form-opt').value;
@@ -1737,14 +1709,50 @@ function runCanvisIA(){
   document.getElementById('canvis-ia-spin').style.display='inline-block';
   document.getElementById('canvis-ia-icon').style.display='none';
   showCanvisTab('prop',document.getElementById('canvis-tab-prop-btn'));
-  document.getElementById('canvis-prop-result').innerHTML=`<div style="text-align:center;padding:30px;color:#3C3489;font-size:13px"><span class="spinner" style="width:20px;height:20px;border-width:2.5px;margin-right:8px;border-top-color:#534AB7"></span>Analitzant disponibilitat i generant propostes òptimes...</div>`;
-  setTimeout(()=>{
+  document.getElementById('canvis-prop-result').innerHTML=`<div style="text-align:center;padding:30px;color:#3C3489;font-size:13px"><span class="spinner" style="width:20px;height:20px;border-width:2.5px;margin-right:8px;border-top-color:#534AB7"></span>Analitzant amb IA · Llama 3.3 70B...</div>`;
+
+  // Intent IA real (Groq) primer; fallback a heurística si falla
+  let props;
+  try{
+    const res=await fetch('/api/ai/suggest-changes',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({reservaId:r.id,tipus:canvisTipus,motiu}),
+    });
+    const data=await res.json();
+    if(!res.ok||!data.ok||!data.parsed?.propostes)throw new Error(data.error||'Sense propostes');
+    // Mapejar les propostes IA al format que espera canvisRenderPropostes
+    props=data.parsed.propostes.map(p=>{
+      const formador=FORMADORS.find(f=>f.nom===p.formadorNom)||FORMADORS.find(f=>f.id===r.formadorId);
+      const dates=(p.novesDates||[]).map(d=>parseISO(d));
+      return{
+        tipus:canvisTipus,
+        label:p.label,
+        sublabel:p.sublabel,
+        formador,
+        torn:p.nouTorn||r.torn,
+        dates,
+        canviForm:!!p.canviForm,
+        canviTorn:!!p.canviTorn,
+        canviDates:!!p.canviDates,
+        score:p.score||50,
+        color:p.color||'opt2',
+        motiu,
+        desc:p.desc||'',
+        _aiRaonament:p.raonament,
+        _aiModel:data.model,
+        _aiMs:data.ms,
+      };
+    });
+  }catch(e){
+    console.warn('IA suggest-changes fallida, fallback heurística:',e.message);
+    props=canvisGenerarPropostes(r,canvisTipus,novaInici,novaDistRaw,nouTorn,sessionsACanviar,motiu,canviFormOpt);
+  }finally{
     document.getElementById('canvis-ia-spin').style.display='none';
     document.getElementById('canvis-ia-icon').style.display='';
-    const props=canvisGenerarPropostes(r,canvisTipus,novaInici,novaDistRaw,nouTorn,sessionsACanviar,motiu,canviFormOpt);
-    canvisPendingProp={r,props,motiu,tipusCanvi:canvisTipus,nouTorn,sessionsACanviar};
-    canvisRenderPropostes(props,r,motiu);
-  },1600);
+  }
+
+  canvisPendingProp={r,props,motiu,tipusCanvi:canvisTipus,nouTorn,sessionsACanviar};
+  canvisRenderPropostes(props,r,motiu);
 }
 
 function canvisGenerarPropostes(r,tipus,novaInici,dist,torn,sessACanviar,motiu,canviFormOpt){
@@ -1892,7 +1900,7 @@ function canvisPrepareEmail(idx){
     <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
       <div style="background:#f5f4f0;padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08)">
         <div style="font-size:11px;font-weight:500;margin-bottom:6px">Email de canvi de dates · editable</div>
-        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">De</label><input value="gestio@gesem.es" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">De</label><input value="comunicacions@gesem.cat" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
         <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Per a</label><input id="canvis-em-para" value="${r.comercial.toLowerCase().replace(' ','.')}@gesem.es; ${p.formador?.email||r.formadorEmail||''}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
         <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Assumpte</label><input id="canvis-em-assumpte" value="Canvi de dates · ${r.curs} · ${r.client}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
       </div>
@@ -1958,7 +1966,7 @@ function showCanvisTab(id,btn){
   if(id==='hist')canvisRenderHist();
 }
 
-document.getElementById('canvis-apply-bg').addEventListener('click',e=>{if(e.target===document.getElementById('canvis-apply-bg'))document.getElementById('canvis-apply-bg').style.display='none';});
+document.getElementById('canvis-apply-bg')?.addEventListener('click',e=>{if(e.target===document.getElementById('canvis-apply-bg'))document.getElementById('canvis-apply-bg').style.display='none';});
 
 // ── ARXIU VF ────────────────────────────────────────────────────
 function renderArxiu(){
@@ -1968,7 +1976,11 @@ function renderArxiu(){
   if(cnt)cnt.textContent=arxivats.length+' curs'+(arxivats.length!==1?'os':'')+' arxivat'+(arxivats.length!==1?'s':'');
   if(!el)return;
   if(!arxivats.length){
-    el.innerHTML='<div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:20px;text-align:center;color:#6b6b67;font-size:13px">Cap curs arxivat encara. Els cursos finalitzats apareixeran aquí.</div>';
+    el.innerHTML=emptyState({
+      icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+      title:'Cap curs arxivat encara',
+      desc:'Quan finalitzis cursos, apareixeran aquí amb tot l\'històric.',
+    });
     return;
   }
   el.innerHTML=arxivats.map(r=>`
@@ -2013,21 +2025,62 @@ function clearEmailEntrada(){
     </div>`;
 }
 
-function processarEmailEntrada(){
+async function processarEmailEntrada(){
   const text=document.getElementById('email-entrada-text')?.value?.trim();
   if(!text){toast('Enganxa el text del correu primer');return;}
   document.getElementById('email-ia-spin').style.display='inline-block';
   document.getElementById('email-ia-icon').style.display='none';
-  document.getElementById('email-extraccio-result').innerHTML=`<div style="text-align:center;padding:30px;color:#3C3489;font-size:13px"><span class="spinner" style="margin-right:8px;border-top-color:#534AB7"></span>Analitzant el missatge...</div>`;
+  document.getElementById('email-extraccio-result').innerHTML=`<div style="text-align:center;padding:30px;color:#3C3489;font-size:13px"><span class="spinner" style="margin-right:8px;border-top-color:#534AB7"></span>Analitzant el missatge amb IA...</div>`;
 
-  setTimeout(()=>{
-    document.getElementById('email-ia-spin').style.display='none';
-    document.getElementById('email-ia-icon').style.display='';
-
-    // Simulació extracció IA a partir del text
+  try{
+    // Intent 1: IA real (Groq + Llama 3.3 70B)
+    const res=await fetch('/api/ai/parse-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text}),
+    });
+    const data=await res.json();
+    if(!res.ok||!data.ok){
+      // Fallback a heurística si l'IA falla
+      console.warn('IA error, fallback heurística:',data.error);
+      const extracted=extractFromEmail(text);
+      renderEmailExtraccio(extracted);
+      toast('IA no disponible · usant heurística');
+      return;
+    }
+    // Adaptar la resposta de l'IA al format de renderEmailExtraccio
+    const p=data.parsed;
+    const distMap={
+      'Dilluns,Dimecres':{v:[1,3],l:'Dl·Dc'},
+      'Dimarts,Dijous':{v:[2,4],l:'Dm·Dj'},
+      'Dimecres,Divendres':{v:[3,5],l:'Dc·Dv'},
+      'Dilluns,Dimecres,Divendres':{v:[1,3,5],l:'Dl·Dc·Dv'},
+    };
+    const distKey=(p.distribucio_dies||[]).join(',');
+    const dist=distMap[distKey]||{l:p.distribucio_dies?p.distribucio_dies.join('·'):'Dm·Dj',v:[2,4]};
+    const extracted={
+      curs:p.curs||'Curs a confirmar',
+      client:p.client||'Client a confirmar',
+      hores:p.hores||16,
+      dist,
+      torn:p.torn||'9:30–11:30h',
+      agent:p.agent_comercial||AGENTS[0]?.nom||'',
+      confiança:p.confianca||50,
+      _aiNotes:p.notes,
+      _aiModel:data.model,
+      _aiMs:data.ms,
+    };
+    renderEmailExtraccio(extracted);
+  }catch(e){
+    console.error('Error fetch IA:',e);
+    // Fallback a heurística
     const extracted=extractFromEmail(text);
     renderEmailExtraccio(extracted);
-  },1200);
+    toast('Error de xarxa · usant heurística local');
+  }finally{
+    document.getElementById('email-ia-spin').style.display='none';
+    document.getElementById('email-ia-icon').style.display='';
+  }
 }
 
 function extractFromEmail(text){
@@ -2054,10 +2107,11 @@ function extractFromEmail(text){
 function renderEmailExtraccio(d){
   document.getElementById('email-extraccio-result').innerHTML=`
     <div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;overflow:hidden">
-      <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:12px;font-weight:500">Dades extretes per la IA</div>
+      <div style="padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08);background:#f5f4f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+        <div style="font-size:12px;font-weight:500">Dades extretes per la IA${d._aiModel?` <span style="font-size:9.5px;color:#6b6b67;font-weight:500">· ${d._aiModel}${d._aiMs?` · ${d._aiMs}ms`:''}</span>`:''}</div>
         <span style="background:#EEEDFE;color:#3C3489;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500">${d.confiança}% confiança</span>
       </div>
+      ${d._aiNotes?`<div style="background:#FEF3C7;border-bottom:1px solid #FCD34D;padding:9px 13px;font-size:11.5px;color:#92400E;line-height:1.5"><strong>💡 Notes IA:</strong> ${d._aiNotes}</div>`:''}
       <div style="padding:13px">
         <div style="font-size:11px;color:#6b6b67;margin-bottom:10px">Revisa i ajusta si cal abans d'enviar al formulari:</div>
         <div class="g2" style="gap:8px">
@@ -2337,13 +2391,20 @@ function renderFP(){
           <a href="${waUrl}" target="_blank" title="WhatsApp directe" style="width:26px;height:26px;border-radius:6px;border:0.5px solid #86efac;background:#dcfce7;display:inline-flex;align-items:center;justify-content:center;text-decoration:none" onclick="event.stopPropagation()">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5.5" stroke="#16a34a" stroke-width=".8"/><path d="M3 8.5c.5-1 1.5-2.8 3-2.8s2.2 1 2.2 1.7-1.2 1-1.5.5-.9-1.5-.9-1.5" stroke="#16a34a" stroke-width=".7" fill="none"/></svg>
           </a>
-          <button title="Copiar telèfon" style="width:26px;height:26px;border-radius:6px;border:0.5px solid rgba(0,0,0,0.15);background:#f5f4f0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer" onclick="event.stopPropagation();navigator.clipboard.writeText('${f.tel||''}').then(()=>toast('Telèfon copiat · ${f.tel||'—'}'))">
-            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M3 1h5a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" stroke="#6b6b67" stroke-width=".8" fill="none"/><circle cx="5.5" cy="8.5" r=".5" fill="#6b6b67"/></svg>
-          </button>
           ${f.icsUrl?`<button title="Actualitzar calendari" onclick="event.stopPropagation();refreshCal(${f.id}).then(()=>renderFP())" style="width:26px;height:26px;border-radius:6px;border:0.5px solid #5DCAA5;background:#E1F5EE;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px">🔄</button>`:''}
         </div>
       </div>
-      ${f.icsUrl?`<div style="margin-top:7px;padding-top:7px;border-top:0.5px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${calData[f.id]!==undefined?'#1D9E75':'#BA7517'};flex-shrink:0"></span><span style="font-size:10px;color:${calData[f.id]!==undefined?'#085041':'#633806'};font-weight:500">${calData[f.id]!==undefined?'Calendari sincronitzat · '+calData[f.id].size+' dies ocupats':'Calendari pendent de sincronitzar'}</span></div>`:''}
+      ${f.icsUrl?(()=>{
+        const cd=calData[f.id];
+        const isSynced=cd!==undefined && (cd.fullDayDates?.size>0 || cd.slots?.length>0 || cd.syncedAt>0);
+        const total=cd?((cd.fullDayDates?.size||0)+(cd.slots?.length||0)):0;
+        let timeAgo='';
+        if(cd&&cd.syncedAt){
+          const min=Math.round((Date.now()-cd.syncedAt)/60000);
+          timeAgo=min<1?' · ara':min<60?` · fa ${min} min`:min<1440?` · fa ${Math.round(min/60)}h`:` · fa ${Math.round(min/1440)}d`;
+        }
+        return `<div style="margin-top:7px;padding-top:7px;border-top:0.5px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${isSynced?'#1D9E75':'#BA7517'};flex-shrink:0"></span><span style="font-size:10px;color:${isSynced?'#085041':'#633806'};font-weight:500">${isSynced?'Calendari sincronitzat · '+total+' dies ocupats'+timeAgo:'Calendari pendent de sincronitzar'}</span></div>`;
+      })():''}
     </div>`;
   }).join(''):`<div style="background:#fff;border:0.5px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;text-align:center;color:#6b6b67;font-size:13px;grid-column:1/-1">Cap formador amb els filtres seleccionats.</div>`;
 
@@ -2358,14 +2419,46 @@ function calcStatsFormadors(){
     const reserves=RESERVES.filter(r=>r.formadorId===f.id&&r.estat!=='cancel');
     const hores=reserves.reduce((s,r)=>s+r.dates.length*(parseFloat(r.hs)||2),0);
     const reservesActives=reserves.filter(r=>r.estat!=='vf').length;
-    // Disponibilitat: percentatge d'hores lliures estimades sobre l'any
-    // Factors: disp declarada + hores ja assignades
-    const dispBase={alta:90,parcial:60,baixa:30}[f.disp]||70;
-    const ocupacioActual=Math.min(50,Math.round(hores/HORES_ANY*100*2));
-    const dispPct=Math.max(5,dispBase-ocupacioActual);
+
+    let dispPct, source;
+    // Si té calendari sincronitzat: càlcul REAL pels propers 60 dies (només laborables)
+    if(f.icsUrl && calData[f.id]){
+      const cd=calData[f.id];
+      const today=new Date();
+      let busyWorkdays=0, totalWorkdays=0;
+      for(let i=0;i<60;i++){
+        const d=new Date(today);d.setDate(d.getDate()+i);
+        const dw=d.getDay();
+        if(dw===0||dw===6)continue; // saltar caps de setmana
+        totalWorkdays++;
+        const iso=toISO(d);
+        if(cd.fullDayDates?.has(iso))busyWorkdays++;
+        else if(cd.slots?.some(s=>s.date===iso))busyWorkdays++;
+      }
+      // També comptem reserves GESEM que ocupen dies laborables
+      const gesemBusy=new Set(reserves.flatMap(r=>r.dates));
+      let extraGesem=0;
+      gesemBusy.forEach(iso=>{
+        const d=parseISO(iso);
+        if(d>=today && d<=new Date(today.getTime()+60*86400000)){
+          if(!cd.fullDayDates?.has(iso) && !cd.slots?.some(s=>s.date===iso)){
+            extraGesem++;
+          }
+        }
+      });
+      const totalBusy=busyWorkdays+extraGesem;
+      dispPct=totalWorkdays?Math.max(0,Math.round((totalWorkdays-totalBusy)/totalWorkdays*100)):0;
+      source='calendari';
+    } else {
+      // Fallback: disp declarada + bookings GESEM
+      const dispBase={alta:90,parcial:60,baixa:30}[f.disp]||70;
+      const ocupacioActual=Math.min(50,Math.round(hores/HORES_ANY*100*2));
+      dispPct=Math.max(5,dispBase-ocupacioActual);
+      source='declarada';
+    }
     const semColor=dispPct>=70?'#1D9E75':dispPct>=40?'#EF9F27':'#E24B4A';
     const semLabel=dispPct>=70?'Alta disponibilitat':dispPct>=40?'Disponibilitat parcial':'Poc disponible';
-    stats[f.id]={hores,reserves:reservesActives,dispPct,semColor,semLabel,dispBase,ocupacioActual};
+    stats[f.id]={hores,reserves:reservesActives,dispPct,semColor,semLabel,source};
   });
   return stats;
 }
@@ -2420,6 +2513,12 @@ function renderFPVolum(stats){
 function openFM(id){
   eFId=id;fotoDataURL=null;
   const f=id===-1?{nom:'',email:'',tel:'',tipus:'extern',specs:[],preu_hora:40,agenda:'manual',rating:'4.5',cursos:0,notes:'',img:null,disp:'alta'}:FORMADORS.find(x=>x.id===id);
+  window._fmEditing=f; // referència per a deleteFormador()
+  // Mostrar el botó Eliminar només quan editem un formador existent
+  setTimeout(()=>{
+    const btn=document.getElementById('fm-delete-btn');
+    if(btn)btn.style.display=(id===-1)?'none':'inline-flex';
+  },0);
   document.getElementById('fm-title').textContent=id===-1?'Nou formador':'Editar · '+f.nom;
   const prevImg=f.img||makeAv(f.nom||'?',0);
   const inp='padding:6px 9px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;width:100%;font-family:inherit';
@@ -2427,7 +2526,7 @@ function openFM(id){
   document.getElementById('fm-body').innerHTML=`
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
       <div class="foto-prev"><img id="fm-foto-prev" src="${prevImg}" width="56" height="56"/></div>
-      <div><label class="foto-btn" for="fm-foto-inp">Canviar foto</label><input type="file" id="fm-foto-inp" accept="image/*" onchange="loadFoto(this)"/><div style="font-size:10px;color:#6b6b67;margin-top:4px">JPG, PNG · max 2MB</div></div>
+      <div><label class="foto-btn" for="fm-foto-inp">Canviar foto</label><input type="file" id="fm-foto-inp" accept="image/*" onchange="loadFoto(this)"/><div style="font-size:10px;color:#6b6b67;margin-top:4px">JPG, PNG · max 20MB</div></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div style="grid-column:1/-1"><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Nom complet</label><input id="fm-nom" value="${f.nom}" ${noEnter} style="${inp}"/></div>
@@ -2468,11 +2567,12 @@ function openFM(id){
         <div style="display:flex;gap:6px;align-items:center">
           <input type="url" id="fm-icsUrl" value="${f.icsUrl||''}" placeholder="https://calendar.google.com/... o webcal://..." style="flex:1;${inp}" onkeydown="if(event.key==='Enter')event.preventDefault()"/>
           <button class="btn btn-sm" style="white-space:nowrap;background:#E6F1FB;border-color:#85B7EB;color:#0C447C" onclick="verificarICS()">Verificar ✓</button>
+          <button class="btn btn-sm" style="white-space:nowrap;background:#FEF3C7;border-color:#FCD34D;color:#92400E" onclick="requestCalendarUrl(${f.id||-1})" title="Enviar email al formador demanant la seva URL d'iCal">✉️ Demanar</button>
         </div>
         <div id="fm-ics-result" style="font-size:10px;margin-top:4px;padding:4px 7px;border-radius:5px;display:none"></div>
         ${(eFId!==-1&&f.icsUrl)?`<div style="margin-top:6px;display:flex;align-items:center;gap:8px;padding:6px 9px;background:${calData[eFId]!==undefined?'#E1F5EE':'#FAEEDA'};border-radius:8px">
           <span style="font-size:11px;color:${calData[eFId]!==undefined?'#085041':'#633806'};flex:1">
-            ${calData[eFId]!==undefined?'📅 Calendari sincronitzat · '+calData[eFId].size+' dies ocupats detectats':'⏳ Calendari pendent de sincronitzar'}
+            ${calData[eFId]!==undefined?'📅 Calendari sincronitzat · '+((calData[eFId].fullDayDates?.size||0)+(calData[eFId].slots?.length||0))+' dies ocupats detectats':'⏳ Calendari pendent de sincronitzar'}
           </span>
           <button class="btn btn-sm" style="white-space:nowrap;font-size:10px" onclick="forceRefreshModal(${eFId})">🔄 Actualitzar ara</button>
         </div>`:''}
@@ -2480,14 +2580,110 @@ function openFM(id){
           <div id="fm-ical-help"></div>
         </div>
       </div>
+      ${eFId!==-1?`<div style="grid-column:1/-1;background:linear-gradient(135deg,#FEF7ED 0%,#FFFBEB 100%);border:0.5px solid #FDE68A;border-radius:10px;padding:11px 13px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="font-size:18px">🔗</span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600;color:#78350F">Google Calendar · 2-way sync</div>
+            <div style="font-size:10px;color:#92400E;line-height:1.4">Permet que GESEM creï events directament al calendari del formador quan es confirma una reserva.</div>
+          </div>
+        </div>
+        <div id="fm-google-status" style="font-size:11px;color:#92400E;padding:7px 10px;background:rgba(255,255,255,0.6);border-radius:7px;margin-bottom:7px">⏳ Comprovant estat...</div>
+        <div id="fm-google-actions" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>`:''}
       <div style="grid-column:1/-1"><label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Notes internes</label><textarea id="fm-notes" style="height:48px;resize:none;${inp}">${f.notes||''}</textarea></div>
     </div>
     <div style="margin-top:7px;background:#f5f4f0;padding:6px 9px;border-radius:8px;font-size:11px;color:#6b6b67">El preu/hora al client s'introdueix a cada petició.</div>`;
   // Mostrar la ajuda correcta
   requestAnimationFrame(()=>toggleIcsUrlPanel(document.getElementById('fm-agenda')?.value||'manual'));
   document.getElementById('fm-bg').style.display='flex';
+  // Activar autosave només per a formadors nous (id===-1)
+  setTimeout(()=>{if(typeof initFormadorDraft==='function')initFormadorDraft();},50);
+  // Carregar l'estat de connexió Google (només per a formadors existents)
+  if(id!==-1)setTimeout(()=>loadGoogleStatusForFormador(id),60);
 }
-function loadFoto(input){const file=input.files[0];if(!file)return;if(file.size>2*1024*1024){toast('Fitxer massa gran');return;}const reader=new FileReader();reader.onload=e=>{fotoDataURL=e.target.result;document.getElementById('fm-foto-prev').src=fotoDataURL;};reader.readAsDataURL(file);}
+
+async function loadGoogleStatusForFormador(formadorId){
+  const stEl=document.getElementById('fm-google-status');
+  const acEl=document.getElementById('fm-google-actions');
+  if(!stEl||!acEl)return;
+  try{
+    const [statusR,connR]=await Promise.all([
+      fetch('/api/google/status').then(x=>x.json()),
+      fetch('/api/google/connections').then(x=>x.json()),
+    ]);
+    if(!statusR.configured){
+      stEl.innerHTML='⚠️ <strong>OAuth no configurat al servidor.</strong> Cal afegir <code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code> i <code>GOOGLE_REDIRECT_URI</code> al fitxer <code>.env</code>.';
+      acEl.innerHTML='';
+      return;
+    }
+    const conn=(connR.connected||[]).find(c=>c.formadorId===formadorId);
+    if(conn){
+      const dt=conn.connectedAt?new Date(conn.connectedAt).toLocaleString('ca-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+      stEl.innerHTML=`✅ <strong>Connectat a Google Calendar</strong>${dt?' · des del '+dt:''}`;
+      acEl.innerHTML=`
+        <button class="btn btn-sm" type="button" style="background:#FEE2E2;border-color:#FCA5A5;color:#991B1B" onclick="disconnectGoogleCalendar(${formadorId})">🔌 Desconnectar</button>
+        <button class="btn btn-sm" type="button" style="background:#DCFCE7;border-color:#86EFAC;color:#166534" onclick="testSyncGoogle(${formadorId})">🧪 Provar sync</button>
+      `;
+    }else{
+      stEl.innerHTML='⚪ No connectat · l\'app farà fallback a llegir l\'iCal en mode lectura.';
+      acEl.innerHTML=`<button class="btn btn-sm" type="button" style="background:#FEF3C7;border-color:#FCD34D;color:#92400E;font-weight:600" onclick="connectGoogleCalendar(${formadorId})">🔗 Connectar Google Calendar</button>`;
+    }
+  }catch(e){
+    stEl.innerHTML='⚠️ Error comprovant estat: '+(e.message||e);
+    acEl.innerHTML='';
+  }
+}
+
+function connectGoogleCalendar(formadorId){
+  // Obrir finestra OAuth
+  const w=window.open('/api/google/auth/start?formadorId='+formadorId,'gesem_gauth','width=560,height=720');
+  if(!w){toast('El navegador ha bloquejat la finestra emergent');return;}
+  // Polling: quan la finestra es tanca, refrescar l'estat
+  const iv=setInterval(()=>{
+    if(w.closed){
+      clearInterval(iv);
+      loadGoogleStatusForFormador(formadorId);
+    }
+  },800);
+}
+
+async function disconnectGoogleCalendar(formadorId){
+  if(!confirm('Desconnectar Google Calendar? Els events ja creats no es tocaran.'))return;
+  try{
+    const r=await fetch('/api/google/disconnect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({formadorId})});
+    const d=await r.json();
+    if(d.ok){toast('Google Calendar desconnectat');loadGoogleStatusForFormador(formadorId);}
+    else toast('Error: '+(d.error||'desconegut'));
+  }catch(e){toast('Error de connexió');}
+}
+
+async function testSyncGoogle(formadorId){
+  // Buscar la primera reserva confirmada d'aquest formador
+  const r=(window.RESERVES||[]).find(x=>x.formadorId===formadorId&&x.estat==='confirmada');
+  if(!r){toast('No hi ha cap reserva confirmada d\'aquest formador per provar');return;}
+  toast('Sincronitzant amb Google Calendar...');
+  try{
+    const res=await fetch('/api/google/sync-reserva',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reservaId:r.id})});
+    const d=await res.json();
+    if(d.ok)toast('✅ '+(d.created?.length||0)+' events creats');
+    else toast('⚠️ '+(d.error||d.reason||'sync amb errors'));
+  }catch(e){toast('Error: '+e.message);}
+}
+function loadFoto(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>20*1024*1024){toast('Fitxer massa gran (max 20MB)');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    // Processem la imatge ja en alta resolució aquí mateix perquè la previsualització
+    // ja sigui nítida (no esperem a saveFM, que abans la reescalava a 42×42)
+    processAvatarImage(e.target.result,cropped=>{
+      fotoDataURL=cropped;
+      document.getElementById('fm-foto-prev').src=cropped;
+    });
+  };
+  reader.readAsDataURL(file);
+}
 
 const ICS_HELP={
   google:`<strong>Google Calendar:</strong><br>1. Obre Google Calendar → Configuració (⚙) → nom del calendari<br>2. "Integrar el calendari" → copia l'<strong>Adreça privada en format iCal</strong><br>3. Enganxa la URL aquí (comença per <code>https://calendar.google.com/calendar/ical/...</code>)`,
@@ -2523,7 +2719,8 @@ async function forceRefreshModal(formadorId){
   await fetch('/api/disponibilitat/'+formadorId+'/cache',{method:'DELETE'});
   try{
     const r=await fetch('/api/disponibilitat/'+formadorId).then(x=>x.json());
-    calData[formadorId]=new Set(r.busyDates||[]);
+    calData[formadorId]={slots:r.slots||[],fullDayDates:new Set(r.fullDayDates||[]),syncedAt:Date.now()};
+    persistCalData();
     toast('📅 Calendari actualitzat · '+(r.count||0)+' dies ocupats');
     // Re-obrir el modal per refrescar l'estat
     openFM(formadorId);
@@ -2581,10 +2778,15 @@ function saveFM(){
   const icsUrl=(agenda!=='manual'?(document.getElementById('fm-icsUrl')?.value||'').trim():'');
   const data={nom,email:document.getElementById('fm-email').value,tel:document.getElementById('fm-tel').value,tipus:document.getElementById('fm-tipus').value,preu_hora:parseFloat(document.getElementById('fm-ph').value)||0,specs,agenda,icsUrl,rating:rating.toFixed(1),cursos:parseInt(document.getElementById('fm-cursos').value)||0,notes:document.getElementById('fm-notes').value,disp:document.getElementById('fm-disp').value};
   if(fotoDataURL){
-    const c=document.createElement('canvas');c.width=42;c.height=42;
-    const x=c.getContext('2d');x.beginPath();x.arc(21,21,21,0,Math.PI*2);x.clip();
+    // fotoDataURL ja ve processada per processAvatarImage (256×256, smooth, cover crop).
+    // Només cal aplicar el clip circular preservant la resolució completa.
+    const SIZE=256;
+    const c=document.createElement('canvas');c.width=SIZE;c.height=SIZE;
+    const x=c.getContext('2d');
+    x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+    x.beginPath();x.arc(SIZE/2,SIZE/2,SIZE/2,0,Math.PI*2);x.clip();
     const img=new Image();
-    img.onload=()=>{x.drawImage(img,0,0,42,42);data.img=c.toDataURL();_saveFM(data);};
+    img.onload=()=>{x.drawImage(img,0,0,SIZE,SIZE);data.img=c.toDataURL('image/png');_saveFM(data);};
     img.src=fotoDataURL;
   }else{
     if(eFId===-1)data.img=makeAv(data.nom,FORMADORS.length);
@@ -2597,6 +2799,8 @@ function _saveFM(data){
     data.id=Date.now();
     FORMADORS.push(data);
     apiPost('formadors',data);
+    // Esborrar el draft un cop creat amb èxit
+    if(typeof clearFormadorDraft==='function')clearFormadorDraft();
   }else{
     data.id=eFId; // ← fix: sempre usar eFId, no data.id
     const idx=FORMADORS.findIndex(f=>f.id===eFId);
@@ -2619,52 +2823,531 @@ function _saveFM(data){
   closeFM();renderFP();lf();fillSels();toast('Formador desat ✓');
 }
 function closeFM(){document.getElementById('fm-bg').style.display='none';}
-document.getElementById('fm-bg').addEventListener('click',e=>{if(e.target===document.getElementById('fm-bg'))closeFM();});
+
+// Sol·licitar URL del calendari per email al formador
+async function requestCalendarUrl(fId){
+  // Llegir nom + email del formulari obert (encara no desat) o del FORMADORS
+  const nom=document.getElementById('fm-nom')?.value?.trim() || (FORMADORS.find(x=>x.id===fId)?.nom) || '';
+  const email=document.getElementById('fm-email')?.value?.trim() || (FORMADORS.find(x=>x.id===fId)?.email) || '';
+  if(!email){toast('Falta email del formador');return;}
+  const subject='GESEM Planner · Sol·licitud URL calendari iCal';
+  const body=`Hola ${nom||''},
+
+Per millorar la coordinació de les reserves de formació, ens agradaria connectar el teu calendari personal al sistema de GESEM Planner. Així podrem detectar automàticament les teves dates ocupades i no et proposarem sessions que coincideixin amb els teus compromisos.
+
+Per fer-ho, només necessitem la URL "iCal" del teu calendari (NO comparteixes res, només és una URL de subscripció en mode lectura):
+
+GOOGLE CALENDAR
+${'─'.repeat(40)}
+1. Obre Google Calendar al navegador (no funciona des de l'app mòbil)
+2. A la barra esquerra, passa el ratolí sobre el teu calendari
+3. Clica els 3 punts verticals · "Configuració i ús compartit"
+4. Baixa fins a "URL secreta en format iCal"
+5. Copia la URL i envia-la per email
+
+OUTLOOK / OFFICE 365
+${'─'.repeat(40)}
+1. Outlook web · Configuració · Calendari · Calendaris compartits
+2. Publica el teu calendari "Pot veure tots els detalls"
+3. Copia el link "ICS"
+4. Envia'ns la URL
+
+APPLE iCLOUD
+${'─'.repeat(40)}
+1. iCloud.com · Calendari
+2. Clica la icona de wifi al costat del teu calendari
+3. Activa "Calendari públic"
+4. Copia el link · canvia "webcal://" per "https://"
+5. Envia'ns la URL
+
+Si tens dubtes, contesta'ns aquest email i t'ajudem.
+
+Gràcies,
+Equip de gestió docent · GESEM digital & SoftSkills`;
+
+  // Confirmació
+  const ok=await confirmDialog({
+    title:'Enviar email a '+(nom||email)+'?',
+    message:'S\'enviarà un email a <strong>'+email+'</strong> demanant-li la URL del seu calendari iCal amb instruccions per a Google, Outlook i iCloud.',
+    confirmText:'Sí, enviar',
+  });
+  if(!ok)return;
+
+  // Enviar via SMTP
+  try{
+    const res=await fetch('/api/email/send',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:email,subject,text:body}),
+    });
+    const data=await res.json();
+    if(!res.ok||!data.ok)throw new Error(data.error||'Error');
+    toast('✓ Email enviat a '+email);
+  }catch(e){
+    toast('✗ Error: '+e.message);
+  }
+}
+
+async function deleteFormador(){
+  const f=window._fmEditing;
+  if(!f||f.id==null||f.id===-1){toast('No es pot eliminar un formador no desat');return;}
+  // Comprovar si té reserves actives
+  const activeRes=RESERVES.filter(r=>r.formadorId===f.id&&r.estat!=='cancel'&&r.estat!=='vf');
+  const msg=activeRes.length
+    ? `<strong>${f.nom}</strong> té <strong>${activeRes.length} reserves actives</strong>. Si l'elimines, les reserves quedaran sense formador assignat.<br><br>Aquesta acció no es pot desfer.`
+    : `Vols eliminar <strong>${f.nom}</strong>?<br><br>Aquesta acció no es pot desfer.`;
+  const ok=await confirmDialog({title:'Eliminar formador?',message:msg,confirmText:'Sí, eliminar',danger:true});
+  if(!ok)return;
+  try{
+    await fetch('/api/formadors/'+f.id,{method:'DELETE'});
+    FORMADORS=FORMADORS.filter(x=>x.id!==f.id);
+    delete calData[f.id];
+    closeFM();
+    if(typeof renderFP==='function')renderFP();
+    toast('Formador eliminat');
+  }catch(e){
+    toast('Error eliminant: '+e.message);
+  }
+}
+document.getElementById('fm-bg')?.addEventListener('click',e=>{if(e.target===document.getElementById('fm-bg'))closeFM();});
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 
-// ── INIT: CÀRREGA DE DADES DES DEL SERVIDOR ──────────────────────
-async function initApp(){
+// ── EMAIL · enviament real via SMTP ────────────────────────────
+async function sendEmailViaSMTP({to, subject, body, replyTo, btn}){
+  if(!to||!subject){toast('Falten destinatari o assumpte');return false;}
+  const orig=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='Enviant...';}
   try{
-    // Cargar catàlegs
-    const catsData=await fetch('/api/cats').then(r=>r.json());
-    Object.keys(catsData).forEach(k=>{if(CATS[k])CATS[k].items=catsData[k];});
+    const res=await fetch('/api/email/send',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to,subject,text:body,replyTo}),
+    });
+    const data=await res.json();
+    if(!res.ok||!data.ok)throw new Error(data.error||'Error desconegut');
+    toast('✓ Email enviat a '+to);
+    return true;
+  }catch(e){
+    console.error('SMTP error:',e);
+    toast('✗ Error: '+e.message);
+    return false;
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=orig;}
+  }
+}
 
-    // Carregar agents
-    AGENTS=await fetch('/api/agents').then(r=>r.json());
+// Wrappers per als modals existents
+async function sendEmailGeneric(btn){
+  const ok=await sendEmailViaSMTP({
+    to:document.getElementById('email-para').value,
+    subject:document.getElementById('email-assumpte').value,
+    body:document.getElementById('email-cos').value,
+    btn,
+  });
+  if(ok){
+    if(currentEmailResId){const r=RESERVES.find(x=>x.id===currentEmailResId);if(r){r.emailEnviat=true;apiPut('reserves/'+currentEmailResId,r);}}
+    closeEmail();renderGest();
+  }
+}
+async function sendEmailFormador(btn){
+  const ok=await sendEmailViaSMTP({
+    to:document.getElementById('emailf-para').value,
+    subject:document.getElementById('emailf-assumpte').value,
+    body:document.getElementById('emailf-cos').value,
+    btn,
+  });
+  if(ok)document.getElementById('emailf-bg').style.display='none';
+}
+
+// Envia email al formador AMB botons d'Acceptar/Declinar + .ics adjunt
+async function sendEmailFormadorConfirm(btn){
+  // Necessitem una reserva creada (id). Obtenim-la del context.
+  const resId=window.currentEmailResId || window._emailfResId;
+  if(!resId){
+    toast('Aquest botó només funciona quan hi ha una reserva creada. Crea la reserva primer i torna a enviar des de Gestió.');
+    return;
+  }
+  const to=document.getElementById('emailf-para').value;
+  const subject=document.getElementById('emailf-assumpte').value;
+  const body=document.getElementById('emailf-cos').value;
+  if(!to||!subject){toast('Falten destinatari o assumpte');return;}
+  const orig=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='Enviant...';}
+  try{
+    const res=await fetch('/api/email/send-formador-confirm',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({reservaId:resId,to,subject,body}),
+    });
+    const data=await res.json();
+    if(!res.ok||!data.ok)throw new Error(data.error||'Error');
+    toast('✓ Enviat amb botons + calendari (.ics)');
+    document.getElementById('emailf-bg').style.display='none';
+    if(typeof renderGest==='function')renderGest();
+  }catch(e){
+    toast('✗ Error: '+e.message);
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=orig;}
+  }
+}
+async function sendPendentsEmail(btn){
+  const ok=await sendEmailViaSMTP({
+    to:document.getElementById('pendents-para').value,
+    subject:document.getElementById('pendents-assumpte').value,
+    body:document.getElementById('pendents-cos').value,
+    btn,
+  });
+  if(ok&&typeof markPendentsEnviat==='function')markPendentsEnviat();
+}
+
+// ── DRAFT del formulari Petició (autosave a localStorage) ──────
+const PETICIO_DRAFT_KEY='gesem.peticio.draft';
+const PETICIO_FIELDS=['p-client','p-curs','p-esp','p-modal','p-form-pref','p-hores','p-hsess','p-ssw','p-torn','p-inici','p-preu'];
+
+let _draftSaveTimer=null;
+function savePeticioDraft(){
+  clearTimeout(_draftSaveTimer);
+  _draftSaveTimer=setTimeout(()=>{
+    const data={
+      ts:Date.now(),
+      fields:{},
+      bDays:[...(typeof bDays!=='undefined'?bDays:[])],
+      exclD:[...(typeof exclD!=='undefined'?exclD:[])],
+      selectedAgent:typeof selectedAgent!=='undefined'?selectedAgent:'',
+      preferredFormadorId:typeof preferredFormadorId!=='undefined'?preferredFormadorId:null,
+    };
+    PETICIO_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)data.fields[id]=el.value;});
+    try{localStorage.setItem(PETICIO_DRAFT_KEY,JSON.stringify(data));}catch(e){}
+  },400);
+}
+
+function clearPeticioDraft(){
+  try{localStorage.removeItem(PETICIO_DRAFT_KEY);}catch(e){}
+  const banner=document.getElementById('draft-banner');if(banner)banner.remove();
+}
+
+function loadPeticioDraft(){
+  try{
+    const raw=localStorage.getItem(PETICIO_DRAFT_KEY);
+    if(!raw)return null;
+    const data=JSON.parse(raw);
+    // Caduca al cap de 7 dies
+    if(Date.now()-data.ts>7*86400000){clearPeticioDraft();return null;}
+    return data;
+  }catch(e){return null;}
+}
+
+function applyPeticioDraft(data){
+  Object.entries(data.fields||{}).forEach(([id,val])=>{
+    const el=document.getElementById(id);if(el&&val)el.value=val;
+  });
+  if(typeof bDays!=='undefined'){bDays.clear();(data.bDays||[]).forEach(d=>bDays.add(d));}
+  if(typeof exclD!=='undefined'){exclD.clear();(data.exclD||[]).forEach(d=>exclD.add(d));}
+  if(data.selectedAgent&&typeof selectedAgent!=='undefined')selectedAgent=data.selectedAgent;
+  if(data.preferredFormadorId!=null&&typeof preferredFormadorId!=='undefined')preferredFormadorId=data.preferredFormadorId;
+  // Re-renderitzar tot
+  if(typeof renderAgentSelector==='function')renderAgentSelector();
+  if(typeof renderExcl==='function')renderExcl();
+  // Marcar dies bloquejats al UI
+  document.querySelectorAll('.day-sel .ds').forEach(b=>{
+    const d=parseInt(b.dataset.d);
+    if(bDays.has(d))b.classList.add('blocked');else b.classList.remove('blocked');
+  });
+  if(typeof upD==='function')upD();
+  if(typeof ua==='function')ua();
+}
+
+function showDraftBanner(data){
+  const lc=document.querySelector('.lc');if(!lc)return;
+  const minutes=Math.round((Date.now()-data.ts)/60000);
+  const ago=minutes<60?`fa ${minutes} min`:minutes<1440?`fa ${Math.round(minutes/60)} h`:`fa ${Math.round(minutes/1440)} dies`;
+  const banner=document.createElement('div');
+  banner.id='draft-banner';
+  banner.className='draft-banner';
+  // Important: escapem amb HTML entity (&quot;) les cometes dobles dins de
+  // l'atribut onclick per no trencar el parser HTML. Abans amb cometes dobles
+  // crues el botó "Restaurar" no funcionava perquè l'atribut acabava al primer ".
+  banner.innerHTML=`
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span>Hi ha un esborrany sense desar (${ago})</span>
+    <span class="draft-banner-actions">
+      <button class="btn btn-sm" onclick="discardPeticioDraftWithToast()">Descartar</button>
+      <button class="btn btn-p btn-sm" onclick="restorePeticioDraftWithToast()">Restaurar</button>
+    </span>`;
+  lc.insertBefore(banner,lc.firstChild);
+}
+
+// Wrappers nets — es criden des dels botons del banner per evitar problemes
+// d'escape de cometes dins d'atributs onclick.
+function restorePeticioDraftWithToast(){
+  const draft=loadPeticioDraft();
+  if(!draft){toast('No hi ha esborrany per restaurar');return;}
+  applyPeticioDraft(draft);
+  // Esborrar el banner però NO l'esborrany del localStorage encara — l'usuari
+  // potser vol seguir editant-lo i el següent edit el sobreescriurà
+  const banner=document.getElementById('draft-banner');
+  if(banner)banner.remove();
+  toast(typeof t==='function'?t('toast.draft.restored'):'Esborrany restaurat');
+}
+
+function discardPeticioDraftWithToast(){
+  clearPeticioDraft();
+  toast(typeof t==='function'?t('toast.draft.discard'):'Esborrany descartat');
+}
+
+function initPeticioDraft(){
+  // Bind d'autosave als camps
+  PETICIO_FIELDS.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.addEventListener('input',savePeticioDraft);
+    el.addEventListener('change',savePeticioDraft);
+  });
+  // També dies bloquejats i exclusions: re-saven via les seves funcions togDay/addEx (interceptem manualment al lf())
+  // El restore: només mostrar banner, no aplicar automàticament (l'usuari pot voler començar net)
+  const draft=loadPeticioDraft();
+  if(draft&&Object.values(draft.fields||{}).some(v=>v)){
+    showDraftBanner(draft);
+  }
+}
+
+// ── DRAFT del formulari de FORMADOR (autosave a localStorage) ──
+// Només quan crees un nou formador (id=-1), no per a edicions existents
+const FM_DRAFT_KEY='gesem.formador.draft';
+const FM_FIELDS=['fm-nom','fm-email','fm-tel','fm-tipus','fm-ph','fm-rating','fm-cursos','fm-notes','fm-disp','fm-agenda','fm-icsUrl'];
+
+let _fmDraftTimer=null;
+function saveFormadorDraft(){
+  if(eFId!==-1)return; // només per nous (no per editar existents)
+  clearTimeout(_fmDraftTimer);
+  _fmDraftTimer=setTimeout(()=>{
+    const data={ts:Date.now(),fields:{},specs:[]};
+    FM_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)data.fields[id]=el.value;});
+    // Specs (checkboxes)
+    document.querySelectorAll('#fm-specs input[type="checkbox"]:checked').forEach(cb=>data.specs.push(cb.value));
+    if(fotoDataURL)data.foto=fotoDataURL;
+    try{localStorage.setItem(FM_DRAFT_KEY,JSON.stringify(data));}catch(e){}
+  },400);
+}
+
+function clearFormadorDraft(){
+  try{localStorage.removeItem(FM_DRAFT_KEY);}catch(e){}
+}
+
+function loadFormadorDraft(){
+  try{
+    const raw=localStorage.getItem(FM_DRAFT_KEY);
+    if(!raw)return null;
+    const data=JSON.parse(raw);
+    if(Date.now()-data.ts>7*86400000){clearFormadorDraft();return null;}
+    return data;
+  }catch(e){return null;}
+}
+
+function applyFormadorDraft(data){
+  Object.entries(data.fields||{}).forEach(([id,val])=>{
+    const el=document.getElementById(id);if(el&&val)el.value=val;
+  });
+  if(data.specs){
+    document.querySelectorAll('#fm-specs input[type="checkbox"]').forEach(cb=>{
+      cb.checked=data.specs.includes(cb.value);
+    });
+  }
+  if(data.foto){
+    fotoDataURL=data.foto;
+    const prev=document.getElementById('fm-foto-prev');if(prev)prev.src=data.foto;
+  }
+}
+
+function initFormadorDraft(){
+  if(eFId!==-1)return; // només quan és nou
+  // Bind autosave als camps
+  FM_FIELDS.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.addEventListener('input',saveFormadorDraft);
+    el.addEventListener('change',saveFormadorDraft);
+  });
+  // Specs checkboxes
+  document.querySelectorAll('#fm-specs input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener('change',saveFormadorDraft);
+  });
+  // Si hi ha draft i el formulari està buit, oferir restaurar
+  const draft=loadFormadorDraft();
+  if(draft&&Object.values(draft.fields||{}).some(v=>v)){
+    showFormadorDraftBanner(draft);
+  }
+}
+
+function showFormadorDraftBanner(data){
+  const body=document.getElementById('fm-body');if(!body)return;
+  const minutes=Math.round((Date.now()-data.ts)/60000);
+  const ago=minutes<60?`fa ${minutes} min`:minutes<1440?`fa ${Math.round(minutes/60)} h`:`fa ${Math.round(minutes/1440)} dies`;
+  const banner=document.createElement('div');
+  banner.id='fm-draft-banner';
+  banner.style.cssText='background:var(--accent-amber-soft);border:1px solid #FCD34D;border-radius:8px;padding:9px 12px;font-size:12px;color:var(--accent-amber-text);display:flex;align-items:center;gap:10px;margin-bottom:10px';
+  banner.innerHTML=`
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span style="flex:1">Hi ha un esborrany sense desar (${ago})</span>
+    <button class="btn btn-sm" onclick="clearFormadorDraft();document.getElementById('fm-draft-banner').remove();toast('Esborrany descartat')">Descartar</button>
+    <button class="btn btn-p btn-sm" onclick="(function(){applyFormadorDraft(loadFormadorDraft()||{});document.getElementById('fm-draft-banner').remove();toast('Esborrany restaurat')})()">Restaurar</button>
+  `;
+  body.insertBefore(banner,body.firstChild);
+}
+
+// Helper per a estats buits (taules/llistes sense dades)
+function emptyState({icon,title,desc,ctaLabel,ctaHref}){
+  const cta=ctaHref?`<a href="${ctaHref}" class="btn btn-p btn-sm es-cta">${ctaLabel||'Començar'}</a>`:'';
+  return `<div class="empty-state">
+    <div class="es-icon">${icon||'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'}</div>
+    <div class="es-title">${title}</div>
+    <div class="es-desc">${desc||''}</div>
+    ${cta}
+  </div>`;
+}
+
+// ── ROUTING: detectar pàgina actual des de la URL ─────────────────
+function getCurrentPage(){
+  const p=window.location.pathname.replace(/\/$/,'')||'/';
+  if(p==='/'||p==='/peticio'||p==='/peticio.html')return 'p';
+  if(p==='/gestio'||p==='/gestio.html')return 'gest';
+  if(p==='/canvis'||p==='/canvis.html')return 'canvis';
+  if(p==='/formadors'||p==='/formadors.html')return 'f';
+  if(p==='/entrades'||p==='/entrades.html')return 'entrades';
+  return 'p';
+}
+
+// Navegació entre pàgines: ara usa URLs reals
+function gv(id, btn){
+  const routes={p:'/peticio',gest:'/gestio',canvis:'/canvis',f:'/formadors',entrades:'/entrades'};
+  if(routes[id]) window.location.href=routes[id];
+}
+
+function setActiveNavButton(){
+  const id=getCurrentPage();
+  document.querySelectorAll('.nb').forEach(b=>{b.classList.remove('act');b.classList.remove('act-p');});
+  const nb=document.getElementById('nb-'+id);
+  if(nb)nb.classList.add('act');
+}
+
+// ── INIT: CÀRREGA DE DADES DES DEL SERVIDOR ──────────────────────
+async function loadAllData(){
+  // Intent ràpid: 1 sol fetch via /api/bootstrap (millor per a temps de càrrega)
+  try{
+    const all=await fetch('/api/bootstrap').then(r=>{if(!r.ok)throw new Error('Bootstrap KO');return r.json();});
+    return all;
+  }catch(e){
+    // Fallback: 4 fetches paral·lels (compat amb backends antics)
+    console.warn('Bootstrap no disponible, usant fallback amb 4 fetches');
+    const [cats,agents,formadors,reserves]=await Promise.all([
+      fetch('/api/cats').then(r=>r.json()),
+      fetch('/api/agents').then(r=>r.json()),
+      fetch('/api/formadors').then(r=>r.json()),
+      fetch('/api/reserves').then(r=>r.json()),
+    ]);
+    return {cats,agents,formadors,reserves};
+  }
+}
+
+// ── MAINTENANCE GUARD · client-side ─────────────────────────────
+// Si el manteniment està actiu, redirigeix a la pàgina /maintenance.
+// Es comprova al carregar i periòdicament cada 30s (per cobrir BFCache i
+// pestanyes obertes des d'abans d'activar el manteniment).
+async function checkMaintenanceMode(){
+  try{
+    const r=await fetch('/api/admin/maintenance',{cache:'no-store'});
+    const d=await r.json();
+    if(d&&d.active===true){
+      // Guard: només redirigir si NO estem ja a /maintenance ni a /admin
+      const p=window.location.pathname;
+      if(p!=='/maintenance'&&p!=='/admin'&&!p.startsWith('/admin/')&&!p.startsWith('/r/')){
+        window.location.href='/maintenance';
+      }
+    }
+  }catch(e){/* silenci si l'API falla */}
+}
+// Disparar al carregar (abans de qualsevol render) i quan torna el focus a la pestanya
+checkMaintenanceMode();
+window.addEventListener('focus',checkMaintenanceMode);
+// També quan el navegador restaura una pàgina del BFCache
+window.addEventListener('pageshow',(e)=>{if(e.persisted)checkMaintenanceMode();});
+// Polling periòdic com a últim recurs (poc agressiu)
+setInterval(checkMaintenanceMode,30000);
+
+async function initApp(){
+  setActiveNavButton();
+  try{
+    const data=await loadAllData();
+
+    Object.keys(data.cats).forEach(k=>{if(CATS[k])CATS[k].items=data.cats[k];});
+    AGENTS=data.agents;
     selectedAgent=AGENTS[0]?.nom||'';
-
-    // Carregar formadors
-    const fData=await fetch('/api/formadors').then(r=>r.json());
-    FORMADORS=fData.map(f=>{
+    FORMADORS=data.formadors.map(f=>{
       if(!f.img)f.img=makeAv(f.nom,f.id);
       return f;
     });
+    RESERVES=data.reserves;
+    // Festius oficials (Espanya + Catalunya + Barcelona) calculats al servidor
+    if (data.festius && Object.keys(data.festius).length) {
+      FESTIUS = data.festius;
+    }
 
-    // Carregar reserves
-    RESERVES=await fetch('/api/reserves').then(r=>r.json());
+    // Render específic per pàgina
+    const page=getCurrentPage();
+    try{
+      if(page==='p'){
+        fillSels();upD();upR();lf();renderAgentSelector();initPeticioDraft();
+        if(typeof renderFestiusInfo==='function')renderFestiusInfo();
+        // Refresc proactiu dels calendaris en segon pla (no bloqueja la UI)
+        // Es força un re-fetch dels iCal per tenir les dades més recents abans
+        // de generar la proposta de candidats
+        if(typeof refreshAllCalendars==='function'){
+          setTimeout(()=>refreshAllCalendars().then(()=>{if(typeof lf==='function')lf();}).catch(()=>{}), 500);
+        }
+      }
+      else if(page==='gest'){renderGest();}
+      else if(page==='canvis'){renderCanvis();}
+      else if(page==='f'){
+        renderFP();initFiltreEsp();
+        // Auto-refresc proactiu dels calendaris en entrar a /formadors —
+        // forcem cache-bust perquè cada vegada que l'usuari entra té dades fresques
+        // (a part del cron diari de les 03:00 al servidor).
+        if(typeof refreshAllCalendars==='function'){
+          setTimeout(()=>{
+            refreshAllCalendars(null,{showToast:true}).then(()=>{
+              if(typeof renderFP==='function')renderFP();
+            }).catch(()=>{});
+          },400);
+        }
+      }
+      else if(page==='entrades'){renderArxiu();}
+    }catch(renderErr){
+      console.error('Error renderitzant pàgina',page,renderErr);
+    }
 
-    fillSels();upD();upR();lf();renderAgentSelector();
-    document.getElementById('loading-overlay').style.display='none';
-    // Carregar dades de calendaris en segon pla (no bloqueja la UI)
+    const overlay=document.getElementById('loading-overlay');
+    if(overlay)overlay.style.display='none';
+
+    // Carregar dades de calendaris en segon pla (només si afecta la pàgina actual)
     loadCalData().then(()=>{
       const nb=FORMADORS.filter(f=>f.icsUrl).length;
-      if(nb>0){lf();toast('📅 '+nb+' calendari'+(nb!==1?'s':'')+ ' sincronitzat'+(nb!==1?'s':''));}
+      if(nb>0){
+        if(page==='p'&&typeof lf==='function')lf();
+        // Important: re-render de /formadors quan acaba el load perquè es vegi
+        // l'estat actualitzat (especialment "fa N min" del temps de sincronització)
+        if(page==='f'&&typeof renderFP==='function')renderFP();
+        // Mostrar toast només un cop per sessió (no cada navegació)
+        if(!sessionStorage.getItem('calToastShown')){
+          toast('📅 '+nb+' calendari'+(nb!==1?'s':'')+ ' sincronitzat'+(nb!==1?'s':''));
+          sessionStorage.setItem('calToastShown','1');
+        }
+      }
     });
   }catch(e){
     console.error('Error carregant dades:',e);
-    document.getElementById('loading-overlay').innerHTML='<div style="text-align:center;padding:40px"><div style="font-size:14px;color:#791F1F;font-weight:500">Error de connexió</div><div style="font-size:12px;color:#6b6b67;margin-top:6px">No es pot connectar al servidor. Comprova que el servidor Node.js està en marxa.</div></div>';
+    const overlay=document.getElementById('loading-overlay');
+    if(overlay)overlay.innerHTML='<div style="text-align:center;padding:40px"><div style="font-size:14px;color:#991B1B;font-weight:600">Error de connexió</div><div style="font-size:12px;color:#71717A;margin-top:6px">No es pot connectar al servidor. Comprova que està en marxa.</div></div>';
   }
 }
 initApp();
-</script>
-
-<div style="position:fixed;bottom:14px;right:14px;background:#1D9E75;color:#fff;padding:7px 13px;border-radius:8px;font-size:12px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none" id="toast"></div>
-
-<!-- LOADING OVERLAY -->
-<div id="loading-overlay" style="position:fixed;inset:0;background:#f5f4f0;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px">
-  <div style="width:22px;height:22px;border:2.5px solid rgba(29,158,117,0.3);border-top-color:#1D9E75;border-radius:50%;animation:spin .7s linear infinite"></div>
-  <div style="font-size:13px;color:#6b6b67;font-weight:500">Carregant GESEM Planner...</div>
-</div>
-</body>
-</html>

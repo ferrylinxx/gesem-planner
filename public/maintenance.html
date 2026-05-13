@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GESEM Planner · Manteniment en curs</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<meta name="theme-color" content="#059669"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0E14;
+  --card:rgba(255,255,255,0.04);
+  --card-bg:rgba(15,20,30,0.65);
+  --border:rgba(255,255,255,0.08);
+  --border-strong:rgba(255,255,255,0.14);
+  --text:#F0F4F8;
+  --muted:#94A3B8;
+  --subtle:#64748B;
+  --primary:#10B981;
+  --primary-glow:rgba(16,185,129,0.5);
+  --primary-soft:rgba(16,185,129,0.15);
+  --amber:#FBBF24;
+  --amber-soft:rgba(251,191,36,0.15);
+  --violet:#A78BFA;
+  --violet-soft:rgba(167,139,250,0.15);
+  --blue:#60A5FA;
+}
+
+html,body{height:100%;width:100%;overflow:hidden}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  position:relative;
+  cursor:default;
+}
+
+/* ───────── AURORA BACKGROUND ───────── */
+.aurora{position:fixed;inset:0;overflow:hidden;z-index:0}
+.aurora::before, .aurora::after{
+  content:'';position:absolute;inset:-50%;
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 30%, rgba(16,185,129,0.35), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 70% 60%, rgba(167,139,250,0.28), transparent 60%),
+    radial-gradient(ellipse 40% 60% at 50% 80%, rgba(96,165,250,0.22), transparent 60%);
+  filter:blur(60px);
+  animation:aurora-drift 25s ease-in-out infinite;
+}
+.aurora::after{
+  background:
+    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(251,191,36,0.18), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 70%, rgba(16,185,129,0.25), transparent 60%);
+  animation-duration:35s;animation-direction:reverse;
+}
+@keyframes aurora-drift{
+  0%,100%{transform:translate(0,0) rotate(0deg) scale(1)}
+  33%{transform:translate(8%,-5%) rotate(120deg) scale(1.1)}
+  66%{transform:translate(-6%,7%) rotate(240deg) scale(0.95)}
+}
+
+/* Particle canvas */
+#particles{position:fixed;inset:0;z-index:1;pointer-events:none}
+
+/* Mouse spotlight */
+.spotlight{
+  position:fixed;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle, rgba(16,185,129,0.15), transparent 65%);
+  pointer-events:none;z-index:2;mix-blend-mode:screen;
+  transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter:blur(40px);
+  transform:translate(-50%,-50%);
+  left:50%;top:50%;
+}
+
+/* Noise overlay (textura subtil) */
+.noise{
+  position:fixed;inset:0;z-index:3;pointer-events:none;opacity:0.04;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+
+/* Grid lines */
+.grid-lines{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.05;
+  background-image:linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+  background-size:80px 80px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent);
+}
+
+/* ───────── LAYOUT ───────── */
+.app{
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  padding:24px 28px;
+}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{
+  width:36px;height:36px;
+  filter:drop-shadow(0 0 12px var(--primary-glow));
+  animation:logo-glow 3s ease-in-out infinite;
+}
+@keyframes logo-glow{0%,100%{filter:drop-shadow(0 0 8px var(--primary-glow))}50%{filter:drop-shadow(0 0 20px var(--primary-glow))}}
+.brand-text{display:flex;flex-direction:column}
+.brand-name{font-size:14px;font-weight:700;letter-spacing:-0.01em;color:var(--text)}
+.brand-sub{font-size:11px;color:var(--muted);font-weight:500;font-family:'JetBrains Mono',monospace}
+
+.status-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--card-bg);
+  border:1px solid var(--border);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  padding:7px 14px 7px 11px;
+  border-radius:999px;
+  font-size:12px;font-weight:600;
+  color:var(--amber);
+}
+.status-pill .led{
+  width:8px;height:8px;border-radius:50%;background:var(--amber);
+  box-shadow:0 0 0 3px rgba(251,191,36,0.3),0 0 12px rgba(251,191,36,0.6);
+  animation:led-pulse 1.5s ease-in-out infinite;
+}
+@keyframes led-pulse{0%,100%{opacity:1;box-shadow:0 0 0 3px rgba(251,191,36,0.3),0 0 12px rgba(251,191,36,0.6)}50%{opacity:0.5;box-shadow:0 0 0 6px rgba(251,191,36,0.1),0 0 20px rgba(251,191,36,0.4)}}
+
+/* ───────── MAIN CARD ───────── */
+.main{
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:8px 0 24px;
+}
+.card{
+  width:100%;max-width:640px;
+  background:var(--card-bg);
+  backdrop-filter:blur(20px) saturate(140%);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:40px 44px 32px;
+  position:relative;
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.4),
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 0 0 1px rgba(255,255,255,0.02) inset;
+  transform-style:preserve-3d;
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+/* Top gradient line */
+.card::before{
+  content:'';position:absolute;top:0;left:24px;right:24px;height:1px;
+  background:linear-gradient(90deg, transparent, var(--primary), var(--violet), var(--blue), var(--primary), transparent);
+  background-size:200% 100%;
+  animation:gradient-flow 4s linear infinite;
+}
+@keyframes gradient-flow{0%{background-position:0 0}100%{background-position:-200% 0}}
+
+/* ───────── HERO ORBITAL LOADER ───────── */
+.hero-loader{
+  width:160px;height:160px;
+  margin:0 auto 28px;
+  position:relative;
+}
+.orbit{
+  position:absolute;inset:0;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:50%;
+  border-top-color:var(--primary);
+  border-right-color:rgba(16,185,129,0.3);
+  animation:orbit-spin 4s cubic-bezier(0.4,0.1,0.6,0.9) infinite;
+}
+.orbit-2{
+  inset:18px;
+  border-color:rgba(255,255,255,0.06);
+  border-bottom-color:var(--violet);
+  border-left-color:rgba(167,139,250,0.3);
+  animation-duration:6s;
+  animation-direction:reverse;
+}
+.orbit-3{
+  inset:36px;
+  border-color:rgba(255,255,255,0.04);
+  border-top-color:var(--blue);
+  animation-duration:3s;
+}
+@keyframes orbit-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* Center pulsing core */
+.core{
+  position:absolute;top:50%;left:50%;
+  width:48px;height:48px;
+  background:radial-gradient(circle, var(--primary), var(--primary-dark));
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 0 0 rgba(16,185,129,0.5), 0 0 30px rgba(16,185,129,0.6);
+  animation:core-pulse 2s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+}
+@keyframes core-pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.7),0 0 30px rgba(16,185,129,0.6);transform:translate(-50%,-50%) scale(1)}
+  50%{box-shadow:0 0 0 18px rgba(16,185,129,0),0 0 40px rgba(16,185,129,0.8);transform:translate(-50%,-50%) scale(1.05)}
+}
+
+/* Orbital dots */
+.orbit-dot{
+  position:absolute;width:8px;height:8px;border-radius:50%;
+  top:50%;left:50%;
+  margin:-4px 0 0 -4px;
+}
+.orbit-dot.d1{background:var(--primary);box-shadow:0 0 12px var(--primary-glow);animation:orbit-d1 4s linear infinite}
+.orbit-dot.d2{background:var(--violet);box-shadow:0 0 10px rgba(167,139,250,0.6);animation:orbit-d2 6s linear infinite reverse}
+.orbit-dot.d3{background:var(--blue);box-shadow:0 0 8px rgba(96,165,250,0.6);animation:orbit-d3 3s linear infinite}
+@keyframes orbit-d1{from{transform:rotate(0) translateX(80px) rotate(0)}to{transform:rotate(360deg) translateX(80px) rotate(-360deg)}}
+@keyframes orbit-d2{from{transform:rotate(0) translateX(62px) rotate(0)}to{transform:rotate(360deg) translateX(62px) rotate(-360deg)}}
+@keyframes orbit-d3{from{transform:rotate(0) translateX(44px) rotate(0)}to{transform:rotate(360deg) translateX(44px) rotate(-360deg)}}
+
+/* ───────── TYPOGRAPHY ───────── */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--primary-soft);
+  border:1px solid rgba(16,185,129,0.3);
+  color:var(--primary);
+  padding:5px 14px 5px 10px;
+  border-radius:999px;
+  font-size:11px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:16px;
+  font-family:'JetBrains Mono',monospace;
+}
+.eyebrow::before{content:'⚡';font-size:13px}
+
+.title{
+  font-size:36px;font-weight:800;
+  letter-spacing:-0.03em;line-height:1.05;
+  margin-bottom:12px;
+  background:linear-gradient(180deg, #FFFFFF 30%, #94A3B8);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.subtitle{
+  font-size:15.5px;color:var(--muted);
+  line-height:1.6;max-width:480px;margin:0 auto 30px;
+  text-align:center;
+}
+
+.center{text-align:center}
+
+/* ───────── PROGRESS PHASES ───────── */
+.phases{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  margin:0 0 28px;
+}
+.phase{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px 10px 12px;
+  position:relative;overflow:hidden;
+  text-align:left;
+}
+.phase.done{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3)}
+.phase.active{background:rgba(251,191,36,0.08);border-color:rgba(251,191,36,0.3)}
+.phase.active::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg, transparent, rgba(251,191,36,0.15), transparent);
+  animation:phase-shimmer 1.5s linear infinite;
+}
+@keyframes phase-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.phase-icon{font-size:14px;margin-bottom:4px;display:block}
+.phase-label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:2px}
+.phase-status{font-size:11.5px;color:var(--text);font-weight:500}
+.phase.done .phase-status{color:var(--primary)}
+.phase.active .phase-status{color:var(--amber)}
+
+/* ───────── DIAGNOSTIC TERMINAL ───────── */
+.terminal{
+  background:rgba(0,0,0,0.4);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px 16px;
+  margin:0 0 22px;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:11px;
+  line-height:1.7;
+  height:128px;overflow:hidden;
+  position:relative;
+}
+.terminal::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:30px;
+  background:linear-gradient(180deg, rgba(0,0,0,0.6), transparent);
+  pointer-events:none;z-index:1;
+}
+.terminal::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:30px;
+  background:linear-gradient(0deg, rgba(0,0,0,0.6), transparent);
+  pointer-events:none;z-index:1;
+}
+.term-header{
+  display:flex;align-items:center;gap:5px;margin-bottom:8px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.term-dot{width:9px;height:9px;border-radius:50%}
+.term-dot.r{background:#FF5F57}.term-dot.y{background:#FEBC2E}.term-dot.g{background:#28C840}
+.term-title{font-size:10.5px;color:var(--muted);margin-left:8px}
+.term-lines{
+  position:relative;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.term-line{
+  display:block;
+  animation:term-appear 0.3s ease-out;
+}
+@keyframes term-appear{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.t-ts{color:var(--subtle)}
+.t-ok{color:var(--primary);font-weight:600}
+.t-warn{color:var(--amber);font-weight:600}
+.t-info{color:var(--blue);font-weight:600}
+.t-msg{color:var(--text);opacity:0.9}
+
+/* ───────── STATS GRID ───────── */
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  margin:0 0 22px;
+}
+.stat{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px 12px 12px;
+}
+.stat-label{
+  font-size:10px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.05em;font-weight:600;
+  margin-bottom:6px;
+}
+.stat-value{
+  font-size:22px;font-weight:700;color:var(--text);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-0.02em;line-height:1;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+}
+.stat-trend{
+  font-size:10.5px;color:var(--primary);font-weight:600;
+  margin-top:4px;
+}
+
+/* ───────── CUSTOM MESSAGE ───────── */
+.custom-msg{
+  background:linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.03));
+  border:1px solid rgba(251,191,36,0.2);
+  border-radius:12px;
+  padding:14px 18px 14px 46px;
+  margin:0 0 22px;
+  font-size:13px;color:#FCD34D;
+  line-height:1.55;
+  position:relative;display:none;
+  text-align:left;
+}
+.custom-msg::before{
+  content:'💬';position:absolute;left:16px;top:13px;
+  font-size:16px;
+}
+.custom-msg-content{white-space:pre-line}
+
+/* ───────── FOOTER ───────── */
+.footer{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:14px;
+  padding-top:18px;border-top:1px solid var(--border);
+  margin-top:18px;
+}
+.refresh-info{
+  display:flex;align-items:center;gap:10px;
+  font-size:11.5px;color:var(--muted);
+}
+.countdown-svg{width:24px;height:24px}
+.countdown-svg .track{fill:none;stroke:rgba(255,255,255,0.1);stroke-width:2.5}
+.countdown-svg .progress{
+  fill:none;stroke:var(--primary);stroke-width:2.5;stroke-linecap:round;
+  stroke-dasharray:62.83;
+  filter:drop-shadow(0 0 4px var(--primary-glow));
+  animation:countdown 60s linear infinite;
+}
+@keyframes countdown{from{stroke-dashoffset:0}to{stroke-dashoffset:62.83}}
+.uptime{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:11.5px;color:var(--muted);
+}
+.uptime b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;font-size:13px}
+
+/* App footer */
+.app-foot{
+  text-align:center;font-size:11px;color:var(--subtle);
+  padding-top:14px;font-family:'JetBrains Mono',monospace;
+  letter-spacing:.05em;
+}
+.app-foot kbd{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:1px 6px;font-size:10px;
+  margin:0 2px;
+}
+
+/* ───────── SUCCESS STATE (when maintenance ends) ───────── */
+body.success{transition:background 0.5s}
+.success-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:100;
+  background:radial-gradient(ellipse at center, rgba(16,185,129,0.3), transparent 70%);
+  align-items:center;justify-content:center;
+  flex-direction:column;
+  text-align:center;padding:24px;
+  animation:success-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes success-in{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+.success-overlay.show{display:flex}
+.success-icon{
+  font-size:80px;margin-bottom:18px;
+  animation:success-bounce 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes success-bounce{0%{transform:scale(0)rotate(-180deg)}60%{transform:scale(1.2)rotate(20deg)}100%{transform:scale(1)rotate(0)}}
+.success-title{font-size:36px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+.success-msg{font-size:15px;color:var(--muted)}
+
+/* ───────── MOBILE ───────── */
+@media (max-width: 640px){
+  .app{padding:16px}
+  .card{padding:28px 20px;border-radius:20px}
+  .title{font-size:26px}
+  .hero-loader{width:130px;height:130px}
+  .core{width:36px;height:36px;font-size:18px}
+  @keyframes orbit-d1{from{transform:rotate(0) translateX(63px) rotate(0)}to{transform:rotate(360deg) translateX(63px) rotate(-360deg)}}
+  @keyframes orbit-d2{from{transform:rotate(0) translateX(48px) rotate(0)}to{transform:rotate(360deg) translateX(48px) rotate(-360deg)}}
+  @keyframes orbit-d3{from{transform:rotate(0) translateX(33px) rotate(0)}to{transform:rotate(360deg) translateX(33px) rotate(-360deg)}}
+  .phases{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:1fr 1fr}
+  .stats .stat:last-child{grid-column:1/-1}
+  .footer{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="aurora"></div>
+<div class="grid-lines"></div>
+<canvas id="particles"></canvas>
+<div class="spotlight" id="spotlight"></div>
+<div class="noise"></div>
+
+<!-- Success overlay (when maintenance ends) -->
+<div class="success-overlay" id="success">
+  <div class="success-icon">✨</div>
+  <div class="success-title">Operativa de nou!</div>
+  <div class="success-msg">Redirigint a l'app...</div>
+</div>
+
+<div class="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <rect x="8" y="14" width="36" height="10" rx="2" fill="#A7F3D0" transform="rotate(-4 26 19)"/>
+        <rect x="10" y="22" width="36" height="10" rx="2" fill="#34D399"/>
+        <rect x="12" y="32" width="36" height="10" rx="2" fill="#059669" transform="rotate(3 30 37)"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">GESEM Planner</span>
+        <span class="brand-sub">SYSTEM v29 · MAINTENANCE</span>
+      </div>
+    </div>
+    <div class="status-pill">
+      <span class="led"></span>
+      <span>Manteniment actiu</span>
+    </div>
+  </header>
+
+  <!-- Main card -->
+  <main class="main">
+    <div class="card" id="card">
+
+      <!-- Orbital loader -->
+      <div class="hero-loader">
+        <div class="orbit"></div>
+        <div class="orbit orbit-2"></div>
+        <div class="orbit orbit-3"></div>
+        <div class="orbit-dot d1"></div>
+        <div class="orbit-dot d2"></div>
+        <div class="orbit-dot d3"></div>
+        <div class="core">⚙️</div>
+      </div>
+
+      <div class="center">
+        <span class="eyebrow">Sistema en actualització</span>
+        <h1 class="title">Estem fent millores<br>al sistema</h1>
+        <p class="subtitle">Tornarem a estar operatius molt aviat. La pàgina detectarà automàticament quan tornem en línia i et redirigirà.</p>
+      </div>
+
+      <!-- Custom message -->
+      <div class="custom-msg" id="custom-msg">
+        <div class="custom-msg-content" id="custom-msg-content"></div>
+      </div>
+
+      <!-- Phase progress -->
+      <div class="phases">
+        <div class="phase done">
+          <span class="phase-icon">✓</span>
+          <div class="phase-label">Fase 1</div>
+          <div class="phase-status">Backup</div>
+        </div>
+        <div class="phase done">
+          <span class="phase-icon">✓</span>
+          <div class="phase-label">Fase 2</div>
+          <div class="phase-status">Migració</div>
+        </div>
+        <div class="phase active" id="phase-active">
+          <span class="phase-icon">⚙️</span>
+          <div class="phase-label">Fase 3</div>
+          <div class="phase-status">Actualitzant</div>
+        </div>
+        <div class="phase">
+          <span class="phase-icon">⏳</span>
+          <div class="phase-label">Fase 4</div>
+          <div class="phase-status">Verificació</div>
+        </div>
+      </div>
+
+      <!-- Diagnostic terminal -->
+      <div class="terminal">
+        <div class="term-header">
+          <span class="term-dot r"></span>
+          <span class="term-dot y"></span>
+          <span class="term-dot g"></span>
+          <span class="term-title">gesem-system · diagnostics</span>
+        </div>
+        <div class="term-lines" id="term-lines"></div>
+      </div>
+
+      <!-- Live stats -->
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Memòria</div>
+          <div class="stat-value" id="stat-mem">-- MB</div>
+          <div class="stat-trend">↓ Optimitzant</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Connexions</div>
+          <div class="stat-value" id="stat-conn">--</div>
+          <div class="stat-trend">→ Estables</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Latència</div>
+          <div class="stat-value" id="stat-lat">-- ms</div>
+          <div class="stat-trend">↑ Millorant</div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="refresh-info">
+          <svg class="countdown-svg" viewBox="0 0 24 24"><circle class="track" cx="12" cy="12" r="10"/><circle class="progress" cx="12" cy="12" r="10" transform="rotate(-90 12 12)"/></svg>
+          <span>Auto-comprovació · <b id="countdown-num">60</b>s</span>
+        </div>
+        <div class="uptime" id="uptime-block" style="display:none">
+          <span style="color:var(--subtle)">UPTIME ·</span> <b id="uptime-val">00:00:00</b>
+        </div>
+        <div class="uptime">
+          <span style="color:var(--subtle)">HORA ·</span> <b id="live-time">--:--:--</b>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- App footer -->
+  <footer class="app-foot">
+    Pots refrescar manualment amb <kbd>F5</kbd> · Si l'accés és urgent contacta amb l'equip tècnic
+  </footer>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// PARTICLES SYSTEM
+// ════════════════════════════════════════════════════════
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W = window.innerWidth, H = window.innerHeight;
+canvas.width = W; canvas.height = H;
+window.addEventListener('resize', () => {
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W; canvas.height = H;
+});
+
+const COLORS = ['rgba(16,185,129,', 'rgba(167,139,250,', 'rgba(96,165,250,', 'rgba(251,191,36,'];
+const particles = [];
+for (let i = 0; i < 50; i++) {
+  particles.push({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: -Math.random() * 0.4 - 0.1,
+    r: Math.random() * 1.8 + 0.4,
+    a: Math.random() * 0.5 + 0.2,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    twinkleSpeed: 0.005 + Math.random() * 0.01,
+    twinklePhase: Math.random() * Math.PI * 2,
+  });
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, W, H);
+  for (const p of particles) {
+    p.x += p.vx; p.y += p.vy;
+    p.twinklePhase += p.twinkleSpeed;
+    if (p.x < 0) p.x = W; else if (p.x > W) p.x = 0;
+    if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
+    const alpha = p.a * (0.5 + 0.5 * Math.sin(p.twinklePhase));
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = p.color + alpha + ')';
+    ctx.fill();
+    // glow
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+    ctx.fillStyle = p.color + (alpha * 0.15) + ')';
+    ctx.fill();
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ════════════════════════════════════════════════════════
+// MOUSE SPOTLIGHT + 3D CARD TILT
+// ════════════════════════════════════════════════════════
+const spotlight = document.getElementById('spotlight');
+const card = document.getElementById('card');
+
+document.addEventListener('mousemove', (e) => {
+  // Spotlight
+  spotlight.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+  // Card 3D tilt
+  if (card) {
+    const rect = card.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / rect.width;
+    const dy = (e.clientY - cy) / rect.height;
+    const tx = Math.max(-1, Math.min(1, dx)) * 4;
+    const ty = Math.max(-1, Math.min(1, dy)) * 4;
+    card.style.transform = `perspective(1200px) rotateY(${tx}deg) rotateX(${-ty}deg)`;
+  }
+});
+
+// ════════════════════════════════════════════════════════
+// LIVE CLOCK + UPTIME
+// ════════════════════════════════════════════════════════
+function updateClock() {
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2, '0');
+  const m = String(d.getMinutes()).padStart(2, '0');
+  const s = String(d.getSeconds()).padStart(2, '0');
+  document.getElementById('live-time').textContent = `${h}:${m}:${s}`;
+  // Uptime
+  if (window._maintStart) {
+    const elapsed = Math.floor((Date.now() - window._maintStart) / 1000);
+    const hh = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+    const ss = String(elapsed % 60).padStart(2, '0');
+    document.getElementById('uptime-val').textContent = `${hh}:${mm}:${ss}`;
+  }
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ════════════════════════════════════════════════════════
+// COUNTDOWN NUMBER
+// ════════════════════════════════════════════════════════
+let cdNum = 60;
+setInterval(() => {
+  cdNum = cdNum > 0 ? cdNum - 1 : 60;
+  document.getElementById('countdown-num').textContent = cdNum;
+}, 1000);
+
+// ════════════════════════════════════════════════════════
+// LIVE STATS (rolling animated numbers)
+// ════════════════════════════════════════════════════════
+let memBase = 247, connBase = 18, latBase = 42;
+function updateStats() {
+  // Memory wobble
+  const memDelta = (Math.random() - 0.5) * 8;
+  memBase = Math.max(180, Math.min(420, memBase + memDelta));
+  document.getElementById('stat-mem').textContent = Math.round(memBase) + ' MB';
+  // Connections wobble
+  const connDelta = Math.random() < 0.5 ? -1 : 1;
+  connBase = Math.max(8, Math.min(35, connBase + connDelta));
+  document.getElementById('stat-conn').textContent = connBase;
+  // Latency wobble (downward trend)
+  const latDelta = (Math.random() - 0.55) * 4;
+  latBase = Math.max(8, Math.min(80, latBase + latDelta));
+  document.getElementById('stat-lat').textContent = Math.round(latBase) + ' ms';
+}
+updateStats();
+setInterval(updateStats, 1500);
+
+// ════════════════════════════════════════════════════════
+// DIAGNOSTIC TERMINAL
+// ════════════════════════════════════════════════════════
+const TERM_MESSAGES = [
+  ['ok', 'Database connection healthy'],
+  ['info', 'Cache layer initialized'],
+  ['ok', 'iCal feeds: 16 formadors registered'],
+  ['info', 'Refreshing calendar caches...'],
+  ['ok', 'Calendar refresh completed (16/16)'],
+  ['info', 'SMTP queue: 0 pending'],
+  ['warn', 'Performing schema validation...'],
+  ['ok', 'Schema valid · 0 migrations needed'],
+  ['info', 'Cleaning expired tokens...'],
+  ['ok', 'Token cleanup completed'],
+  ['info', 'Backup process started'],
+  ['ok', 'Backup completed · 32.4 KB'],
+  ['info', 'Compressing static assets'],
+  ['ok', 'Compression: 71% reduction'],
+  ['info', 'Validating SSL certificates'],
+  ['ok', 'Certificates valid until 2027'],
+  ['info', 'Optimizing query indexes'],
+  ['ok', 'Indexes optimized · 4 tables'],
+  ['warn', 'Reloading configuration files'],
+  ['ok', 'Configuration loaded successfully'],
+];
+
+const termLines = document.getElementById('term-lines');
+const visibleLines = [];
+let termIdx = 0;
+
+function addTermLine() {
+  const [type, msg] = TERM_MESSAGES[termIdx % TERM_MESSAGES.length];
+  termIdx++;
+  const now = new Date();
+  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const tag = type === 'ok' ? '[OK]' : type === 'warn' ? '[WARN]' : '[INFO]';
+  const line = document.createElement('span');
+  line.className = 'term-line';
+  line.innerHTML = `<span class="t-ts">${ts}</span> <span class="t-${type}">${tag}</span> <span class="t-msg">${msg}</span>\n`;
+  termLines.appendChild(line);
+  visibleLines.push(line);
+  if (visibleLines.length > 6) {
+    const old = visibleLines.shift();
+    old.remove();
+  }
+}
+
+// Inicial 4 lines
+for (let i = 0; i < 4; i++) addTermLine();
+setInterval(addTermLine, 2200);
+
+// ════════════════════════════════════════════════════════
+// MAINTENANCE POLLING (custom message + auto-redirect)
+// ════════════════════════════════════════════════════════
+async function pollMaintenance() {
+  try {
+    const r = await fetch('/api/admin/maintenance', { cache: 'no-store' });
+    const d = await r.json();
+    // Custom message
+    if (d && d.message) {
+      const wrap = document.getElementById('custom-msg');
+      const content = document.getElementById('custom-msg-content');
+      if (wrap && content) { content.textContent = d.message; wrap.style.display = 'block'; }
+    }
+    // Uptime tracking
+    if (d && d.activatedAt) {
+      window._maintStart = new Date(d.activatedAt).getTime();
+      document.getElementById('uptime-block').style.display = 'block';
+    }
+    // Auto-redirect when maintenance ends
+    if (d && d.active === false) {
+      celebrateAndRedirect();
+    }
+  } catch (e) { /* silent */ }
+}
+pollMaintenance();
+setInterval(pollMaintenance, 30000);
+
+function celebrateAndRedirect() {
+  const overlay = document.getElementById('success');
+  if (overlay) overlay.classList.add('show');
+  setTimeout(() => { window.location.href = '/peticio'; }, 2200);
+}
+
+// ════════════════════════════════════════════════════════
+// EASTER EGG · Konami code
+// ════════════════════════════════════════════════════════
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiIdx = 0;
+document.addEventListener('keydown', (e) => {
+  if (e.key === KONAMI[konamiIdx]) {
+    konamiIdx++;
+    if (konamiIdx === KONAMI.length) {
+      konamiIdx = 0;
+      // Boost particles, change colors
+      for (const p of particles) {
+        p.vy = -Math.random() * 2 - 0.5;
+        p.r *= 1.5;
+      }
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:30px;right:30px;z-index:200;background:linear-gradient(135deg,#A78BFA,#10B981);color:#fff;padding:14px 20px;border-radius:12px;font-weight:600;font-size:13px;box-shadow:0 10px 40px rgba(167,139,250,0.5);animation:term-appear 0.3s';
+      t.textContent = '🎉 Konami code activat · Bonus particles!';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+  } else { konamiIdx = 0; }
+});
+
+// ════════════════════════════════════════════════════════
+// VISIBILITY: pause animations when tab hidden
+// ════════════════════════════════════════════════════════
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    canvas.style.display = 'none';
+  } else {
+    canvas.style.display = 'block';
+  }
+});
+</script>
+
+</body>
+</html>

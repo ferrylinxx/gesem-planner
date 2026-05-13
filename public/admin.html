@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GESEM Planner · Admin</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/styles.css"/>
+<style>
+.admin-wrap{max-width:760px;margin:0 auto;padding:32px 24px}
+.admin-hero{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.admin-hero-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,#7C3AED 0%,#A78BFA 100%);
+  display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;
+}
+.admin-hero h1{font-size:24px;font-weight:700;letter-spacing:-0.02em}
+.admin-hero p{font-size:13.5px;color:var(--text-muted);margin-top:3px}
+
+.section{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:24px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow-sm);
+}
+.section h2{font-size:16px;font-weight:600;margin-bottom:6px}
+.section .desc{font-size:13px;color:var(--text-muted);margin-bottom:18px;line-height:1.55}
+
+.toggle-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.toggle-row .lbl{flex:1}
+.toggle-row .lbl b{font-size:14px;font-weight:600;display:block;margin-bottom:2px}
+.toggle-row .lbl small{font-size:12px;color:var(--text-muted)}
+
+/* Switch toggle */
+.switch{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:#D6D3D1;border-radius:26px;transition:.2s}
+.slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
+input:checked+.slider{background:var(--primary)}
+input:checked+.slider::before{transform:translateX(20px)}
+input:disabled+.slider{opacity:0.5;cursor:wait}
+
+textarea{
+  width:100%;padding:10px 12px;
+  border:1px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:13.5px;
+  resize:vertical;min-height:80px;
+  background:var(--bg-card);color:var(--text);
+  margin-top:8px;
+}
+textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(5,150,105,0.12)}
+
+.status{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 12px;border-radius:999px;
+  font-size:12px;font-weight:600;
+}
+.status.on{background:#FEF3C7;color:#92400E}
+.status.off{background:var(--primary-soft);color:var(--primary-soft-text)}
+.status::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
+
+.warn{
+  background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;
+  padding:13px 15px;font-size:13px;color:#92400E;line-height:1.55;
+  margin-bottom:14px;
+}
+.warn b{font-weight:600}
+
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12.5px}
+.info-grid .k{color:var(--text-muted)}
+.info-grid .v{color:var(--text);font-weight:500;font-family:ui-monospace,monospace;font-size:11.5px}
+
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--text-muted);text-decoration:none;
+  font-size:13px;font-weight:500;
+  margin-bottom:24px;
+}
+.back-link:hover{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="admin-wrap">
+  <a href="/peticio" class="back-link">← Tornar a l'app</a>
+
+  <div class="admin-hero">
+    <div class="admin-hero-icon">⚙️</div>
+    <div>
+      <h1>Configuració d'administració</h1>
+      <p>Aquesta pàgina està fora de la sidebar normal i no es veu afectada pel manteniment</p>
+    </div>
+  </div>
+
+  <!-- Manteniment -->
+  <div class="section">
+    <h2>Mode manteniment</h2>
+    <p class="desc">Quan està activat, tots els usuaris veuen la pàgina <code>/maintenance</code> en lloc de l'app. Aquesta pàgina (<code>/admin</code>) sempre és accessible per poder desactivar-lo.</p>
+
+    <div class="warn" id="maint-warn" style="display:none">
+      <b>⚠️ Atenció:</b> Si actives el manteniment, els usuaris NO podran accedir a l'app. Recorda l'URL d'admin: <code>http://192.168.3.208:3001/admin</code>
+    </div>
+
+    <div class="toggle-row">
+      <div class="lbl">
+        <b>Activar mode manteniment</b>
+        <small id="maint-status-text">Estat actual: comprovant...</small>
+      </div>
+      <span class="status off" id="maint-status">Off</span>
+      <label class="switch">
+        <input type="checkbox" id="maint-toggle" onchange="toggleMaintenance(this)"/>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div>
+      <label style="font-size:12.5px;font-weight:500;color:var(--text)">Missatge personalitzat (opcional)</label>
+      <textarea id="maint-message" placeholder="Ex: Estem actualitzant el sistema. Tornarem operatius cap a les 16h. Disculpa les molèsties."></textarea>
+      <div class="actions">
+        <button class="btn btn-sm" onclick="saveMessage()">Desar missatge</button>
+        <button class="btn btn-sm" onclick="window.open('/maintenance','_blank')">👁 Previsualitzar pàgina</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info del sistema -->
+  <div class="section">
+    <h2>Informació del sistema</h2>
+    <p class="desc">Estat actual dels serveis i configuracions externes.</p>
+    <div class="info-grid" id="sys-info">
+      <div class="k">SMTP</div><div class="v" id="info-smtp">—</div>
+      <div class="k">IA (Groq)</div><div class="v" id="info-ai">—</div>
+      <div class="k">Manteniment des de</div><div class="v" id="info-since">—</div>
+      <div class="k">Versió</div><div class="v">v29</div>
+    </div>
+  </div>
+
+  <!-- Acccions ràpides -->
+  <div class="section">
+    <h2>Accions ràpides</h2>
+    <p class="desc">Operacions del dia a dia que requereixen pas pel servidor.</p>
+    <div class="actions">
+      <a class="btn btn-sm" href="/changelog">📋 Veure changelog</a>
+      <a class="btn btn-sm" href="/peticio">🏠 Anar a l'app</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+
+async function loadStatus(){
+  try{
+    const data=await fetch('/api/admin/maintenance').then(r=>r.json());
+    const t=document.getElementById('maint-toggle');
+    const st=document.getElementById('maint-status');
+    const txt=document.getElementById('maint-status-text');
+    const warn=document.getElementById('maint-warn');
+    const msg=document.getElementById('maint-message');
+    const since=document.getElementById('info-since');
+    t.checked=!!data.active;
+    st.textContent=data.active?'Activat':'Desactivat';
+    st.className='status '+(data.active?'on':'off');
+    txt.textContent=data.active?"L'app està en manteniment ara mateix":"L'app està operativa per a tothom";
+    warn.style.display=data.active?'block':'none';
+    if(data.message)msg.value=data.message;
+    if(data.activatedAt){
+      since.textContent=new Date(data.activatedAt).toLocaleString('ca-ES');
+    }else{
+      since.textContent='—';
+    }
+  }catch(e){
+    toast('Error carregant estat: '+e.message);
+  }
+  // Status SMTP/AI
+  try{
+    const sm=await fetch('/api/email/status').then(r=>r.json());
+    document.getElementById('info-smtp').textContent=sm.configured?'✓ '+sm.config.user:'✗ no configurat';
+  }catch(e){document.getElementById('info-smtp').textContent='?';}
+  try{
+    const ai=await fetch('/api/ai/status').then(r=>r.json());
+    document.getElementById('info-ai').textContent=ai.configured?'✓ '+ai.model:'✗ no configurat';
+  }catch(e){document.getElementById('info-ai').textContent='?';}
+}
+
+async function toggleMaintenance(cb){
+  cb.disabled=true;
+  const message=document.getElementById('maint-message').value;
+  try{
+    const res=await fetch('/api/admin/maintenance',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({active:cb.checked,message})
+    });
+    if(!res.ok)throw new Error('Error de servidor');
+    toast(cb.checked?'⚠️ Manteniment ACTIVAT':'✓ Manteniment desactivat');
+    await loadStatus();
+  }catch(e){
+    toast('Error: '+e.message);cb.checked=!cb.checked;
+  }finally{
+    cb.disabled=false;
+  }
+}
+
+async function saveMessage(){
+  const message=document.getElementById('maint-message').value;
+  const cb=document.getElementById('maint-toggle');
+  try{
+    await fetch('/api/admin/maintenance',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({active:cb.checked,message})
+    });
+    toast('✓ Missatge desat');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+document.addEventListener('DOMContentLoaded',loadStatus);
+</script>
+</body>
+</html>
