@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v38</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v39</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,47 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v38 · actual</div>
+    <div class="cl-current">v39 · actual</div>
+  </div>
+
+  <!-- ════════════ v39 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v39 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Polish: favicon a la pàgina pública + logo oficial WhatsApp</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 Favicon a la pàgina de resposta del formador</div>
+      <ul class="cl-list">
+        <li>La pàgina pública <code>/r/:token</code> (on els formadors accepten o declinen reserves) ara mostra el favicon GESEM verd a la pestanya del navegador</li>
+        <li>Afegit també <code>apple-touch-icon</code> per quan algú la guarda a la pantalla d'inici del mòbil</li>
+        <li><code>meta theme-color="#059669"</code> per a què la barra del navegador es tinti de verd en mòbils Chrome/Edge</li>
+        <li>URL absoluta (<code>${baseUrl}/favicon.svg</code>) per compatibilitat amb tots els clients de correu que carreguen previews</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">💚 Logo oficial de WhatsApp</div>
+      <ul class="cl-list">
+        <li>Substituïts els 3 SVGs custom (semblaven més una "carona" genèrica que el logo de WhatsApp) pel <strong>path oficial de SimpleIcons</strong></li>
+        <li>Llocs actualitzats:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>Botó "WhatsApp" verd al card de proposta de formador</li>
+            <li>Icona WhatsApp formador a <code>/gestio</code></li>
+            <li>Icona WhatsApp directe al card del formador a <code>/formadors</code></li>
+          </ul>
+        </li>
+        <li>Una sola <code>&lt;path&gt;</code> de viewBox 24×24, escalable sense pèrdua a qualsevol mida</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v38 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v38 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v38 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Modals d'edició completament redissenyats · Fix error post-enviament</div>
