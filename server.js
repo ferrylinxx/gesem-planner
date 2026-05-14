@@ -535,9 +535,20 @@ app.post('/api/email/send-formador-confirm', async (req, res) => {
   const baseUrl = process.env.BASE_URL || ('http://' + (req.get('host') || 'localhost:3001'));
   const token = tokens.signReservaToken(reservaId, reserva.formadorId);
 
-  // Build HTML email + ICS attachment
+  // Build HTML email + ICS attachment (METHOD:REQUEST → invitació de reunió natiu)
   const html = tmpl.formadorEmailHtml({ reserva, plainBody: body, baseUrl, token });
-  const ics = icsLib.buildIcs(reserva);
+  // Usem METHOD:REQUEST perquè els clients de correu (Gmail, Outlook, Apple Mail)
+  // detectin l'event com a invitació de reunió i mostrin els botons natius
+  // "Sí / Tal vegada / No" inline. Quan l'usuari clica Sí, l'event s'afegeix
+  // automàticament al seu calendari sense sortir del client de correu.
+  const ics = icsLib.buildIcs(reserva, {
+    method: 'REQUEST',
+    attendeeEmail: reserva.formadorEmail || to,
+    attendeeName: reserva.formador,
+    organizerEmail: process.env.SMTP_USER || 'comunicacions@gesem.cat',
+    organizerName: 'GESEM digital & SoftSkills',
+    sequence: (reserva.icsSequence || 0),
+  });
   const filename = icsLib.icsFilename(reserva);
 
   try {
@@ -546,7 +557,18 @@ app.post('/api/email/send-formador-confirm', async (req, res) => {
       subject,
       text: body,  // fallback si el client d'email no suporta HTML
       html,
-      attachments: [{ filename, content: ics, contentType: 'text/calendar; method=PUBLISH; charset=UTF-8' }],
+      // method=REQUEST al Content-Type és el que activa la detecció d'invitació
+      // als clients de correu. Tots dos camps (alternatives.icalEvent i attachments)
+      // ajuden segons el client.
+      icalEvent: {
+        method: 'REQUEST',
+        content: ics,
+      },
+      attachments: [{
+        filename,
+        content: ics,
+        contentType: 'text/calendar; method=REQUEST; charset=UTF-8; component=VEVENT',
+      }],
     });
     // Marcar la reserva com a "email enviat amb confirmació"
     reserva.emailFormadorEnviat = true;
@@ -663,6 +685,54 @@ app.get('/r/:token/ics', (req, res) => {
     res.send(ics);
   } catch (e) {
     res.status(400).send('Token invàlid o reserva no trobada');
+  }
+});
+
+// ── WEBCAL SUBSCRIPTION ─────────────────────────────────────────
+// URL pública signada que retorna TOTES les reserves d'un formador en
+// format iCal. El formador la subscriu al seu calendari un cop i:
+//   · Google Calendar: refresca cada ~12h
+//   · Outlook: cada ~1h
+//   · Apple Calendar: configurable
+// Així el formador veu totes les seves reserves al calendari sense haver de
+// fer res més. Si afegim una reserva nova o canviem una existent, apareix
+// automàticament al pròxim poll.
+app.get('/cal/:token.ics', (req, res) => {
+  try {
+    const payload = tokens.verify(req.params.token);
+    if (payload.action !== 'subscribe' || !payload.formadorId) {
+      return res.status(400).send('Token no vàlid per subscripció');
+    }
+    const formadors = readJSON('formadors.json', []);
+    const formador = formadors.find(f => f.id === payload.formadorId);
+    if (!formador) return res.status(404).send('Formador no trobat');
+    const allReservas = readJSON('reserves.json', []);
+    const myReservas = allReservas.filter(r => r.formadorId === payload.formadorId);
+    const ics = icsLib.buildIcsFeed(myReservas, formador);
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=1800'); // 30 min cache per protegir el servidor
+    // No 'attachment' — calendar clients esperen inline per a subscripcions
+    res.send(ics);
+  } catch (e) {
+    res.status(400).send('Token invàlid o caducat: ' + e.message);
+  }
+});
+
+// API que retorna l'URL de subscripció webcal per a un formador (només es
+// pot generar per a formadors existents amb un token de reserva vàlid del
+// mateix formador). Així només pot obtenir-la qui ja té accés a una reserva.
+app.get('/r/:token/subscribe-url', (req, res) => {
+  try {
+    const payload = tokens.verify(req.params.token);
+    if (!payload.formadorId) return res.status(400).json({ ok: false, error: 'Token sense formadorId' });
+    const subToken = tokens.signFormadorSubscriptionToken(payload.formadorId);
+    const baseUrl = process.env.BASE_URL || ('https://' + (req.get('host') || 'planner.gesem.es'));
+    const httpsUrl = `${baseUrl}/cal/${subToken}.ics`;
+    // L'esquema webcal:// fa que el navegador obri el client de calendari per defecte
+    const webcalUrl = httpsUrl.replace(/^https?:\/\//, 'webcal://');
+    res.json({ ok: true, httpsUrl, webcalUrl });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: e.message });
   }
 });
 

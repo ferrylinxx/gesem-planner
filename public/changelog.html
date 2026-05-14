@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v34</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v35</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,63 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v34 · actual</div>
+    <div class="cl-current">v35 · actual</div>
+  </div>
+
+  <!-- ════════════ v35 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v35 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Calendari per a formadors externs · METHOD:REQUEST + Webcal subscription</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📩 Invitació de reunió nativa als emails</div>
+      <ul class="cl-list">
+        <li>El <code>.ics</code> que enviem als formadors s'envia ara amb <strong>METHOD:REQUEST</strong> en lloc de <code>PUBLISH</code></li>
+        <li>Això converteix l'email en una <strong>invitació de reunió nativa</strong> que Gmail, Outlook i Apple Mail <strong>detecten automàticament</strong>: mostren botons <em>Sí / Tal vegada / No</em> inline dins l'email</li>
+        <li>Quan el formador clica "Sí" al seu client de correu, <strong>l'event s'afegeix automàticament al seu calendari sense sortir de l'email</strong></li>
+        <li>Inclou <code>ORGANIZER</code> + <code>ATTENDEE</code> RFC-5545 compliant amb <code>RSVP=TRUE</code> i <code>PARTSTAT=NEEDS-ACTION</code></li>
+        <li>Cap setup necessari pel formador — funciona des del primer email rebut</li>
+        <li>Camp <code>icalEvent</code> al nodemailer + Content-Type <code>text/calendar; method=REQUEST</code> que activa la detecció</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔔 Webcal subscription · per a sempre</div>
+      <ul class="cl-list">
+        <li>Nova opció a la pàgina de confirmació: <strong>"Subscriu el teu calendari · una sola vegada"</strong></li>
+        <li>Genera una URL signada amb HMAC per a cada formador (vàlida 5 anys)</li>
+        <li>El formador <strong>subscriu la URL</strong> al seu calendari amb 1 clic (Apple Calendar, Google Calendar Web, Outlook, etc.)</li>
+        <li>A partir d'aquí, <strong>totes les futures reserves de GESEM apareixen automàticament al calendari</strong> sense intervenció manual</li>
+        <li>El calendari pol·la el feed cada 1-2h (depenent del client) i afegeix/actualitza/elimina events sols</li>
+        <li>Format: <code>webcal://planner.gesem.es/cal/&lt;hmac-token&gt;.ics</code></li>
+        <li>Endpoint nou <code>/cal/:token.ics</code> + helper <code>buildIcsFeed()</code> a <code>lib/ics.js</code></li>
+        <li>Cache de 30 min al servidor (<code>Cache-Control: max-age=1800</code>) per protegir-se de pol·ling agressiu</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📋 Per què aquesta solució</div>
+      <ul class="cl-list">
+        <li><strong>Problema</strong>: els formadors són externs i no tenen accés a l'app per fer OAuth amb Google/Microsoft</li>
+        <li><strong>Antiguament</strong>: havien de descarregar manualment un fitxer .ics i importar-lo al seu calendari per cada reserva. Friction alt.</li>
+        <li><strong>Ara</strong>:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li><strong>Camí ràpid (zero clics extra)</strong>: invitació nativa al correu → "Sí" → event al calendari</li>
+            <li><strong>Camí permanent (1 clic una vegada)</strong>: subscripció webcal → totes les futures reserves arriben soles</li>
+          </ul>
+        </li>
+        <li>Combinats: experiència gairebé idèntica a una integració OAuth, però sense necessitat que el formador tingui compte a la nostra app</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v34 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v34 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v34 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Sincronització automàtica al calendari quan el formador accepta</div>
