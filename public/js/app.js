@@ -1292,9 +1292,24 @@ function renderResTable(list,stLabel,stDot,agentColor){
             <button class="btn-icon" onclick="openEmailModal('${r.id}')" title="Email comercial" style="background:#E6F1FB;border-color:#85B7EB;color:#0C447C">
               <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><rect x=".5" y=".5" width="10" height="8" rx="1" stroke="currentColor" stroke-width=".8" fill="none"/><path d=".5 2l5 3.5 5-3.5" stroke="currentColor" stroke-width=".8"/></svg>
             </button>
-            <button class="btn-icon" onclick="openEmailFormadorFromRes('${r.id}')" title="Email formador" style="background:#E1F5EE;border-color:#5DCAA5;color:#085041">
-              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="3.5" r="2.5" stroke="currentColor" stroke-width=".8" fill="none"/><path d="M1 10c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke="currentColor" stroke-width=".8" fill="none"/></svg>
-            </button>
+            ${(()=>{
+              // Estat visual dinàmic segons la resposta del formador:
+              //   · null/undefined sense email enviat = neutre gris
+              //   · null amb email enviat = pendent (groc/ambre)
+              //   · true = acceptat (verd amb ✓)
+              //   · false = declinat (vermell amb ✕)
+              const sent=!!r.emailFormadorEnviat;
+              const accepted=r.formadorAccepted;
+              let bg='#F4F4F5',border='#D4D4D8',fg='#52525B',badge='',tip='Email formador';
+              if(accepted===true){bg='#DCFCE7';border='#22C55E';fg='#15803D';badge='✓';tip='Formador ha ACCEPTAT';}
+              else if(accepted===false){bg='#FEE2E2';border='#EF4444';fg='#991B1B';badge='✕';tip='Formador ha DECLINAT';}
+              else if(sent){bg='#FEF3C7';border='#F59E0B';fg='#92400E';tip='Email enviat · pendent de resposta';}
+              const badgeHtml=badge?`<span style="position:absolute;top:-4px;right:-4px;background:${accepted===true?'#16A34A':'#DC2626'};color:#fff;width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,0.15)">${badge}</span>`:'';
+              return `<button class="btn-icon" onclick="openEmailFormadorFromRes('${r.id}')" title="${tip}" style="background:${bg};border-color:${border};color:${fg};position:relative">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="3.5" r="2.5" stroke="currentColor" stroke-width=".8" fill="none"/><path d="M1 10c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke="currentColor" stroke-width=".8" fill="none"/></svg>
+                ${badgeHtml}
+              </button>`;
+            })()}
             <a href="https://wa.me/?text=${waMsg}" target="_blank" class="btn-icon" title="WhatsApp formador" style="background:#dcfce7;border-color:#86efac;color:#16a34a;text-decoration:none">
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width=".8"/><path d="M3 7c.4-.8 1.2-2 2.5-2s1.8.8 1.8 1.3-1 .8-1.3.3-.7-1.3-.7-1.3" stroke="currentColor" stroke-width=".6" fill="none"/></svg>
             </a>

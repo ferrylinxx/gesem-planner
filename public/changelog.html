@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v35</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v36</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,49 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v35 · actual</div>
+    <div class="cl-current">v36 · actual</div>
+  </div>
+
+  <!-- ════════════ v36 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v36 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Google Calendar 1-clic + Estat visual a la icona email-formador</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📅 Google Calendar Web · subscripció amb 1 sol clic</div>
+      <ul class="cl-list">
+        <li><strong>Abans</strong>: el botó "Google Calendar Web" enviava a una pàgina de configuració on l'usuari havia de pegar la URL manualment</li>
+        <li><strong>Ara</strong>: usa <code>https://www.google.com/calendar/render?cid=&lt;webcal-url&gt;</code> que <strong>auto-detecta</strong> que és una URL de subscripció i obre el diàleg directament amb la URL pre-omplerta — només cal clicar "Afegir calendari"</li>
+        <li>Bonus: afegit també <strong>"Outlook Web"</strong> al costat, amb <code>outlook.office.com/calendar/addcalendar?url=...</code> per al mateix flux d'1 clic</li>
+        <li>Mantenim el botó "📲 Subscriure (auto-detecta)" amb <code>webcal://</code> per a Apple Calendar i altres clients natius</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 Estat visual a la icona "Email formador" de /gestio</div>
+      <ul class="cl-list">
+        <li>La icona del botó d'email del formador a la pàgina de Reserves ara <strong>canvia de color i mostra un badge segons la resposta</strong>:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>⚪ <strong>Neutre gris</strong> · email encara no enviat</li>
+            <li>🟡 <strong>Ambre</strong> · email enviat, pendent de resposta</li>
+            <li>🟢 <strong>Verd + ✓</strong> petit · formador ha <strong>ACCEPTAT</strong></li>
+            <li>🔴 <strong>Vermell + ✕</strong> petit · formador ha <strong>DECLINAT</strong></li>
+          </ul>
+        </li>
+        <li>El badge ✓/✕ és una <strong>rodona petita</strong> de 13px a la cantonada superior dreta de la icona, amb border blanc i sombra subtil</li>
+        <li>Tooltip dinàmic: "Formador ha ACCEPTAT" / "ha DECLINAT" / "pendent de resposta" segons l'estat</li>
+        <li>Estat llegit de <code>r.formadorAccepted</code> (null/true/false) + <code>r.emailFormadorEnviat</code></li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v35 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v35 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v35 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Calendari per a formadors externs · METHOD:REQUEST + Webcal subscription</div>
