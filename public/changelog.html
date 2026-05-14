@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v45</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v46</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,113 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v45 · actual</div>
+    <div class="cl-current">v46 · actual</div>
+  </div>
+
+  <!-- ════════════ v46 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v46 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Redisseny complet de /admin · Dashboard real-time + tabs + activitat + backups</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📊 Nou dashboard amb KPIs en temps real</div>
+      <ul class="cl-list">
+        <li><strong>Hero amb gradient violeta</strong> i rellotge en directe (HH:MM:SS) que s'actualitza cada segon</li>
+        <li><strong>5 KPI cards</strong> visuals amb iconografia pròpia:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li><strong>Usuaris</strong> · total + online (amb dot verd pulsant)</li>
+            <li><strong>Formadors</strong> · actius al sistema</li>
+            <li><strong>Reserves</strong> · total acumulat + pendents</li>
+            <li><strong>Hores formació</strong> · sumatori del mes actual</li>
+            <li><strong>Ingressos</strong> · facturació estimada del mes</li>
+          </ul>
+        </li>
+        <li><strong>Auto-refresh cada 30s</strong> per mantenir tot sincronitzat sense recarregar</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🗂 Sistema de tabs amb navegació persistent</div>
+      <ul class="cl-list">
+        <li><strong>6 seccions</strong> separades en tabs: Resum · Manteniment · Usuaris · Sistema · Activitat · Backups</li>
+        <li>Navegació via <strong>URL hash</strong> (<code>/admin#usuaris</code>) per poder enllaçar directament a una secció i preservar-la al recarregar</li>
+        <li>Transicions fluïdes entre tabs amb fade-in subtil</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">💚 Health checks visuals del sistema</div>
+      <ul class="cl-list">
+        <li>Grid de <strong>4 indicadors</strong> amb estat verd/ambre/vermell:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li><strong>SMTP</strong> · servidor de correu funcional</li>
+            <li><strong>IA</strong> · connexió amb Anthropic API</li>
+            <li><strong>Google Calendar</strong> · OAuth + sync</li>
+            <li><strong>Manteniment</strong> · estat actual</li>
+          </ul>
+        </li>
+        <li>Cada check inclou <strong>timestamp de l'última verificació</strong> i botó per re-comprovar manualment</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">👥 Gestió d'usuaris millorada</div>
+      <ul class="cl-list">
+        <li><strong>Cerca en directe</strong> per nom o correu</li>
+        <li><strong>Filtre per rol</strong> (Admin / Comercial / Tots)</li>
+        <li><strong>Avatars amb online dot</strong> (verd pulsant si l'usuari està actiu en els últims 3 minuts)</li>
+        <li>Accions directes des de cada fila: editar, canviar rol, eliminar</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📜 Activitat recent</div>
+      <ul class="cl-list">
+        <li>Log d'esdeveniments del sistema amb <strong>icones tipades</strong>:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>🔐 logins · 📅 reserves creades · ✅ acceptades · ❌ declinades · 🏁 finalitzades · 🛠 manteniment</li>
+          </ul>
+        </li>
+        <li>Endpoint <code>GET /api/admin/activity</code> que retorna events ordenats cronològicament</li>
+        <li>Timestamps relatius ("fa 5 min", "fa 2 hores") amb tooltip de data absoluta</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">💾 Gestió de backups</div>
+      <ul class="cl-list">
+        <li>Llistat de <strong>backups disponibles</strong> al directori del servidor (mida + data)</li>
+        <li>Botó <strong>"Fer backup ara"</strong> que executa <code>scripts/backup.js</code> al moment</li>
+        <li>Nous endpoints: <code>GET /api/admin/backups</code> i <code>POST /api/admin/backup-now</code></li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⚡ Quick actions panel</div>
+      <ul class="cl-list">
+        <li>Panel d'accions ràpides amb 4 botons sempre visibles: Backup ara · Refrescar calendaris · Test SMTP · Test IA</li>
+        <li>Cada acció dona feedback visual immediat (spinner + toast resultat)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 Redisseny estètic complet</div>
+      <ul class="cl-list">
+        <li><strong>Paleta violeta</strong> com a color d'accent del panell admin (diferenciat de la resta de l'app que és verd)</li>
+        <li><strong>Glass cards</strong> amb backdrop-filter + bordes subtils</li>
+        <li>Tipografia jeràrquica amb <strong>JetBrains Mono</strong> per nombres i timestamps</li>
+        <li>Microinteractions: hover lift, transitions cubic-bezier, focus rings accessibles</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v45 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v45 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v45</div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Auto-desactivar manteniment + Stepper de fases redissenyat</div>

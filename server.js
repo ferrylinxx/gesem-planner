@@ -261,6 +261,108 @@ app.get('/api/admin/maintenance', (req, res) => {
   res.json(m);
 });
 
+// ── ADMIN · Dashboard stats (KPIs en temps real) ────────────────
+app.get('/api/admin/stats', (req, res) => {
+  try {
+    const reservas = readJSON('reserves.json', []);
+    const formadors = readJSON('formadors.json', []);
+    const agents = readJSON('agents.json', []);
+    const users = auth.listUsers();
+    const online = auth.listOnlineUsers();
+    // Distribució per estat
+    const byEstat = reservas.reduce((acc, r) => {
+      acc[r.estat || 'unknown'] = (acc[r.estat || 'unknown'] || 0) + 1;
+      return acc;
+    }, {});
+    // Hores totals (només confirmada + vf)
+    const horesTotals = reservas
+      .filter(r => r.estat === 'confirmada' || r.estat === 'vf')
+      .reduce((s, r) => s + (parseFloat(r.h) || 0), 0);
+    // Ingressos totals (només confirmada + vf)
+    const ingressos = reservas
+      .filter(r => r.estat === 'confirmada' || r.estat === 'vf')
+      .reduce((s, r) => s + (parseFloat(r.cC) || 0), 0);
+    // Server stats
+    const mem = process.memoryUsage();
+    res.json({
+      reservas: { total: reservas.length, byEstat, hores: Math.round(horesTotals), ingressos: Math.round(ingressos) },
+      formadors: { total: formadors.length, ambIcal: formadors.filter(f => f.icsUrl).length },
+      agents: { total: agents.length, ambEmail: agents.filter(a => a.email).length },
+      users: { total: users.length, admins: users.filter(u => u.role === 'admin').length, online: online.length, onlineEmails: online },
+      server: {
+        uptime: Math.floor(process.uptime()),
+        memUsedMb: Math.round(mem.rss / 1024 / 1024),
+        memHeapMb: Math.round(mem.heapUsed / 1024 / 1024),
+        nodeVer: process.version,
+        platform: process.platform + ' ' + process.arch,
+      },
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── ADMIN · Backups (llista de fitxers a backups/) ──────────────
+app.get('/api/admin/backups', (req, res) => {
+  try {
+    const fs = require('fs');
+    const bkDir = process.env.BACKUP_DIR || path.join(__dirname, 'backups');
+    if (!fs.existsSync(bkDir)) return res.json({ backups: [], dir: bkDir });
+    const list = fs.readdirSync(bkDir)
+      .filter(f => /\.(db|sqlite|tar\.gz|zip)$/i.test(f))
+      .map(f => {
+        const stat = fs.statSync(path.join(bkDir, f));
+        return { name: f, size: stat.size, mtime: stat.mtime.toISOString() };
+      })
+      .sort((a, b) => b.mtime.localeCompare(a.mtime))
+      .slice(0, 20);
+    res.json({ backups: list, dir: bkDir });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Disparar un backup manual (executa scripts/backup.js si existeix)
+app.post('/api/admin/backup-now', (req, res) => {
+  try {
+    const { exec } = require('child_process');
+    exec('node ' + path.join(__dirname, 'scripts', 'backup.js'), (err, stdout, stderr) => {
+      if (err) return res.status(500).json({ ok: false, error: stderr || err.message });
+      res.json({ ok: true, output: stdout });
+    });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ── ADMIN · Activity log (últims events del sistema) ────────────
+// Per ara, derivem activity dels camps existents: reservas creades, respostes
+// formador, manteniment activat, etc. Quan tinguem audit_log real, el llegirem
+// d'allà.
+app.get('/api/admin/activity', (req, res) => {
+  try {
+    const reservas = readJSON('reserves.json', []);
+    const events = [];
+    reservas.forEach(r => {
+      if (r.createdAt) events.push({ type: 'reserva_creada', at: r.createdAt, user: r.comercial || 'sistema', desc: `Reserva ${r.id} · ${r.curs} · ${r.client}` });
+      if (r.formadorRespondedAt) events.push({ type: r.formadorAccepted ? 'formador_accepta' : 'formador_declina', at: r.formadorRespondedAt, user: r.formador || 'formador', desc: `${r.curs} · ${r.client}` });
+      if (r.vfAt) events.push({ type: 'finalitzada', at: r.vfAt, user: 'sistema', desc: `${r.curs} · ${r.client}` });
+    });
+    // Manteniment
+    const m = readJSON('maintenance.json', { active: false });
+    if (m.activatedAt) events.push({ type: 'manteniment_actiu', at: m.activatedAt, user: 'admin', desc: m.message || 'Manteniment activat' });
+    // Usuaris (últim login)
+    auth.listUsers().forEach(u => {
+      if (u.lastLoginAt) events.push({ type: 'login', at: u.lastLoginAt, user: u.email, desc: `Sessió iniciada per ${u.name || u.email.split('@')[0]}` });
+    });
+    // Ordenar més recent primer
+    events.sort((a, b) => b.at.localeCompare(a.at));
+    res.json({ events: events.slice(0, 30) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/admin/maintenance', (req, res) => {
   const { active, message, endsAt } = req.body || {};
   const cur = readJSON('maintenance.json', { active: false });

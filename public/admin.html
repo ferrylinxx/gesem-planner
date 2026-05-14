@@ -5,185 +5,620 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>GESEM Planner · Admin</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<meta name="theme-color" content="#7C3AED"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/css/styles.css"/>
 <script src="/js/teams.js" defer></script>
 <script src="/js/splash.js"></script>
 <style>
-.admin-wrap{max-width:760px;margin:0 auto;padding:32px 24px}
-.admin-hero{display:flex;align-items:center;gap:14px;margin-bottom:28px}
-.admin-hero-icon{
-  width:48px;height:48px;border-radius:12px;
-  background:linear-gradient(135deg,#7C3AED 0%,#A78BFA 100%);
-  display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;
+:root{
+  --admin-violet: #7C3AED;
+  --admin-violet-soft: rgba(124, 58, 237, 0.08);
+  --admin-pink: #EC4899;
+  --admin-blue: #3B82F6;
+  --admin-amber: #F59E0B;
+  --admin-green: #10B981;
+  --admin-red: #EF4444;
 }
-.admin-hero h1{font-size:24px;font-weight:700;letter-spacing:-0.02em}
-.admin-hero p{font-size:13.5px;color:var(--text-muted);margin-top:3px}
 
-.section{
+body{background:#FAFAF7}
+html.dark body{background:#0F172A}
+
+.adm{max-width:1200px;margin:0 auto;padding:24px 24px 80px}
+.adm-top{display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+.adm-back{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--text-muted);text-decoration:none;
+  font-size:13px;font-weight:500;
+  padding:6px 11px;border-radius:8px;
+  transition:all .15s;
+}
+.adm-back:hover{color:var(--text);background:rgba(0,0,0,0.04)}
+html.dark .adm-back:hover{background:rgba(255,255,255,0.06)}
+.adm-top-spacer{flex:1}
+
+/* ───────── HERO ───────── */
+.adm-hero{
+  background:linear-gradient(135deg, #7C3AED 0%, #A78BFA 35%, #C4B5FD 100%);
+  border-radius:20px;
+  padding:28px 32px;
+  margin-bottom:20px;
+  position:relative;overflow:hidden;
+  box-shadow:0 10px 32px rgba(124,58,237,0.25);
+}
+.adm-hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 80% 20%, rgba(236,72,153,0.4), transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(59,130,246,0.3), transparent 50%);
+  pointer-events:none;
+}
+.adm-hero-content{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.adm-hero-text h1{
+  font-size:28px;font-weight:800;color:#fff;
+  letter-spacing:-0.02em;margin-bottom:6px;
+}
+.adm-hero-text p{font-size:14px;color:rgba(255,255,255,0.85);font-weight:500}
+.adm-hero-time{
+  text-align:right;color:#fff;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+}
+.adm-hero-time .clock{font-size:28px;font-weight:600;letter-spacing:-0.01em}
+.adm-hero-time .date{font-size:12px;color:rgba(255,255,255,0.75);font-weight:500;margin-top:2px}
+
+/* ───────── KPI CARDS ───────── */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:12px;
+  margin-bottom:20px;
+}
+.kpi{
   background:var(--bg-card);
   border:1px solid var(--border);
   border-radius:14px;
-  padding:24px;
+  padding:16px 18px;
+  position:relative;overflow:hidden;
+  transition:transform .15s, box-shadow .2s;
+}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.06)}
+.kpi-label{
+  font-size:11px;font-weight:600;
+  color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:6px;
+}
+.kpi-label svg{width:13px;height:13px;opacity:0.7}
+.kpi-value{
+  font-size:28px;font-weight:700;letter-spacing:-0.02em;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:'tnum';
+  display:flex;align-items:baseline;gap:5px;
+}
+.kpi-unit{font-size:13px;font-weight:500;color:var(--text-muted)}
+.kpi-meta{font-size:11.5px;color:var(--text-muted);margin-top:4px;line-height:1.4}
+.kpi-meta b{color:var(--text);font-weight:600}
+.kpi-meta .up{color:#10B981}
+.kpi-meta .down{color:#EF4444}
+/* Variant colors per accentar */
+.kpi.violet{border-left:3px solid #7C3AED}
+.kpi.green{border-left:3px solid #10B981}
+.kpi.blue{border-left:3px solid #3B82F6}
+.kpi.amber{border-left:3px solid #F59E0B}
+.kpi.pink{border-left:3px solid #EC4899}
+
+/* ───────── TABS ───────── */
+.tabs{
+  display:flex;gap:4px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:18px;
+  overflow-x:auto;
+  scrollbar-width:thin;
+}
+.tab{
+  padding:10px 16px;
+  font-size:13px;font-weight:500;
+  color:var(--text-muted);
+  border:none;background:transparent;
+  cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all .15s;
+  font-family:inherit;
+  white-space:nowrap;
+  display:inline-flex;align-items:center;gap:7px;
+}
+.tab:hover{color:var(--text)}
+.tab.act{
+  color:var(--admin-violet);
+  border-bottom-color:var(--admin-violet);
+  font-weight:600;
+}
+.tab svg{width:15px;height:15px}
+.tab .tab-badge{
+  background:rgba(124,58,237,0.12);color:var(--admin-violet);
+  font-size:10px;font-weight:700;
+  padding:1px 7px;border-radius:10px;
+  letter-spacing:0.02em;
+}
+
+/* ───────── PANELS ───────── */
+.panel{display:none;animation:panelIn 0.25s ease-out}
+.panel.act{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:22px;
   margin-bottom:14px;
   box-shadow:var(--shadow-sm);
 }
-.section h2{font-size:16px;font-weight:600;margin-bottom:6px}
-.section .desc{font-size:13px;color:var(--text-muted);margin-bottom:18px;line-height:1.55}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.card-head h2{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-head h2 .ico{
+  width:28px;height:28px;border-radius:8px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:14px;
+}
+.card-head h2 .ico.violet{background:rgba(124,58,237,0.12);color:var(--admin-violet)}
+.card-head h2 .ico.green{background:rgba(16,185,129,0.12);color:var(--admin-green)}
+.card-head h2 .ico.blue{background:rgba(59,130,246,0.12);color:var(--admin-blue)}
+.card-head h2 .ico.amber{background:rgba(245,158,11,0.12);color:var(--admin-amber)}
+.card-head h2 .ico.pink{background:rgba(236,72,153,0.12);color:var(--admin-pink)}
+.card .desc{font-size:12.5px;color:var(--text-muted);margin-bottom:16px;line-height:1.55}
 
+/* ───────── MAINTENANCE TOGGLE ───────── */
 .toggle-row{display:flex;align-items:center;gap:14px;margin-bottom:14px}
 .toggle-row .lbl{flex:1}
-.toggle-row .lbl b{font-size:14px;font-weight:600;display:block;margin-bottom:2px}
-.toggle-row .lbl small{font-size:12px;color:var(--text-muted)}
-
-/* Switch toggle */
+.toggle-row .lbl b{font-size:13.5px;font-weight:600;display:block;margin-bottom:2px}
+.toggle-row .lbl small{font-size:11.5px;color:var(--text-muted)}
 .switch{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0}
 .switch input{opacity:0;width:0;height:0}
 .slider{position:absolute;cursor:pointer;inset:0;background:#D6D3D1;border-radius:26px;transition:.2s}
 .slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15)}
-input:checked+.slider{background:var(--primary)}
+input:checked+.slider{background:linear-gradient(135deg, #F59E0B, #FCD34D)}
 input:checked+.slider::before{transform:translateX(20px)}
 input:disabled+.slider{opacity:0.5;cursor:wait}
 
-textarea{
-  width:100%;padding:10px 12px;
-  border:1px solid var(--border);border-radius:8px;
-  font-family:inherit;font-size:13.5px;
-  resize:vertical;min-height:80px;
-  background:var(--bg-card);color:var(--text);
-  margin-top:8px;
-}
-textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(5,150,105,0.12)}
-
-.status{
+.status-pill{
   display:inline-flex;align-items:center;gap:7px;
   padding:5px 12px;border-radius:999px;
-  font-size:12px;font-weight:600;
+  font-size:11.5px;font-weight:600;
 }
-.status.on{background:#FEF3C7;color:#92400E}
-.status.off{background:var(--primary-soft);color:var(--primary-soft-text)}
-.status::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
+.status-pill.on{background:#FEF3C7;color:#92400E}
+.status-pill.off{background:#DCFCE7;color:#166534}
+.status-pill::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
 
-.warn{
-  background:#FEF3C7;border:1px solid #FCD34D;border-radius:10px;
-  padding:13px 15px;font-size:13px;color:#92400E;line-height:1.55;
-  margin-bottom:14px;
+textarea, input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"], select{
+  width:100%;padding:9px 11px;
+  border:1px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:13px;
+  background:var(--bg-card);color:var(--text);
+  transition:border-color .15s, box-shadow .15s;
+  box-sizing:border-box;
 }
-.warn b{font-weight:600}
+textarea{resize:vertical;min-height:74px;font-size:13px}
+textarea:focus, input:focus, select:focus{outline:none;border-color:var(--admin-violet);box-shadow:0 0 0 3px rgba(124,58,237,0.12)}
+
+.field-label{font-size:11.5px;font-weight:500;color:var(--text-muted);display:block;margin-bottom:5px}
+.field-label .hint{font-weight:400;color:var(--text-muted);opacity:0.7}
 
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12.5px}
-.info-grid .k{color:var(--text-muted)}
-.info-grid .v{color:var(--text);font-weight:500;font-family:ui-monospace,monospace;font-size:11.5px}
-
-.back-link{
-  display:inline-flex;align-items:center;gap:6px;
-  color:var(--text-muted);text-decoration:none;
-  font-size:13px;font-weight:500;
-  margin-bottom:24px;
+.warn{
+  background:linear-gradient(135deg,#FEF3C7,#FDE68A);border:1px solid #FCD34D;border-radius:10px;
+  padding:11px 14px 11px 38px;font-size:12.5px;color:#92400E;line-height:1.5;
+  margin-bottom:12px;position:relative;
 }
-.back-link:hover{color:var(--text)}
+.warn::before{content:'⚠️';position:absolute;left:13px;top:9px;font-size:14px}
+.warn b{font-weight:600}
+
+/* ───────── SYSTEM HEALTH ───────── */
+.health-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px}
+.health-card{
+  background:var(--bg-muted, #F8FAFC);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px 15px;
+  display:flex;align-items:center;gap:11px;
+}
+html.dark .health-card{background:rgba(255,255,255,0.02)}
+.health-icon{
+  width:36px;height:36px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+.health-icon.ok{background:rgba(16,185,129,0.15);color:#10B981}
+.health-icon.warn{background:rgba(245,158,11,0.15);color:#F59E0B}
+.health-icon.err{background:rgba(239,68,68,0.15);color:#EF4444}
+.health-icon.unknown{background:rgba(148,163,184,0.15);color:#94A3B8}
+.health-info{flex:1;min-width:0}
+.health-name{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:2px}
+.health-detail{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',ui-monospace,monospace}
+
+/* ───────── SYS INFO TABLE ───────── */
+.info-table{
+  border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;
+  font-size:12.5px;
+}
+.info-row{
+  display:grid;grid-template-columns:160px 1fr;
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+}
+.info-row:last-child{border-bottom:none}
+html.dark .info-row{background:rgba(255,255,255,0.01)}
+.info-row .k{color:var(--text-muted);font-weight:500}
+.info-row .v{color:var(--text);font-weight:500;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11.5px;word-break:break-all}
+
+/* ───────── USERS LIST ───────── */
+.user-form{
+  background:linear-gradient(135deg, rgba(124,58,237,0.04), rgba(167,139,250,0.02));
+  border:1px solid rgba(124,58,237,0.18);
+  border-radius:10px;
+  padding:14px 16px;
+  margin-bottom:16px;
+}
+.user-form-title{font-size:12.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.user-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+@media (max-width: 600px){.user-form-grid{grid-template-columns:1fr}}
+
+.users-search{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.users-search input{flex:1}
+
+.user-row{
+  display:flex;align-items:center;gap:11px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:6px;background:var(--bg-card);
+  transition:all .15s;
+}
+.user-row:hover{border-color:rgba(124,58,237,0.25);box-shadow:0 2px 8px rgba(124,58,237,0.04)}
+.user-av{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#7C3AED,#A78BFA);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;flex-shrink:0;position:relative;
+  overflow:hidden;
+}
+.user-av img{width:100%;height:100%;object-fit:cover}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.user-mail{font-size:11px;color:var(--text-muted);margin-top:1px}
+.user-actions{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap}
+.user-actions .btn{font-size:11px;padding:5px 9px}
+
+/* Badges petits */
+.badge-sm{display:inline-flex;padding:1px 7px;border-radius:10px;font-size:9.5px;font-weight:700;letter-spacing:0.02em}
+.badge-admin{background:#FEF3C7;color:#92400E}
+.badge-me{background:#ECFDF5;color:#085041}
+.badge-online{background:#DCFCE7;color:#166534;display:inline-flex;align-items:center;gap:4px}
+.badge-online::before{content:'';width:5px;height:5px;border-radius:50%;background:#16A34A;box-shadow:0 0 0 2px rgba(34,197,94,0.3);animation:onPulse 1.5s ease infinite}
+@keyframes onPulse{0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,0.3)}50%{box-shadow:0 0 0 4px rgba(34,197,94,0.05)}}
+
+/* ───────── ACTIVITY LOG ───────── */
+.activity-list{display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto;padding-right:4px}
+.activity-item{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--bg-card);
+  font-size:12.5px;
+}
+.act-ico{
+  width:30px;height:30px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.act-ico.creat{background:rgba(59,130,246,0.12);color:#3B82F6}
+.act-ico.accept{background:rgba(16,185,129,0.12);color:#10B981}
+.act-ico.decline{background:rgba(239,68,68,0.12);color:#EF4444}
+.act-ico.login{background:rgba(124,58,237,0.12);color:#7C3AED}
+.act-ico.vf{background:rgba(168,85,247,0.12);color:#A855F7}
+.act-ico.maint{background:rgba(245,158,11,0.12);color:#F59E0B}
+.act-info{flex:1;min-width:0}
+.act-desc{color:var(--text);font-weight:500}
+.act-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* ───────── BACKUPS ───────── */
+.backup-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--bg-card);
+  margin-bottom:6px;
+}
+.backup-ico{
+  width:34px;height:34px;border-radius:9px;
+  background:rgba(59,130,246,0.12);color:#3B82F6;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+.backup-info{flex:1;min-width:0}
+.backup-name{font-size:12.5px;font-weight:500;font-family:'JetBrains Mono',ui-monospace,monospace}
+.backup-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* ───────── BUTTONS ───────── */
+.btn-primary-violet{
+  background:linear-gradient(135deg, var(--admin-violet), #A78BFA);
+  border:none;color:#fff;font-weight:600;
+  padding:9px 16px;border-radius:9px;
+  font-size:13px;cursor:pointer;font-family:inherit;
+  transition:all .15s;
+}
+.btn-primary-violet:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(124,58,237,0.35)}
+.btn-primary-violet:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+@media (max-width: 720px){
+  .adm{padding:14px 14px 80px}
+  .adm-hero{padding:20px 18px}
+  .adm-hero-text h1{font-size:22px}
+  .adm-hero-time .clock{font-size:22px}
+  .kpi-value{font-size:22px}
+}
 </style>
 </head>
 <body>
-<div class="admin-wrap">
-  <a href="/peticio" class="back-link">← Tornar a l'app</a>
+<div class="adm">
 
-  <div class="admin-hero">
-    <div class="admin-hero-icon">⚙️</div>
-    <div>
-      <h1>Configuració d'administració</h1>
-      <p>Aquesta pàgina està fora de la sidebar normal i no es veu afectada pel manteniment</p>
+  <!-- Top bar -->
+  <div class="adm-top">
+    <a href="/peticio" class="adm-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Tornar a l'app
+    </a>
+    <div class="adm-top-spacer"></div>
+    <a href="/changelog" class="adm-back">📋 Changelog</a>
+    <a href="https://github.com/ferrylinxx/gesem-planner" target="_blank" rel="noopener" class="adm-back">⎘ GitHub</a>
+  </div>
+
+  <!-- Hero -->
+  <div class="adm-hero">
+    <div class="adm-hero-content">
+      <div class="adm-hero-text">
+        <h1>⚙️ Panell d'administració</h1>
+        <p>Estat del sistema, usuaris, manteniment i activitat recent</p>
+      </div>
+      <div class="adm-hero-time">
+        <div class="clock" id="adm-clock">--:--:--</div>
+        <div class="date" id="adm-date">—</div>
+      </div>
     </div>
   </div>
 
-  <!-- Manteniment -->
-  <div class="section">
-    <h2>Mode manteniment</h2>
-    <p class="desc">Quan està activat, tots els usuaris veuen la pàgina <code>/maintenance</code> en lloc de l'app. Aquesta pàgina (<code>/admin</code>) sempre és accessible per poder desactivar-lo.</p>
-
-    <div class="warn" id="maint-warn" style="display:none">
-      <b>⚠️ Atenció:</b> Si actives el manteniment, els usuaris NO podran accedir a l'app. Recorda l'URL d'admin: <code>http://192.168.3.208:3001/admin</code>
-    </div>
-
-    <div class="toggle-row">
-      <div class="lbl">
-        <b>Activar mode manteniment</b>
-        <small id="maint-status-text">Estat actual: comprovant...</small>
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi violet">
+      <div class="kpi-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Usuaris
       </div>
-      <span class="status off" id="maint-status">Off</span>
-      <label class="switch">
-        <input type="checkbox" id="maint-toggle" onchange="toggleMaintenance(this)"/>
-        <span class="slider"></span>
-      </label>
+      <div class="kpi-value" id="kpi-users">—</div>
+      <div class="kpi-meta" id="kpi-users-meta">Carregant...</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+        Formadors
+      </div>
+      <div class="kpi-value" id="kpi-formadors">—</div>
+      <div class="kpi-meta" id="kpi-formadors-meta">—</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Reserves
+      </div>
+      <div class="kpi-value" id="kpi-reservas">—</div>
+      <div class="kpi-meta" id="kpi-reservas-meta">—</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Hores impartides
+      </div>
+      <div class="kpi-value"><span id="kpi-hores">—</span><span class="kpi-unit">h</span></div>
+      <div class="kpi-meta" id="kpi-hores-meta">Confirmades + finalitzades</div>
+    </div>
+    <div class="kpi pink">
+      <div class="kpi-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Ingressos
+      </div>
+      <div class="kpi-value"><span id="kpi-ingressos">—</span><span class="kpi-unit">€</span></div>
+      <div class="kpi-meta" id="kpi-ingressos-meta">Brut · sense IVA</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" role="tablist">
+    <button class="tab act" data-tab="overview" onclick="selectTab('overview')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Resum
+    </button>
+    <button class="tab" data-tab="maintenance" onclick="selectTab('maintenance')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      Manteniment
+      <span id="maint-tab-badge" class="tab-badge" style="display:none">ON</span>
+    </button>
+    <button class="tab" data-tab="users" onclick="selectTab('users')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Usuaris
+      <span class="tab-badge" id="users-count-badge">0</span>
+    </button>
+    <button class="tab" data-tab="system" onclick="selectTab('system')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Sistema
+    </button>
+    <button class="tab" data-tab="activity" onclick="selectTab('activity')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Activitat
+    </button>
+    <button class="tab" data-tab="backups" onclick="selectTab('backups')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Backups
+    </button>
+  </div>
+
+  <!-- ────────── PANEL: OVERVIEW ────────── -->
+  <div class="panel act" id="panel-overview">
+    <div class="card">
+      <div class="card-head"><h2><span class="ico violet">🌡️</span>Salut dels serveis</h2></div>
+      <div class="desc">Estat de les integracions externes. Última comprovació en temps real.</div>
+      <div class="health-grid" id="health-grid">
+        <div class="health-card"><div class="health-icon unknown">⋯</div><div class="health-info"><div class="health-name">SMTP</div><div class="health-detail">Comprovant...</div></div></div>
+        <div class="health-card"><div class="health-icon unknown">⋯</div><div class="health-info"><div class="health-name">IA Groq</div><div class="health-detail">Comprovant...</div></div></div>
+        <div class="health-card"><div class="health-icon unknown">⋯</div><div class="health-info"><div class="health-name">Google OAuth</div><div class="health-detail">Comprovant...</div></div></div>
+        <div class="health-card"><div class="health-icon unknown">⋯</div><div class="health-info"><div class="health-name">Manteniment</div><div class="health-detail">Comprovant...</div></div></div>
+      </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-      <div>
-        <label style="font-size:12.5px;font-weight:500;color:var(--text);display:block;margin-bottom:4px">Hora prevista de tornar a estar operatiu <span style="font-weight:400;color:var(--text-muted)">(opcional · per al countdown)</span></label>
-        <input type="datetime-local" id="maint-endsAt" style="width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);font-family:inherit;font-size:13px;box-sizing:border-box"/>
-        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
-          <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="setEndsRelative(15)">+15 min</button>
-          <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="setEndsRelative(30)">+30 min</button>
-          <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="setEndsRelative(60)">+1 h</button>
-          <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="setEndsRelative(120)">+2 h</button>
-          <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="document.getElementById('maint-endsAt').value='';">✕ Treure</button>
+    <div class="card">
+      <div class="card-head">
+        <h2><span class="ico amber">⚡</span>Accions ràpides</h2>
+      </div>
+      <div class="actions" style="margin-top:0">
+        <button class="btn btn-sm" onclick="runBackupNow()">💾 Backup ara</button>
+        <button class="btn btn-sm" onclick="runRefreshCalendars()">📅 Refrescar calendaris</button>
+        <button class="btn btn-sm" onclick="runTestEmail()">📧 Test SMTP</button>
+        <button class="btn btn-sm" onclick="runTestAi()">🤖 Test IA</button>
+        <button class="btn btn-sm" onclick="window.open('/maintenance','_blank')">👁 Veure /maintenance</button>
+        <button class="btn btn-sm" onclick="loadAll()">🔄 Refrescar dades</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────── PANEL: MAINTENANCE ────────── -->
+  <div class="panel" id="panel-maintenance">
+    <div class="card">
+      <div class="card-head">
+        <h2><span class="ico amber">🛠️</span>Mode manteniment</h2>
+        <span class="status-pill off" id="maint-status">Off</span>
+      </div>
+      <div class="desc">Quan està actiu, tots els usuaris veuen <code>/maintenance</code> en lloc de l'app. <code>/admin</code> sempre és accessible per poder desactivar-lo.</div>
+
+      <div class="warn" id="maint-warn" style="display:none">
+        <b>Atenció:</b> Si actives el manteniment, els usuaris no podran accedir a l'app. Recorda aquesta URL: <code>https://planner.gesem.es/admin</code>
+      </div>
+
+      <div class="toggle-row">
+        <div class="lbl">
+          <b>Activar mode manteniment</b>
+          <small id="maint-status-text">Comprovant estat...</small>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="maint-toggle" onchange="toggleMaintenance(this)"/>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+        <div>
+          <label class="field-label">Hora prevista de tornar <span class="hint">(opcional · per al countdown)</span></label>
+          <input type="datetime-local" id="maint-endsAt"/>
+          <div class="actions" style="margin-top:6px;gap:5px">
+            <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="setEndsRelative(15)">+15 min</button>
+            <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="setEndsRelative(30)">+30 min</button>
+            <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="setEndsRelative(60)">+1 h</button>
+            <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="setEndsRelative(120)">+2 h</button>
+            <button class="btn btn-sm" style="font-size:11px;padding:4px 9px" onclick="document.getElementById('maint-endsAt').value='';">✕ Treure</button>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Missatge personalitzat <span class="hint">(opcional)</span></label>
+          <textarea id="maint-message" placeholder="Ex: Estem actualitzant el sistema. Tornarem operatius aviat. Disculpa les molèsties."></textarea>
         </div>
       </div>
-      <div>
-        <label style="font-size:12.5px;font-weight:500;color:var(--text);display:block;margin-bottom:4px">Missatge personalitzat (opcional)</label>
-        <textarea id="maint-message" placeholder="Ex: Estem actualitzant el sistema. Tornarem operatius aviat. Disculpa les molèsties." style="margin-top:0"></textarea>
+      <div class="actions">
+        <button class="btn-primary-violet" onclick="saveMessage()">💾 Desar configuració</button>
+        <button class="btn btn-sm" onclick="window.open('/maintenance','_blank')">👁 Previsualitzar</button>
+      </div>
+
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:11.5px;color:var(--text-muted)">
+        <span>Activat des de: <b id="info-since" style="color:var(--text)">—</b></span>
       </div>
     </div>
-    <div class="actions">
-      <button class="btn btn-p btn-sm" onclick="saveMessage()">💾 Desar configuració</button>
-      <button class="btn btn-sm" onclick="window.open('/maintenance','_blank')">👁 Previsualitzar pàgina</button>
-    </div>
   </div>
 
-  <!-- Info del sistema -->
-  <div class="section">
-    <h2>Informació del sistema</h2>
-    <p class="desc">Estat actual dels serveis i configuracions externes.</p>
-    <div class="info-grid" id="sys-info">
-      <div class="k">SMTP</div><div class="v" id="info-smtp">—</div>
-      <div class="k">IA (Groq)</div><div class="v" id="info-ai">—</div>
-      <div class="k">Manteniment des de</div><div class="v" id="info-since">—</div>
-      <div class="k">Versió</div><div class="v">v45</div>
-    </div>
-  </div>
+  <!-- ────────── PANEL: USERS ────────── -->
+  <div class="panel" id="panel-users">
+    <div class="card">
+      <div class="card-head"><h2><span class="ico violet">👥</span>Gestió d'usuaris</h2></div>
+      <div class="desc">Persones amb accés a GESEM Planner. Només els administradors poden crear o eliminar usuaris.</div>
 
-  <!-- Gestió d'usuaris -->
-  <div class="section">
-    <h2>Usuaris</h2>
-    <p class="desc">Persones amb accés a GESEM Planner. Només els admins poden crear o eliminar usuaris.</p>
-
-    <div style="background:#fafafa;border:0.5px solid rgba(0,0,0,0.08);border-radius:10px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Crear nou usuari</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <div><label style="font-size:11px;color:#71717A;font-weight:500;display:block;margin-bottom:3px">Email</label><input type="email" id="newuser-email" placeholder="usuari@gesem.es" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;font-size:13px;font-family:inherit"/></div>
-        <div><label style="font-size:11px;color:#71717A;font-weight:500;display:block;margin-bottom:3px">Nom</label><input type="text" id="newuser-name" placeholder="Nom complet" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;font-size:13px;font-family:inherit"/></div>
-        <div><label style="font-size:11px;color:#71717A;font-weight:500;display:block;margin-bottom:3px">Contrasenya</label><input type="text" id="newuser-pwd" placeholder="Min 8 caràcters" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;font-size:13px;font-family:inherit"/></div>
-        <div><label style="font-size:11px;color:#71717A;font-weight:500;display:block;margin-bottom:3px">Rol</label><select id="newuser-role" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;font-size:13px;font-family:inherit"><option value="user">Usuari</option><option value="admin">Administrador</option></select></div>
+      <div class="user-form">
+        <div class="user-form-title">➕ Crear nou usuari</div>
+        <div class="user-form-grid">
+          <div><label class="field-label">Email</label><input type="email" id="newuser-email" placeholder="usuari@gesem.es"/></div>
+          <div><label class="field-label">Nom complet</label><input type="text" id="newuser-name" placeholder="Nom Cognom"/></div>
+          <div><label class="field-label">Contrasenya <span class="hint">(min 8 caràcters)</span></label><input type="text" id="newuser-pwd" placeholder="••••••••"/></div>
+          <div><label class="field-label">Rol</label><select id="newuser-role"><option value="user">Usuari</option><option value="admin">Administrador</option></select></div>
+        </div>
+        <button class="btn-primary-violet" onclick="createNewUser()">Crear usuari</button>
       </div>
-      <button class="btn btn-sm" onclick="createNewUser()">+ Crear usuari</button>
-    </div>
 
-    <div id="users-list" style="display:flex;flex-direction:column;gap:6px"></div>
-  </div>
+      <div class="users-search">
+        <input type="text" id="users-filter" placeholder="🔎 Cercar per nom o email..." oninput="filterUsers()"/>
+        <select id="users-role-filter" onchange="filterUsers()" style="width:auto"><option value="">Tots els rols</option><option value="admin">Només admins</option><option value="user">Només usuaris</option></select>
+      </div>
 
-  <!-- Acccions ràpides -->
-  <div class="section">
-    <h2>Accions ràpides</h2>
-    <p class="desc">Operacions del dia a dia que requereixen pas pel servidor.</p>
-    <div class="actions">
-      <a class="btn btn-sm" href="/changelog">📋 Veure changelog</a>
-      <a class="btn btn-sm" href="/peticio">🏠 Anar a l'app</a>
+      <div id="users-list"></div>
     </div>
   </div>
+
+  <!-- ────────── PANEL: SYSTEM ────────── -->
+  <div class="panel" id="panel-system">
+    <div class="card">
+      <div class="card-head"><h2><span class="ico blue">📊</span>Informació del sistema</h2></div>
+      <div class="info-table" id="sys-info">
+        <div class="info-row"><span class="k">SMTP</span><span class="v" id="info-smtp">—</span></div>
+        <div class="info-row"><span class="k">IA (Groq)</span><span class="v" id="info-ai">—</span></div>
+        <div class="info-row"><span class="k">Google OAuth</span><span class="v" id="info-google">—</span></div>
+        <div class="info-row"><span class="k">Versió</span><span class="v">v46</span></div>
+        <div class="info-row"><span class="k">Uptime servidor</span><span class="v" id="info-uptime">—</span></div>
+        <div class="info-row"><span class="k">Memòria RSS</span><span class="v" id="info-mem">—</span></div>
+        <div class="info-row"><span class="k">Node.js</span><span class="v" id="info-node">—</span></div>
+        <div class="info-row"><span class="k">Plataforma</span><span class="v" id="info-platform">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────── PANEL: ACTIVITY ────────── -->
+  <div class="panel" id="panel-activity">
+    <div class="card">
+      <div class="card-head">
+        <h2><span class="ico pink">📈</span>Activitat recent</h2>
+        <button class="btn btn-sm" onclick="loadActivity()" style="font-size:11px">🔄 Refrescar</button>
+      </div>
+      <div class="desc">Últims 30 events del sistema · reserves, respostes de formadors, logins, etc.</div>
+      <div class="activity-list" id="activity-list">
+        <div style="font-size:12px;color:var(--text-muted);padding:10px">Carregant...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────── PANEL: BACKUPS ────────── -->
+  <div class="panel" id="panel-backups">
+    <div class="card">
+      <div class="card-head">
+        <h2><span class="ico green">💾</span>Backups</h2>
+        <button class="btn-primary-violet" onclick="runBackupNow()" style="font-size:12px;padding:7px 14px">💾 Fer backup ara</button>
+      </div>
+      <div class="desc">Còpies de seguretat de la base de dades · es generen diàriament a les 03:00 + backup manual.</div>
+      <div id="backups-list">
+        <div style="font-size:12px;color:var(--text-muted);padding:10px">Carregant...</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -191,170 +626,253 @@ textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgb
 <script>
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
 
-async function loadStatus(){
-  try{
-    const data=await fetch('/api/admin/maintenance').then(r=>r.json());
-    const t=document.getElementById('maint-toggle');
-    const st=document.getElementById('maint-status');
-    const txt=document.getElementById('maint-status-text');
-    const warn=document.getElementById('maint-warn');
-    const msg=document.getElementById('maint-message');
-    const since=document.getElementById('info-since');
-    t.checked=!!data.active;
-    st.textContent=data.active?'Activat':'Desactivat';
-    st.className='status '+(data.active?'on':'off');
-    txt.textContent=data.active?"L'app està en manteniment ara mateix":"L'app està operativa per a tothom";
-    warn.style.display=data.active?'block':'none';
-    if(data.message)msg.value=data.message;
-    // Carregar endsAt (ISO) al input datetime-local (format YYYY-MM-DDTHH:MM)
-    const endsAtInp=document.getElementById('maint-endsAt');
-    if(data.endsAt){
-      const d=new Date(data.endsAt);
-      // Convertir a hora local format datetime-local
-      const pad=(n)=>String(n).padStart(2,'0');
-      endsAtInp.value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    }else{
-      endsAtInp.value='';
-    }
-    if(data.activatedAt){
-      since.textContent=new Date(data.activatedAt).toLocaleString('ca-ES');
-    }else{
-      since.textContent='—';
-    }
-  }catch(e){
-    toast('Error carregant estat: '+e.message);
+// ════════════════════════════════════════════════════════
+// CLOCK
+// ════════════════════════════════════════════════════════
+function tickClock(){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const clockEl = document.getElementById('adm-clock');
+  const dateEl = document.getElementById('adm-date');
+  if(clockEl) clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  if(dateEl){
+    const opts = {weekday:'long',day:'2-digit',month:'long',year:'numeric'};
+    dateEl.textContent = now.toLocaleDateString('ca-ES',opts);
   }
-  // Status SMTP/AI
-  try{
-    const sm=await fetch('/api/email/status').then(r=>r.json());
-    document.getElementById('info-smtp').textContent=sm.configured?'✓ '+sm.config.user:'✗ no configurat';
-  }catch(e){document.getElementById('info-smtp').textContent='?';}
-  try{
-    const ai=await fetch('/api/ai/status').then(r=>r.json());
-    document.getElementById('info-ai').textContent=ai.configured?'✓ '+ai.model:'✗ no configurat';
-  }catch(e){document.getElementById('info-ai').textContent='?';}
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+// ════════════════════════════════════════════════════════
+// TABS
+// ════════════════════════════════════════════════════════
+function selectTab(name){
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('act', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('act', p.id === 'panel-' + name));
+  // Persistir tab al URL hash per refresh
+  if(history.replaceState) history.replaceState(null, '', '#'+name);
+  // Lazy load
+  if(name === 'activity') loadActivity();
+  if(name === 'backups') loadBackups();
+}
+// Restaurar tab del URL hash
+if(window.location.hash){
+  const name = window.location.hash.replace('#','');
+  if(['overview','maintenance','users','system','activity','backups'].includes(name)){
+    setTimeout(() => selectTab(name), 0);
+  }
 }
 
-// Helper: el datetime-local del navegador retorna "YYYY-MM-DDTHH:MM" en HORA LOCAL
-// Convertim a ISO 8601 (UTC) per enviar al servidor
+// ════════════════════════════════════════════════════════
+// KPIs + HEALTH
+// ════════════════════════════════════════════════════════
+async function loadStats(){
+  try{
+    const r = await fetch('/api/admin/stats', {credentials:'include'});
+    const d = await r.json();
+    document.getElementById('kpi-users').textContent = d.users.total;
+    document.getElementById('kpi-users-meta').innerHTML = `<b>${d.users.online}</b> en línia · <b>${d.users.admins}</b> admins`;
+    document.getElementById('kpi-formadors').textContent = d.formadors.total;
+    document.getElementById('kpi-formadors-meta').innerHTML = `<b>${d.formadors.ambIcal}</b> amb calendari`;
+    document.getElementById('kpi-reservas').textContent = d.reservas.total;
+    const conf = d.reservas.byEstat.confirmada || 0;
+    const pen = (d.reservas.byEstat['pendent-cli']||0) + (d.reservas.byEstat['pendent-form']||0);
+    document.getElementById('kpi-reservas-meta').innerHTML = `<b>${conf}</b> confirmades · <b>${pen}</b> pendents`;
+    document.getElementById('kpi-hores').textContent = d.reservas.hores.toLocaleString('ca-ES');
+    document.getElementById('kpi-ingressos').textContent = d.reservas.ingressos.toLocaleString('ca-ES');
+    // Update badge
+    document.getElementById('users-count-badge').textContent = d.users.total;
+    // System info
+    const fmt = s => {
+      const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+      if(h>24) return Math.floor(h/24)+'d '+h%24+'h';
+      if(h>0) return h+'h '+m+'m';
+      if(m>0) return m+'m '+sec+'s';
+      return sec+'s';
+    };
+    const setVal = (id,v) => {const e=document.getElementById(id); if(e) e.textContent=v;};
+    setVal('info-uptime', fmt(d.server.uptime));
+    setVal('info-mem', d.server.memUsedMb + ' MB (heap: ' + d.server.memHeapMb + ' MB)');
+    setVal('info-node', d.server.nodeVer);
+    setVal('info-platform', d.server.platform);
+  }catch(e){
+    console.warn('stats error:', e);
+  }
+}
+
+async function loadHealth(){
+  const cards = document.querySelectorAll('#health-grid .health-card');
+  // SMTP
+  try{
+    const sm = await fetch('/api/email/status').then(r=>r.json());
+    setHealth(cards[0], sm.configured ? 'ok' : 'err', 'SMTP', sm.configured ? '✓ '+sm.config.user : '✗ no configurat');
+    document.getElementById('info-smtp').textContent = sm.configured ? '✓ '+sm.config.user : '✗ no configurat';
+  }catch(e){setHealth(cards[0], 'err', 'SMTP', 'error')}
+  // AI
+  try{
+    const ai = await fetch('/api/ai/status').then(r=>r.json());
+    setHealth(cards[1], ai.configured ? 'ok' : 'warn', 'IA Groq', ai.configured ? '✓ '+ai.model : '⚠ no configurat');
+    document.getElementById('info-ai').textContent = ai.configured ? '✓ '+ai.model : '⚠ no configurat';
+  }catch(e){setHealth(cards[1], 'err', 'IA Groq', 'error')}
+  // Google
+  try{
+    const g = await fetch('/api/google/status').then(r=>r.json());
+    setHealth(cards[2], g.configured ? 'ok' : 'warn', 'Google OAuth', g.configured ? '✓ configurat' : '⚠ no configurat');
+    document.getElementById('info-google').textContent = g.configured ? '✓ configurat ('+(g.redirectUri||'')+')' : '⚠ no configurat';
+  }catch(e){setHealth(cards[2], 'err', 'Google OAuth', 'error')}
+  // Maintenance
+  try{
+    const m = await fetch('/api/admin/maintenance').then(r=>r.json());
+    setHealth(cards[3], m.active ? 'warn' : 'ok', 'Manteniment', m.active ? '⚠ ACTIU' : '✓ Operatiu');
+  }catch(e){setHealth(cards[3], 'err', 'Manteniment', 'error')}
+}
+function setHealth(card, status, name, detail){
+  if(!card) return;
+  const ico = card.querySelector('.health-icon');
+  const nameEl = card.querySelector('.health-name');
+  const detailEl = card.querySelector('.health-detail');
+  if(ico){
+    ico.className = 'health-icon ' + status;
+    ico.textContent = status==='ok'?'✓':status==='warn'?'⚠':status==='err'?'✕':'⋯';
+  }
+  if(nameEl) nameEl.textContent = name;
+  if(detailEl) detailEl.textContent = detail;
+}
+
+// ════════════════════════════════════════════════════════
+// MAINTENANCE
+// ════════════════════════════════════════════════════════
+async function loadMaintStatus(){
+  try{
+    const data = await fetch('/api/admin/maintenance').then(r=>r.json());
+    const t = document.getElementById('maint-toggle');
+    const st = document.getElementById('maint-status');
+    const txt = document.getElementById('maint-status-text');
+    const warn = document.getElementById('maint-warn');
+    const msg = document.getElementById('maint-message');
+    const since = document.getElementById('info-since');
+    const tabBadge = document.getElementById('maint-tab-badge');
+    t.checked = !!data.active;
+    st.textContent = data.active ? 'Activat' : 'Desactivat';
+    st.className = 'status-pill ' + (data.active ? 'on' : 'off');
+    txt.textContent = data.active ? "L'app està en manteniment" : "Operativa per a tothom";
+    warn.style.display = data.active ? 'block' : 'none';
+    if(tabBadge) tabBadge.style.display = data.active ? 'inline-flex' : 'none';
+    if(data.message) msg.value = data.message;
+    const endsAtInp = document.getElementById('maint-endsAt');
+    if(data.endsAt){
+      const d=new Date(data.endsAt);
+      const pad=(n)=>String(n).padStart(2,'0');
+      endsAtInp.value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }else{endsAtInp.value='';}
+    since.textContent = data.activatedAt ? new Date(data.activatedAt).toLocaleString('ca-ES') : '—';
+  }catch(e){toast('Error: '+e.message);}
+}
+
 function _localDatetimeToIso(localVal){
   if(!localVal)return null;
-  const dt=new Date(localVal); // el navegador ja l'interpreta com a hora local
+  const dt=new Date(localVal);
   if(isNaN(dt.getTime()))return null;
   return dt.toISOString();
 }
-
-// Botons ràpids · setEndsRelative(15) posa l'input a "ara + N min"
 function setEndsRelative(minutes){
   const d=new Date(Date.now()+minutes*60000);
   const pad=(n)=>String(n).padStart(2,'0');
   document.getElementById('maint-endsAt').value=
     `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-
 async function toggleMaintenance(cb){
   cb.disabled=true;
   const message=document.getElementById('maint-message').value;
   const endsAt=_localDatetimeToIso(document.getElementById('maint-endsAt').value);
   try{
-    const res=await fetch('/api/admin/maintenance',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({active:cb.checked,message,endsAt})
-    });
+    const res=await fetch('/api/admin/maintenance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:cb.checked,message,endsAt})});
     if(!res.ok)throw new Error('Error de servidor');
     toast(cb.checked?'⚠️ Manteniment ACTIVAT':'✓ Manteniment desactivat');
-    await loadStatus();
-  }catch(e){
-    toast('Error: '+e.message);cb.checked=!cb.checked;
-  }finally{
-    cb.disabled=false;
-  }
+    await loadMaintStatus();await loadHealth();
+  }catch(e){toast('Error: '+e.message);cb.checked=!cb.checked;}
+  finally{cb.disabled=false;}
 }
-
 async function saveMessage(){
   const message=document.getElementById('maint-message').value;
   const endsAt=_localDatetimeToIso(document.getElementById('maint-endsAt').value);
   const cb=document.getElementById('maint-toggle');
   try{
-    await fetch('/api/admin/maintenance',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({active:cb.checked,message,endsAt})
-    });
+    await fetch('/api/admin/maintenance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:cb.checked,message,endsAt})});
     toast('✓ Configuració desada');
   }catch(e){toast('Error: '+e.message);}
 }
 
-// ── GESTIÓ D'USUARIS ─────────────────────────────────────
+// ════════════════════════════════════════════════════════
+// USERS
+// ════════════════════════════════════════════════════════
+let _allUsers = [];
 let _onlineEmails = new Set();
+let _meEmail = '';
 async function loadUsers(){
   try{
     const r=await fetch('/api/auth/users',{credentials:'include'});
     if(!r.ok){
       const me=await fetch('/api/auth/me',{credentials:'include'}).then(x=>x.json()).catch(()=>({}));
-      document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:#71717A;padding:10px">'+(me.user?.role!=='admin'?'Cal rol admin per gestionar usuaris':'Error carregant usuaris')+'</div>';
+      document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:var(--text-muted);padding:10px">'+(me.user?.role!=='admin'?'Cal rol admin per gestionar usuaris':'Error carregant')+'</div>';
       return;
     }
     const data=await r.json();
     const meR=await fetch('/api/auth/me',{credentials:'include'}).then(x=>x.json()).catch(()=>({}));
-    const me=meR.user?.email||'';
-    // Llista d'usuaris en línia (last activity < 3 min)
+    _meEmail=meR.user?.email||'';
     try{
       const onR=await fetch('/api/auth/online',{credentials:'include'}).then(x=>x.json());
       _onlineEmails=new Set((onR.online||[]).map(e=>String(e).toLowerCase()));
     }catch(e){_onlineEmails=new Set();}
-    renderUsers(data.users||[],me);
-  }catch(e){
-    document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:#DC2626;padding:10px">Error: '+e.message+'</div>';
-  }
+    _allUsers = data.users || [];
+    filterUsers();
+  }catch(e){document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:#DC2626;padding:10px">Error: '+e.message+'</div>';}
 }
 
-// Refresca l'estat online cada 30s sense recarregar tota la llista
-setInterval(async()=>{
-  if(document.hidden)return;
-  try{
-    const onR=await fetch('/api/auth/online',{credentials:'include'}).then(x=>x.json());
-    const newSet=new Set((onR.online||[]).map(e=>String(e).toLowerCase()));
-    // Actualitza només els punts verds en lloc de re-renderitzar tot
-    document.querySelectorAll('[data-user-email]').forEach(el=>{
-      const email=el.dataset.userEmail.toLowerCase();
-      const dot=el.querySelector('.online-dot');
-      const isOn=newSet.has(email);
-      if(isOn && !dot){
-        const d=document.createElement('span');
-        d.className='online-dot medium';
-        d.title='En línia';
-        el.appendChild(d);
-      }else if(!isOn && dot){
-        dot.remove();
-      }
-    });
-    _onlineEmails=newSet;
-  }catch(e){}
-},30000);
+function filterUsers(){
+  const q = (document.getElementById('users-filter')?.value || '').toLowerCase().trim();
+  const role = document.getElementById('users-role-filter')?.value || '';
+  let list = _allUsers;
+  if(q) list = list.filter(u => (u.name||'').toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  if(role) list = list.filter(u => u.role === role);
+  renderUsers(list);
+}
 
-function renderUsers(users, meEmail){
-  if(!users.length){
-    document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:#71717A;padding:10px;text-align:center">Cap usuari registrat</div>';
-    return;
-  }
+function renderUsers(users){
+  if(!users.length){document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:var(--text-muted);padding:14px;text-align:center">Cap usuari trobat amb aquests filtres</div>';return;}
   document.getElementById('users-list').innerHTML=users.map(u=>{
-    const isMe=u.email.toLowerCase()===meEmail.toLowerCase();
+    const isMe=u.email.toLowerCase()===_meEmail.toLowerCase();
     const last=u.lastLoginAt?new Date(u.lastLoginAt).toLocaleString('ca-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'mai';
     const initials=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
     const isOnline=isMe||_onlineEmails.has(u.email.toLowerCase());
-    const onlineDot=isOnline?'<span class="online-dot medium" title="En línia"></span>':'';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border:0.5px solid rgba(0,0,0,0.08);border-radius:10px;background:#fff">
-      <div data-user-email="${u.email}" style="width:32px;height:32px;border-radius:50%;background:#059669;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;position:relative">${initials}${onlineDot}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px">${u.name||u.email.split('@')[0]} ${u.role==='admin'?'<span style="background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600">ADMIN</span>':''} ${isMe?'<span style="background:#ECFDF5;color:#085041;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600">JO</span>':''} ${isOnline&&!isMe?'<span style="background:#DCFCE7;color:#166534;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600">EN LÍNIA</span>':''}</div>
-        <div style="font-size:11px;color:#71717A">${u.email} · últim accés: ${last}</div>
+    const avContent = u.img && !String(u.img).includes('data:image/svg')
+      ? '<img src="'+u.img+'" alt="'+u.email+'"/>'
+      : initials;
+    return `<div class="user-row">
+      <div class="user-av" data-user-email="${u.email}">${avContent}${isOnline?'<span class="online-dot medium" title="En línia"></span>':''}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name||u.email.split('@')[0]} ${u.role==='admin'?'<span class="badge-sm badge-admin">ADMIN</span>':''} ${isMe?'<span class="badge-sm badge-me">JO</span>':''} ${isOnline&&!isMe?'<span class="badge-sm badge-online">EN LÍNIA</span>':''}</div>
+        <div class="user-mail">${u.email} · últim accés: ${last}</div>
       </div>
-      <button class="btn btn-sm" style="font-size:11px" onclick="resetUserPwd('${u.email}')">🔑 Reset pwd</button>
-      ${u.role!=='admin'?`<button class="btn btn-sm" style="font-size:11px;background:#FEF3C7;border-color:#FCD34D;color:#92400E" onclick="promoteUser('${u.email}')">↑ Admin</button>`:`<button class="btn btn-sm" style="font-size:11px" onclick="demoteUser('${u.email}')">↓ Usuari</button>`}
-      ${isMe?'':`<button class="btn btn-sm" style="font-size:11px;background:#FEE2E2;border-color:#FCA5A5;color:#991B1B" onclick="deleteUser('${u.email}')">🗑</button>`}
+      <div class="user-actions">
+        <button class="btn btn-sm" onclick="resetUserPwd('${u.email}')" title="Reset password">🔑</button>
+        ${u.role!=='admin'?`<button class="btn btn-sm" onclick="promoteUser('${u.email}')" title="Promocionar a admin">↑</button>`:`<button class="btn btn-sm" onclick="demoteUser('${u.email}')" title="Treure permís admin">↓</button>`}
+        ${isMe?'':`<button class="btn btn-sm" style="background:#FEE2E2;border-color:#FCA5A5;color:#991B1B" onclick="deleteUser('${u.email}')" title="Eliminar">🗑</button>`}
+      </div>
     </div>`;
   }).join('');
 }
+
+// Refresca online status cada 30s sense recarregar tots
+setInterval(async () => {
+  if(document.hidden) return;
+  try{
+    const onR=await fetch('/api/auth/online',{credentials:'include'}).then(x=>x.json());
+    _onlineEmails = new Set((onR.online||[]).map(e => String(e).toLowerCase()));
+    // També refresca el KPI d'usuaris online
+    loadStats();
+  }catch(e){}
+}, 30000);
 
 async function createNewUser(){
   const email=document.getElementById('newuser-email').value.trim();
@@ -372,10 +890,10 @@ async function createNewUser(){
     document.getElementById('newuser-pwd').value='';
     document.getElementById('newuser-role').value='user';
     toast('✓ Usuari creat');
-    loadUsers();
+    await loadUsers();
+    await loadStats();
   }catch(e){toast('Error: '+e.message);}
 }
-
 async function resetUserPwd(email){
   const pwd=prompt('Nova contrasenya per a '+email+' (min 8 caràcters):');
   if(!pwd)return;
@@ -386,29 +904,145 @@ async function resetUserPwd(email){
     if(d.ok)toast('✓ Contrasenya actualitzada');else toast(d.error||'Error');
   }catch(e){toast('Error: '+e.message);}
 }
-
 async function promoteUser(email){
   if(!confirm('Promocionar '+email+' a administrador?'))return;
   const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'admin'})});
   const d=await r.json();
   if(d.ok){toast('✓ Promogut a admin');loadUsers();}else toast(d.error||'Error');
 }
-
 async function demoteUser(email){
   if(!confirm('Treure permisos d\'administrador a '+email+'?'))return;
   const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'user'})});
   const d=await r.json();
   if(d.ok){toast('✓ Convertit a usuari');loadUsers();}else toast(d.error||'Error');
 }
-
 async function deleteUser(email){
   if(!confirm('Eliminar usuari '+email+'? Aquesta acció no es pot desfer.'))return;
   const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'DELETE',credentials:'include'});
   const d=await r.json();
-  if(d.ok){toast('✓ Usuari eliminat');loadUsers();}else toast(d.error||'Error');
+  if(d.ok){toast('✓ Usuari eliminat');loadUsers();loadStats();}else toast(d.error||'Error');
 }
 
-document.addEventListener('DOMContentLoaded',()=>{loadStatus();loadUsers();});
+// ════════════════════════════════════════════════════════
+// ACTIVITY
+// ════════════════════════════════════════════════════════
+async function loadActivity(){
+  try{
+    const r = await fetch('/api/admin/activity', {credentials:'include'});
+    const d = await r.json();
+    const list = document.getElementById('activity-list');
+    if(!d.events || !d.events.length){
+      list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:10px;text-align:center">Cap activitat recent</div>';
+      return;
+    }
+    const fmtTime = iso => {
+      const d=new Date(iso);
+      const diff=Date.now()-d.getTime();
+      if(diff<60000)return 'fa uns segons';
+      if(diff<3600000)return 'fa '+Math.floor(diff/60000)+' min';
+      if(diff<86400000)return 'fa '+Math.floor(diff/3600000)+' h';
+      return d.toLocaleString('ca-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    };
+    const types = {
+      reserva_creada: {ico:'📋', cls:'creat', label:'Nova reserva'},
+      formador_accepta: {ico:'✓', cls:'accept', label:'Formador accepta'},
+      formador_declina: {ico:'✕', cls:'decline', label:'Formador declina'},
+      login: {ico:'🔑', cls:'login', label:'Sessió iniciada'},
+      finalitzada: {ico:'🏁', cls:'vf', label:'Curs finalitzat'},
+      manteniment_actiu: {ico:'🛠️', cls:'maint', label:'Manteniment'},
+    };
+    list.innerHTML = d.events.map(e => {
+      const t = types[e.type] || {ico:'•', cls:'creat', label:e.type};
+      return `<div class="activity-item">
+        <div class="act-ico ${t.cls}">${t.ico}</div>
+        <div class="act-info">
+          <div class="act-desc"><b>${t.label}</b> · ${e.desc||''}</div>
+          <div class="act-meta">${fmtTime(e.at)} · ${e.user||'sistema'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    document.getElementById('activity-list').innerHTML = '<div style="color:#DC2626;font-size:12px;padding:10px">Error: '+e.message+'</div>';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// BACKUPS
+// ════════════════════════════════════════════════════════
+async function loadBackups(){
+  try{
+    const r = await fetch('/api/admin/backups', {credentials:'include'});
+    const d = await r.json();
+    const list = document.getElementById('backups-list');
+    if(!d.backups || !d.backups.length){
+      list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:10px;text-align:center">Cap backup encara · prem "Fer backup ara" per crear el primer</div>';
+      return;
+    }
+    const fmtBytes = b => b>1024*1024 ? (b/1024/1024).toFixed(1)+' MB' : (b/1024).toFixed(0)+' KB';
+    list.innerHTML = d.backups.map(b => `<div class="backup-row">
+      <div class="backup-ico">💾</div>
+      <div class="backup-info">
+        <div class="backup-name">${b.name}</div>
+        <div class="backup-meta">${new Date(b.mtime).toLocaleString('ca-ES')} · ${fmtBytes(b.size)}</div>
+      </div>
+    </div>`).join('') + `<div style="font-size:11px;color:var(--text-muted);padding:8px 4px;margin-top:4px">Directori: <code>${d.dir}</code></div>`;
+  }catch(e){
+    document.getElementById('backups-list').innerHTML = '<div style="color:#DC2626;font-size:12px;padding:10px">Error: '+e.message+'</div>';
+  }
+}
+async function runBackupNow(){
+  toast('💾 Iniciant backup...');
+  try{
+    const r = await fetch('/api/admin/backup-now', {method:'POST', credentials:'include'});
+    const d = await r.json();
+    if(d.ok){toast('✓ Backup completat');await loadBackups();}
+    else toast('Error: '+(d.error||'desconegut'));
+  }catch(e){toast('Error: '+e.message);}
+}
+
+// ════════════════════════════════════════════════════════
+// QUICK ACTIONS
+// ════════════════════════════════════════════════════════
+async function runRefreshCalendars(){
+  toast('📅 Refrescant calendaris...');
+  try{
+    const r = await fetch('/api/admin/refresh-calendars', {method:'POST', credentials:'include'});
+    if(r.ok) toast('✓ Calendaris refrescats'); else toast('Error');
+  }catch(e){toast('Error: '+e.message);}
+}
+async function runTestEmail(){
+  const to = prompt('Email destinatari per al test:', '');
+  if(!to) return;
+  toast('📧 Enviant test...');
+  try{
+    const r = await fetch('/api/email/test', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({to})});
+    const d = await r.json();
+    if(d.ok) toast('✓ Email enviat a '+to); else toast('Error: '+d.error);
+  }catch(e){toast('Error: '+e.message);}
+}
+async function runTestAi(){
+  toast('🤖 Provant IA...');
+  try{
+    const r = await fetch('/api/ai/test', {method:'POST', credentials:'include'});
+    const d = await r.json();
+    if(d.ok) toast('✓ IA responent correctament'); else toast('Error: '+(d.error||'desconegut'));
+  }catch(e){toast('Error: '+e.message);}
+}
+
+// ════════════════════════════════════════════════════════
+// LOAD ALL
+// ════════════════════════════════════════════════════════
+async function loadAll(){
+  await Promise.all([
+    loadStats(),
+    loadHealth(),
+    loadMaintStatus(),
+    loadUsers(),
+  ]);
+}
+document.addEventListener('DOMContentLoaded', loadAll);
+// Refresca KPIs cada 30s
+setInterval(() => { if(!document.hidden) loadStats(); }, 30000);
 </script>
 </body>
 </html>
