@@ -655,7 +655,12 @@ app.get('/r/:token/ics', (req, res) => {
 async function notifyAgentOfResponse(reserva, accepted) {
   if (!mailer.isConfigured()) return;
   if (!reserva.comercial) return;
-  const agentEmail = (reserva.comercial || '').toLowerCase().replace(/\s+/g, '.') + '@gesem.es';
+  // Busca el correu real de l'agent comercial; si no n'hi ha, fallback a l'autogenerat
+  const agents = readJSON('agents.json', []);
+  const agent = agents.find(a => (a.nom || '').toLowerCase() === (reserva.comercial || '').toLowerCase());
+  const agentEmail = (agent && agent.email)
+    ? agent.email
+    : ((reserva.comercial || '').toLowerCase().replace(/\s+/g, '.') + '@gesem.es');
   const subject = accepted
     ? `✓ ${reserva.formador} ha ACCEPTAT · ${reserva.curs} · ${reserva.client}`
     : `✕ ${reserva.formador} ha DECLINAT · ${reserva.curs} · ${reserva.client}`;
@@ -700,11 +705,12 @@ app.get('/api/agents', (req, res) => {
   res.json(readJSON('agents.json', []));
 });
 app.post('/api/agents', (req, res) => {
-  const { nom, color, img } = req.body;
+  const { nom, email, color, img } = req.body;
   if (!nom) return res.status(400).json({ error: 'nom requerit' });
   const agents = readJSON('agents.json', []);
   const idx = agents.findIndex(a => a.nom === nom);
   const next = { nom, color };
+  if (email !== undefined) next.email = (email || '').trim().toLowerCase();
   if (img !== undefined) next.img = img;
   if (idx >= 0) agents[idx] = { ...agents[idx], ...next };
   else agents.push(next);
@@ -720,7 +726,7 @@ app.delete('/api/agents/:nom', (req, res) => {
 // PUT: editar (suporta canvi de nom) — la URL porta el nom antic
 app.put('/api/agents/:nom', (req, res) => {
   const oldNom = decodeURIComponent(req.params.nom);
-  const { nom, color, img } = req.body || {};
+  const { nom, email, color, img } = req.body || {};
   if (!nom) return res.status(400).json({ error: 'nom requerit' });
   const agents = readJSON('agents.json', []);
   const idx = agents.findIndex(a => a.nom === oldNom);
@@ -730,6 +736,10 @@ app.put('/api/agents/:nom', (req, res) => {
     return res.status(409).json({ error: 'ja existeix un agent amb aquest nom' });
   }
   const updated = { nom, color: color || agents[idx].color };
+  // email: undefined = mantenir; '' = treure; string = nou
+  if (email === undefined) updated.email = agents[idx].email;
+  else if (email === '' || email === null) { /* es treu */ }
+  else updated.email = String(email).trim().toLowerCase();
   // img: undefined = mantenir l'antic; null = treure; string = nou
   if (img === undefined) updated.img = agents[idx].img;
   else if (img === null) { /* no inclou img → es treu */ }

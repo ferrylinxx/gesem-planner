@@ -373,6 +373,15 @@ function renderAgentSelector(){
 }
 function selectAgent(nom){selectedAgent=nom;renderAgentSelector();}
 
+// Retorna el correu real de l'agent comercial, amb fallback a un autogenerat
+// si l'agent no té email guardat (per a registres antics o agents creats abans del v33)
+function getAgentEmail(nom){
+  if(!nom)return '';
+  const a=AGENTS.find(x=>x.nom===nom);
+  if(a && a.email)return a.email;
+  return (nom||'').toLowerCase().replace(/\s+/g,'.')+'@gesem.es';
+}
+
 // ── EDIT AGENT (doble clic al chip) ────────────────────────────
 function editAgent(nom){
   const a=AGENTS.find(x=>x.nom===nom);
@@ -400,6 +409,8 @@ function editAgent(nom){
       <style>#agent-edit-av-wrap:hover #agent-edit-av-overlay{opacity:1}</style>
       <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Nom complet</label>
       <input type="text" id="agent-edit-nom" style="width:100%;padding:7px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box" onkeydown="if(event.key==='Enter')saveAgentEdit();if(event.key==='Escape')closeAgentEdit()"/>
+      <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin:10px 0 3px">Correu electrònic <span style="font-weight:400;color:#9CA3AF">(per a confirmacions)</span></label>
+      <input type="email" id="agent-edit-email" placeholder="correu@gesem.es" style="width:100%;padding:7px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box" onkeydown="if(event.key==='Enter')saveAgentEdit();if(event.key==='Escape')closeAgentEdit()"/>
       <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin:10px 0 5px">Color de l'avatar <span style="font-weight:400;color:#9CA3AF">(visible si no hi ha foto)</span></label>
       <div id="agent-edit-colors" style="display:flex;flex-wrap:wrap;gap:6px"></div>
       <div id="agent-edit-warn" style="display:none;margin-top:10px;padding:7px 10px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:7px;font-size:11px;color:#92400E"></div>
@@ -419,6 +430,7 @@ function editAgent(nom){
   bg.dataset.pendingImg=''; // si l'usuari puja una foto nova, es desa aquí
   bg.dataset.imgRemoved='';
   document.getElementById('agent-edit-nom').value=a.nom;
+  document.getElementById('agent-edit-email').value=a.email||'';
   document.getElementById('agent-edit-original').textContent='Editant: '+a.nom;
   const av=document.getElementById('agent-edit-av');
   av.style.background=a.color;
@@ -535,7 +547,9 @@ async function saveAgentEdit(){
   const a=AGENTS.find(x=>x.nom===oldNom);
   if(!a){closeAgentEdit();return;}
   const newNom=document.getElementById('agent-edit-nom').value.trim();
+  const newEmail=(document.getElementById('agent-edit-email').value||'').trim().toLowerCase();
   if(!newNom){toast('El nom no pot estar buit');return;}
+  if(newEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){toast('Correu no vàlid');return;}
   const selBtn=document.querySelector('#agent-edit-colors button[style*="2.5px"]');
   const newColor=selBtn?.dataset.color||a.color;
   if(newNom!==oldNom && AGENTS.find(x=>x.nom===newNom)){toast('Ja existeix un agent amb aquest nom');return;}
@@ -548,10 +562,10 @@ async function saveAgentEdit(){
   else finalImg=a.img||null;                   // mantenir l'existent
   // Actualitzar al servidor (PUT amb nom antic com a key)
   try{
-    const r=await fetch('/api/agents/'+encodeURIComponent(oldNom),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:newNom,color:newColor,img:finalImg})});
+    const r=await fetch('/api/agents/'+encodeURIComponent(oldNom),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:newNom,email:newEmail,color:newColor,img:finalImg})});
     if(!r.ok){const d=await r.json().catch(()=>({}));toast('Error: '+(d.error||r.status));return;}
     const result=await r.json();
-    a.nom=newNom;a.color=newColor;a.img=finalImg||null;
+    a.nom=newNom;a.email=newEmail;a.color=newColor;a.img=finalImg||null;
     // Propagació local a reserves (el servidor ja ho ha fet, però mantenim memòria sincronitzada)
     if(newNom!==oldNom){
       (window.RESERVES||[]).forEach(r=>{if(r.comercial===oldNom)r.comercial=newNom;});
@@ -583,7 +597,26 @@ async function deleteAgent(){
   closeAgentEdit();
   toast('✓ Agent eliminat');
 }
-function addAgent(){const inp=document.getElementById('agent-new-input');const nom=inp.value.trim();if(!nom){toast(typeof t==="function"?t("toast.write_name"):"Escriu el nom");return;}if(AGENTS.find(a=>a.nom===nom)){toast(typeof t==="function"?t("toast.exists"):"Ja existeix");return;}const a={nom,color:AV_COLORS[AGENTS.length%AV_COLORS.length]};AGENTS.push(a);apiPost('agents',a);selectedAgent=nom;inp.value='';document.getElementById('agent-new-form').classList.remove('open');renderAgentSelector();toast(typeof t==="function"?t("toast.agent_added"):"Agent afegit");}
+function addAgent(){
+  const inp=document.getElementById('agent-new-input');
+  const inpEmail=document.getElementById('agent-new-email');
+  const nom=inp.value.trim();
+  const email=(inpEmail?.value||'').trim().toLowerCase();
+  if(!nom){toast(typeof t==="function"?t("toast.write_name"):"Escriu el nom");return;}
+  if(!email){toast('Cal el correu de l\'agent (per enviar confirmacions)');inpEmail?.focus();return;}
+  // Validació bàsica d'email
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('Correu no vàlid');inpEmail?.focus();return;}
+  if(AGENTS.find(a=>a.nom===nom)){toast(typeof t==="function"?t("toast.exists"):"Ja existeix");return;}
+  const a={nom,email,color:AV_COLORS[AGENTS.length%AV_COLORS.length]};
+  AGENTS.push(a);
+  apiPost('agents',a);
+  selectedAgent=nom;
+  inp.value='';
+  if(inpEmail)inpEmail.value='';
+  document.getElementById('agent-new-form').classList.remove('open');
+  renderAgentSelector();
+  toast(typeof t==="function"?t("toast.agent_added"):"Agent afegit");
+}
 
 // ── DIES / DISTRIBUCIÓ ──────────────────────────────────────────
 function upD(){
@@ -1514,7 +1547,7 @@ function openPreviewBeforeReserva(idx){
   const sessText=tmp.dates.map((d,i)=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)} · ${tmp.torn} · ${tmp.hs}h`;}).join('\n');
   document.getElementById('email-modal-title').textContent=`Previsualitzant email al comercial · ${tmp.comercial}`;
   document.getElementById('email-de').value='comunicacions@gesem.cat';
-  document.getElementById('email-para').value=(tmp.comercial||'').toLowerCase().replace(' ','.')+'@gesem.es';
+  document.getElementById('email-para').value=getAgentEmail(tmp.comercial);
   document.getElementById('email-assumpte').value=`GESEM Planner · Proposta formació · ${tmp.curs} · ${tmp.client}`;
   document.getElementById('email-cos').value=`Hola ${tmp.comercial},\n\nT'envio la proposta de formació per al client ${tmp.client}.\nDates RESERVADES al sistema, pendents de confirmació del client.\n\nDADES\n${'─'.repeat(44)}\nCurs:     ${tmp.curs}\nClient:   ${tmp.client}\nFormador: ${tmp.formador}\nHores:    ${tmp.h}h · ${tmp.ns} sessions de ${tmp.hs}h · ${tmp.torn}\nTotal:    ${tmp.cC}€\n\nCALENDARI\n${'─'.repeat(44)}\n${sessText}\n\nIMPORTANT: Dates reservades però no confirmades. Si el client no confirma aviat, s'alliberaran.\n\nSalutacions,\nGESEM digital & SoftSkills · www.gesem.es`;
   // Marquem el mode "preview pre-reserva" perquè els botons sàpiguen què fer
@@ -1593,7 +1626,7 @@ function openEmailModal(resId){
   const sessText=r.dates.map((d,i)=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)} · ${r.torn} · ${r.hs}h`;}).join('\n');
   document.getElementById('email-modal-title').textContent=`Email al comercial · ${r.comercial}`;
   document.getElementById('email-de').value='comunicacions@gesem.cat';
-  document.getElementById('email-para').value=(r.comercial||'').toLowerCase().replace(' ','.')+'@gesem.es';
+  document.getElementById('email-para').value=getAgentEmail(r.comercial);
   document.getElementById('email-assumpte').value=`GESEM Planner · Proposta formació · ${r.curs} · ${r.client}`;
   document.getElementById('email-cos').value=`Hola ${r.comercial},\n\nT'envio la proposta de formació per al client ${r.client}.\nDates RESERVADES al sistema, pendents de confirmació del client.\n\nDADES\n${'─'.repeat(44)}\nCurs:     ${r.curs}\nClient:   ${r.client}\nFormador: ${r.formador}\nHores:    ${r.h}h · ${r.ns} sessions de ${r.hs}h · ${r.torn}\nTotal:    ${r.cC}€\n\nCALENDARI\n${'─'.repeat(44)}\n${sessText}\n\nIMPORTANT: Dates reservades però no confirmades. Si el client no confirma aviat, s'alliberaran.\n\nSalutacions,\nGESEM digital & SoftSkills · www.gesem.es`;
   document.getElementById('email-bg').style.display='flex';
@@ -1906,7 +1939,7 @@ function canvisPrepareEmail(idx){
       <div style="background:#f5f4f0;padding:10px 13px;border-bottom:0.5px solid rgba(0,0,0,0.08)">
         <div style="font-size:11px;font-weight:500;margin-bottom:6px">Email de canvi de dates · editable</div>
         <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">De</label><input value="comunicacions@gesem.cat" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
-        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Per a</label><input id="canvis-em-para" value="${r.comercial.toLowerCase().replace(' ','.')}@gesem.es; ${p.formador?.email||r.formadorEmail||''}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
+        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Per a</label><input id="canvis-em-para" value="${getAgentEmail(r.comercial)}; ${p.formador?.email||r.formadorEmail||''}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
         <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px"><label style="font-size:10px;color:#6b6b67;font-weight:500;width:60px;flex-shrink:0">Assumpte</label><input id="canvis-em-assumpte" value="Canvi de dates · ${r.curs} · ${r.client}" style="flex:1;border:none;background:transparent;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none"/></div>
       </div>
       <div style="padding:13px">

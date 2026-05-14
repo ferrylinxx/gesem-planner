@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v32</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v33</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,42 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v32 · actual</div>
+    <div class="cl-current">v33 · actual</div>
+  </div>
+
+  <!-- ════════════ v33 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v33 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Correu electrònic real per agents comercials</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📧 Agents comercials amb email propi</div>
+      <ul class="cl-list">
+        <li>El formulari de <strong>nou agent</strong> ara demana el correu electrònic a més del nom · validació de format obligatòria</li>
+        <li>El modal d'<strong>editar agent</strong> (doble clic sobre un chip) inclou ara el camp d'email</li>
+        <li><strong>Backend</strong>: <code>POST</code> i <code>PUT /api/agents</code> accepten i emmagatzemen el camp <code>email</code></li>
+        <li>Nou helper <code>getAgentEmail(nom)</code> al client: retorna el correu real si existeix · fallback a l'autogenerat (<code>nom.cognom@gesem.es</code>) per compatibilitat amb agents antics que encara no tenen email guardat</li>
+        <li>Els emails al comercial (resum de proposta, notificacions de resposta del formador, etc.) ara s'envien al correu real configurat enlloc del format inventat automàticament</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🐛 Per què era important</div>
+      <ul class="cl-list fixed">
+        <li><strong>Abans:</strong> el correu del comercial es construïa amb <code>nom.cognom@gesem.es</code>. Si l'agent es deia "Jordi Llopart" l'app enviava a <code>jordi.llopart@gesem.es</code>, que potser no és el correu real (alguns són <code>jllopart@gesem.es</code>, <code>jordi@gesem.es</code> o fins i tot <code>jordi.llopart@altre-domini.com</code>).</li>
+        <li><strong>Conseqüència:</strong> els emails de confirmació "el formador ha acceptat" o "ha declinat" podien arribar a un correu inexistent o equivocat → l'agent comercial perdia notificacions importants.</li>
+        <li><strong>Ara:</strong> cada agent té el seu email real associat al seu registre. Sempre s'envia al correu correcte.</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v32 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v32 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v32 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Perfil d'usuari editable · Fix calendari es desincronitzava al desar formador</div>
