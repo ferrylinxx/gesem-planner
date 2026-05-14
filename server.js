@@ -111,6 +111,36 @@ app.get('/api/auth/me', (req, res) => {
   res.json({ authenticated: !!user, user: user || null });
 });
 
+// Edita el propi perfil · només l'usuari pot tocar el seu compte (no rol!)
+// Permet canviar: name, img · password (requereix currentPassword)
+app.put('/api/auth/me', (req, res) => {
+  const token = req.cookies && req.cookies[auth.COOKIE_NAME];
+  const sessionUser = auth.validateSession(token);
+  if (!sessionUser) return res.status(401).json({ ok: false, error: 'No autenticat' });
+  const { name, img, currentPassword, newPassword } = req.body || {};
+  const patch = {};
+  if (name !== undefined && String(name).trim()) patch.name = String(name).trim();
+  if (img !== undefined) patch.img = img;  // null o data URL
+  // Canvi de contrasenya: verificar la actual
+  if (newPassword) {
+    if (!currentPassword) return res.status(400).json({ ok: false, error: 'Cal la contrasenya actual per a canviar-la' });
+    const fullUser = auth.findUserByEmail(sessionUser.email);
+    if (!auth.verifyPassword(currentPassword, fullUser.password)) {
+      return res.status(401).json({ ok: false, error: 'Contrasenya actual incorrecta' });
+    }
+    if (String(newPassword).length < 8) {
+      return res.status(400).json({ ok: false, error: 'La nova contrasenya ha de tenir min 8 caràcters' });
+    }
+    patch.password = newPassword;
+  }
+  try {
+    const updated = auth.updateUser(sessionUser.email, patch);
+    res.json({ ok: true, user: updated });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: e.message });
+  }
+});
+
 // Logout · esborra cookie + invalida sessió
 app.post('/api/auth/logout', (req, res) => {
   const token = req.cookies && req.cookies[auth.COOKIE_NAME];

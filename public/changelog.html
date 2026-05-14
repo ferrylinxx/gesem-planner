@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v31</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v32</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,44 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v31 · actual</div>
+    <div class="cl-current">v32 · actual</div>
+  </div>
+
+  <!-- ════════════ v32 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v32 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Perfil d'usuari editable · Fix calendari es desincronitzava al desar formador</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">👤 Edita el teu perfil</div>
+      <ul class="cl-list">
+        <li>Clica el teu nom/avatar al footer de la sidebar per obrir l'<strong>editor de perfil</strong></li>
+        <li>Pots canviar el teu <strong>nom</strong>, pujar una <strong>foto de perfil</strong> (mateix processador que els formadors: 256×256 retina-ready) i <strong>actualitzar la contrasenya</strong></li>
+        <li>El canvi de contrasenya exigeix la <strong>contrasenya actual</strong> per seguretat</li>
+        <li>La foto de perfil es propaga automàticament a tots els llocs on apareix el teu nom (sidebar, comentaris, etc.)</li>
+        <li>Endpoint nou: <code>PUT /api/auth/me</code> (només l'usuari pot modificar el seu propi perfil)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🐛 Fix calendari es desincronitzava al desar un formador</div>
+      <ul class="cl-list fixed">
+        <li><strong>Símptoma:</strong> editaves qualsevol camp d'un formador (nom, especialitats, rating...) sense tocar la URL iCal, premies "Desar", i el card mostrava "Calendari pendent de sincronitzar" encara que abans estigués sincronitzat amb N dies ocupats.</li>
+        <li><strong>Causa 1:</strong> la condició <code>if(data.icsUrl!==undefined)</code> a <code>_saveFM</code> era sempre certa (el formulari sempre porta el camp icsUrl, encara que estigui buit). Així es buidava la cache <em>a cada Save</em>, sense importar si la URL havia canviat o no.</li>
+        <li><strong>Causa 2:</strong> el codi de re-fetch utilitzava un format obsolet (<code>calData[id] = new Set(busyDates)</code>) en lloc del format actual des de v29 (<code>{slots, fullDayDates: Set, syncedAt}</code>). Per tant, encara que el fetch retornés dades, el render mai més detectava la sincronització.</li>
+        <li><strong>Fix:</strong> ara comparem <code>prevIcsUrl</code> vs <code>newIcsUrl</code> — només invalidem si HA CANVIAT realment. Quan cal invalidar, usem <code>refreshCal()</code> que ja gestiona el format correcte i persisteix a localStorage.</li>
+        <li><strong>Bonus:</strong> arreglat també un bug del deploy de fitxers únics amb PowerShell <code>Compress-Archive</code> (aplanava la ruta i el descomprimit anava al lloc incorrecte).</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v31 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v31 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v31 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Fix: login dins de Microsoft Teams (cookies cross-site)</div>

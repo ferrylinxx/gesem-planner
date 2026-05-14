@@ -3291,17 +3291,7 @@ async function loadCurrentUser(){
     if(!d.authenticated || !d.user) return null;
     const u=d.user;
     window.currentUser=u;
-    // Actualitza l'avatar i el nom a la sidebar
-    const av=document.querySelector('.sidebar-user-av');
-    const nameEl=document.querySelector('.sidebar-user span');
-    if(av){
-      av.textContent=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
-      av.title=u.email;
-    }
-    if(nameEl){
-      nameEl.textContent=u.name||u.email.split('@')[0];
-      nameEl.title=u.email+(u.role==='admin'?' · admin':'');
-    }
+    renderSidebarUser(u);
     // Afegim un botó "Sortir" al footer de la sidebar si no hi és
     const foot=document.querySelector('.sidebar-foot');
     if(foot && !document.getElementById('sb-logout-btn')){
@@ -3321,6 +3311,190 @@ async function loadCurrentUser(){
     console.warn('[auth] no s\'ha pogut carregar l\'usuari:',e);
     return null;
   }
+}
+
+// Renderitza el bloc d'usuari a la sidebar (avatar + nom). Clicable → obre editor.
+function renderSidebarUser(u){
+  const userBlock=document.querySelector('.sidebar-user');
+  const av=document.querySelector('.sidebar-user-av');
+  const nameEl=document.querySelector('.sidebar-user span');
+  if(av){
+    const initials=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+    if(u.img && !String(u.img).includes('data:image/svg')){
+      av.innerHTML=`<img src="${u.img}" alt="${u.name||u.email}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+      av.style.padding='0';
+      av.style.background='transparent';
+    }else{
+      av.textContent=initials;
+      av.style.padding='';
+    }
+    av.title=u.email;
+  }
+  if(nameEl){
+    nameEl.textContent=u.name||u.email.split('@')[0];
+    nameEl.title='Editar perfil';
+  }
+  // Fer tot el bloc clicable per editar el perfil
+  if(userBlock && !userBlock.dataset.editable){
+    userBlock.dataset.editable='1';
+    userBlock.style.cursor='pointer';
+    userBlock.title='Editar perfil';
+    userBlock.addEventListener('click',()=>openProfileEditor());
+    // Hover subtle feedback
+    userBlock.addEventListener('mouseenter',()=>userBlock.style.background='rgba(0,0,0,0.04)');
+    userBlock.addEventListener('mouseleave',()=>userBlock.style.background='');
+    userBlock.style.borderRadius='10px';
+    userBlock.style.transition='background .15s';
+  }
+}
+
+// ── MODAL · Editar el meu perfil ─────────────────────────────────
+function openProfileEditor(){
+  const u=window.currentUser;
+  if(!u){toast('Cal estar autenticat');return;}
+  let bg=document.getElementById('profile-edit-bg');
+  if(!bg){
+    bg=document.createElement('div');
+    bg.id='profile-edit-bg';
+    bg.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:20px';
+    bg.innerHTML=`
+    <div style="background:#fff;border-radius:14px;padding:22px 24px;width:420px;max-width:100%;box-shadow:0 14px 50px rgba(0,0,0,0.25);max-height:90vh;overflow-y:auto">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <label for="profile-foto-inp" id="profile-av-wrap" title="Clica per canviar foto" style="position:relative;flex-shrink:0;cursor:pointer;display:block">
+          <div id="profile-av" style="width:64px;height:64px;border-radius:50%;background:#059669;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;overflow:hidden"></div>
+          <div id="profile-av-overlay" style="position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;opacity:0;transition:opacity .15s;pointer-events:none">📷</div>
+          <input type="file" id="profile-foto-inp" accept="image/*" style="display:none" onchange="loadProfileFoto(this)"/>
+        </label>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:16px;font-weight:700">Editar perfil</div>
+          <div id="profile-email" style="font-size:12px;color:#71717A"></div>
+          <div style="font-size:10px;color:#71717A;margin-top:2px">Clica la foto per canviar-la · JPG/PNG max 20MB</div>
+        </div>
+        <button id="profile-foto-rm" type="button" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;padding:5px 8px;border-radius:7px;font-size:10px;cursor:pointer;align-self:flex-start" onclick="removeProfileFoto()">Treure foto</button>
+      </div>
+      <style>#profile-av-wrap:hover #profile-av-overlay{opacity:1}</style>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:4px">Nom complet</label>
+        <input type="text" id="profile-nom" style="width:100%;padding:9px 11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:9px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+      </div>
+
+      <div style="margin:18px 0 10px 0;padding-top:14px;border-top:0.5px solid rgba(0,0,0,0.08)">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px">Canviar contrasenya</div>
+        <div style="font-size:11px;color:#71717A;margin-bottom:10px">Deixa-ho buit si no la vols canviar</div>
+        <div style="margin-bottom:9px">
+          <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:4px">Contrasenya actual</label>
+          <input type="password" id="profile-cur-pwd" autocomplete="current-password" style="width:100%;padding:9px 11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:9px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+        </div>
+        <div>
+          <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:4px">Nova contrasenya <span style="font-weight:400;color:#9CA3AF">(min 8 caràcters)</span></label>
+          <input type="password" id="profile-new-pwd" autocomplete="new-password" style="width:100%;padding:9px 11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:9px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+        </div>
+      </div>
+
+      <div id="profile-err" style="display:none;margin-top:10px;padding:8px 12px;background:#FEE2E2;border:0.5px solid #FCA5A5;border-radius:7px;font-size:11px;color:#991B1B"></div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+        <button class="btn btn-sm" onclick="closeProfileEditor()">Cancel·lar</button>
+        <button class="btn btn-p btn-sm" onclick="saveProfile()" id="profile-save-btn">Desar canvis</button>
+      </div>
+    </div>`;
+    bg.addEventListener('click',e=>{if(e.target===bg)closeProfileEditor();});
+    document.body.appendChild(bg);
+  }
+  // Reset estats
+  bg.dataset.pendingImg='';
+  bg.dataset.imgRemoved='';
+  document.getElementById('profile-email').textContent=u.email;
+  document.getElementById('profile-nom').value=u.name||'';
+  document.getElementById('profile-cur-pwd').value='';
+  document.getElementById('profile-new-pwd').value='';
+  document.getElementById('profile-err').style.display='none';
+  // Avatar
+  const av=document.getElementById('profile-av');
+  const initials=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+  const rmBtn=document.getElementById('profile-foto-rm');
+  if(u.img && !String(u.img).includes('data:image/svg')){
+    av.innerHTML=`<img id="profile-av-img" src="${u.img}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+    av.style.padding='0';av.style.background='transparent';
+    rmBtn.style.display='block';
+  }else{
+    av.textContent=initials;
+    av.style.padding='';av.style.background='#059669';
+    rmBtn.style.display='none';
+  }
+  bg.style.display='flex';
+  setTimeout(()=>document.getElementById('profile-nom').focus(),60);
+}
+
+function closeProfileEditor(){
+  const bg=document.getElementById('profile-edit-bg');
+  if(bg)bg.style.display='none';
+}
+
+function loadProfileFoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(file.size>20*1024*1024){toast('Fitxer massa gran (max 20MB)');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    processAvatarImage(e.target.result,cropped=>{
+      const bg=document.getElementById('profile-edit-bg');
+      if(bg){bg.dataset.pendingImg=cropped;bg.dataset.imgRemoved='';}
+      const av=document.getElementById('profile-av');
+      av.innerHTML=`<img src="${cropped}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+      av.style.padding='0';av.style.background='transparent';
+      document.getElementById('profile-foto-rm').style.display='block';
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeProfileFoto(){
+  const bg=document.getElementById('profile-edit-bg');
+  if(!bg)return;
+  bg.dataset.pendingImg='';
+  bg.dataset.imgRemoved='1';
+  const u=window.currentUser||{};
+  const av=document.getElementById('profile-av');
+  av.innerHTML='';
+  av.textContent=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+  av.style.padding='';av.style.background='#059669';
+  document.getElementById('profile-foto-rm').style.display='none';
+  const inp=document.getElementById('profile-foto-inp');
+  if(inp)inp.value='';
+}
+
+async function saveProfile(){
+  const bg=document.getElementById('profile-edit-bg');
+  const errEl=document.getElementById('profile-err');
+  const btn=document.getElementById('profile-save-btn');
+  const showErr=(msg)=>{errEl.textContent=msg;errEl.style.display='block';};
+  errEl.style.display='none';
+  const nom=document.getElementById('profile-nom').value.trim();
+  const curPwd=document.getElementById('profile-cur-pwd').value;
+  const newPwd=document.getElementById('profile-new-pwd').value;
+  if(!nom){showErr('El nom no pot estar buit');return;}
+  if(newPwd && newPwd.length<8){showErr('La nova contrasenya ha de tenir mínim 8 caràcters');return;}
+  if(newPwd && !curPwd){showErr('Cal la contrasenya actual per a canviar-la');return;}
+  // Determinar img
+  const pendingImg=bg.dataset.pendingImg||'';
+  const imgRemoved=bg.dataset.imgRemoved==='1';
+  const payload={name:nom};
+  if(pendingImg)payload.img=pendingImg;
+  else if(imgRemoved)payload.img=null;
+  if(newPwd){payload.currentPassword=curPwd;payload.newPassword=newPwd;}
+  btn.disabled=true;btn.textContent='Desant...';
+  try{
+    const r=await fetch('/api/auth/me',{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    if(!r.ok||!d.ok){showErr(d.error||'Error desant');btn.disabled=false;btn.textContent='Desar canvis';return;}
+    window.currentUser=d.user;
+    renderSidebarUser(d.user);
+    closeProfileEditor();
+    toast('✓ Perfil actualitzat');
+  }catch(e){showErr('Error de connexió: '+e.message);}
+  finally{btn.disabled=false;btn.textContent='Desar canvis';}
 }
 
 async function initApp(){
