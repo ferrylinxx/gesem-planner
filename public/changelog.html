@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v49</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v50</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,32 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v49 · actual</div>
+    <div class="cl-current">v50 · actual</div>
+  </div>
+
+  <!-- ════════════ v50 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v50 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Status page · auto-refresh cada 10s (3× més ràpid)</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⚡ Refresh més ràpid</div>
+      <ul class="cl-list">
+        <li>Auto-refresh passa de <strong>30s a 10s</strong> a la pàgina <code>/status</code></li>
+        <li>El countdown visual al header ("Auto-refresh · <b>10</b>s") és més ràpid i informatiu</li>
+        <li>Combinat amb el cron de health checks reals (cada 2 min al backend), garanteix que la pàgina mostri sempre l'últim estat amb max ~10s de latència</li>
+        <li>Variable <code>REFRESH_INTERVAL</code> centralitzada per poder ajustar-la fàcilment en el futur</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v49 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v49 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v49</div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Health checks 100% reals · proves connectivitat + historial persistent</div>

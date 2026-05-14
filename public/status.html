@@ -330,7 +330,7 @@ body{min-height:100vh}
     </div>
     <div class="refresh-info">
       <span class="dot"></span>
-      <span>Auto-refresh · <b id="next-refresh">30</b>s</span>
+      <span>Auto-refresh · <b id="next-refresh">10</b>s</span>
     </div>
   </header>
 
@@ -542,9 +542,10 @@ async function load() {
   }
 }
 
-let countdown = 30;
+const REFRESH_INTERVAL = 10;
+let countdown = REFRESH_INTERVAL;
 function tickCountdown() {
-  countdown = countdown > 0 ? countdown - 1 : 30;
+  countdown = countdown > 0 ? countdown - 1 : REFRESH_INTERVAL;
   const el = document.getElementById('next-refresh');
   if (el) el.textContent = countdown;
   if (countdown === 0) load();
@@ -554,9 +555,9 @@ setInterval(tickCountdown, 1000);
 // Inicial
 load();
 
-// També quan la pestanya torna a primer pla (no esperar 30s)
+// També quan la pestanya torna a primer pla (no esperar el countdown)
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) { countdown = 30; load(); }
+  if (!document.hidden) { countdown = REFRESH_INTERVAL; load(); }
 });
 </script>
 
