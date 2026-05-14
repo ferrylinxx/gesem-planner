@@ -1113,6 +1113,10 @@ function confP(idx){
 // ── EMAIL FORMADOR ──────────────────────────────────────────────
 function openEmailFormador(idx){
   const p=window._pr[idx];if(!p)return;
+  // Guardem l'idx perquè el botó "Crear reserva + Enviar amb confirmació"
+  // pugui crear la reserva al moment d'enviar
+  window._emailfPendingIdx=idx;
+  window._emailfResId=null; // encara no hi ha reserva
   const curs=document.getElementById('p-curs').value;const client=document.getElementById('p-client').value;
 
   // Separar dates disponibles vs ocupades (no incloure ocupades al text principal)
@@ -1597,6 +1601,7 @@ function openEmailModal(resId){
 function openEmailFormadorFromRes(resId){
   const r=RESERVES.find(x=>x.id===resId);if(!r)return;
   window._emailfResId=resId; // exposat per al botó "Enviar amb confirmació"
+  window._emailfPendingIdx=null; // ja hi ha reserva, no cal crear-la
   const sessText=r.dates.map((d,i)=>{const dt=parseISO(d);const dw=dt.getDay()||7;return`  Sessió ${String(i+1).padStart(2,' ')}: ${DL[dw]} ${fmtD(dt)} · ${r.torn} · ${r.hs}h`;}).join('\n');
   document.getElementById('emailf-title').textContent=`Email al formador · ${r.formador}`;
   document.getElementById('emailf-para').value=r.formadorEmail||'';
@@ -2968,11 +2973,43 @@ async function sendEmailFormador(btn){
   if(ok)document.getElementById('emailf-bg').style.display='none';
 }
 
+// Crea la reserva al moment + envia email amb confirmació (per al cas /peticio
+// on encara no existeix cap reserva). Combina confP + sendEmailFormadorConfirm.
+async function createReservaAndSendConfirm(btn){
+  const idx=window._emailfPendingIdx;
+  if(idx==null||!window._pr||!window._pr[idx]){
+    toast('No hi ha proposta activa. Cancel·la el modal i torna-ho a obrir.');
+    return;
+  }
+  const orig=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='Creant reserva...';}
+  try{
+    const r=confP(idx);
+    if(typeof clearPeticioDraft==='function')clearPeticioDraft();
+    if(typeof refreshAllCalendars==='function')refreshAllCalendars(r.formadorId).catch(()=>{});
+    // Ara que tenim reserva, posa l'id i delega al fluxe estàndard
+    window.currentEmailResId=r.id;
+    window._emailfResId=r.id;
+    window._emailfPendingIdx=null;
+    if(btn)btn.textContent='Enviant email...';
+    await sendEmailFormadorConfirm(btn);
+    // Refrescar la pàgina de gestió perquè vegi la nova reserva
+    if(typeof renderGest==='function')renderGest();
+  }catch(e){
+    toast('✗ Error: '+e.message);
+    if(btn){btn.disabled=false;btn.textContent=orig;}
+  }
+}
+
 // Envia email al formador AMB botons d'Acceptar/Declinar + .ics adjunt
 async function sendEmailFormadorConfirm(btn){
   // Necessitem una reserva creada (id). Obtenim-la del context.
   const resId=window.currentEmailResId || window._emailfResId;
   if(!resId){
+    // Si estem al /peticio (no hi ha reserva encara), oferim la opció directa
+    if(window._emailfPendingIdx!=null){
+      return createReservaAndSendConfirm(btn);
+    }
     toast('Aquest botó només funciona quan hi ha una reserva creada. Crea la reserva primer i torna a enviar des de Gestió.');
     return;
   }
