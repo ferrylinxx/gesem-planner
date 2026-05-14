@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/css/styles.css"/>
 <script src="/js/teams.js" defer></script>
+<script src="/js/splash.js"></script>
 <style>
 .cl-wrap{max-width:780px;margin:0 auto;padding:32px 24px}
 .cl-hero{text-align:center;margin-bottom:36px}
@@ -149,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v40</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v41</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +159,52 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v40 · actual</div>
+    <div class="cl-current">v41 · actual</div>
+  </div>
+
+  <!-- ════════════ v41 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v41 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Splash screen al primer accés · Logo animat amb branding</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">✨ Splash screen al carregar l'app</div>
+      <ul class="cl-list">
+        <li>Quan obres GESEM Planner per primera vegada en una sessió, apareix una <strong>pantalla de presentació de 2 segons</strong> amb:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>Gradient verd suau de fons amb <strong>blobs animats</strong> (mateix estil que /login)</li>
+            <li>Logo dels 3 rectangles apilats dins una caixa amb sombra verda i <strong>animació pulse subtil</strong></li>
+            <li>Nom "GESEM Planner" en gran + tagline "Gestió de reserves de formació"</li>
+            <li><strong>Loading bar</strong> minimalista lliscant a sota</li>
+          </ul>
+        </li>
+        <li>Animacions: entrada amb spring easing (cubic-bezier overshoot) i sortida amb fade + scale subtil</li>
+        <li><strong>Intel·ligent</strong>: només es mostra <em>un cop per sessió</em> (sessionStorage flag). Navegar entre pàgines de l'app no la repeteix.</li>
+        <li>Es <strong>salta automàticament</strong> a: <code>/login</code>, <code>/maintenance</code>, <code>/r/:token</code> (pàgina pública de resposta del formador) i dins de Microsoft Teams (iframe)</li>
+        <li><strong>Dark mode compatible</strong>: detecta el tema i adapta colors automàticament</li>
+        <li>Sense dependències · 100% CSS animations + vanilla JS · ~3 KB total</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🛠 Implementació tècnica</div>
+      <ul class="cl-list">
+        <li>Nou fitxer <code>public/js/splash.js</code> injectat a totes les pàgines principals</li>
+        <li>S'executa <strong>sense defer</strong> per aparèixer instantàniament (abans del primer paint)</li>
+        <li>Bloqueja l'scroll del body amb classe <code>.gs-splash-on</code> mentre està visible</li>
+        <li>Auto-cleanup amb <code>animationend</code> — sense referències residuals al DOM</li>
+        <li>Tota la CSS injectada via <code>&lt;style&gt;</code> i removida després del fade-out</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v40 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v40 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v40 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Sistema d'estat en línia · Punt verd amb pulse a l'avatar</div>
