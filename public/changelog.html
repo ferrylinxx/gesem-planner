@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v36</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v37</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,63 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v36 · actual</div>
+    <div class="cl-current">v37 · actual</div>
+  </div>
+
+  <!-- ════════════ v37 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v37 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">El formador pot canviar la seva resposta · Polling en temps real</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔄 Canvi de resposta del formador</div>
+      <ul class="cl-list fixed">
+        <li><strong>Abans:</strong> un cop el formador clicava "Acceptar" o "Declinar" al correu, <strong>quedava bloquejada per sempre</strong>. Si després necessitava canviar (imprevist, malentès, etc.), no podia. El servidor tenia un <code>if (formadorAccepted == null)</code> que ignorava qualsevol segona resposta.</li>
+        <li><strong>Ara:</strong> el formador pot <strong>canviar de resposta tantes vegades com calgui</strong>. Tots els canvis queden registrats a <code>formadorResponseHistory</code> per a auditoria.</li>
+        <li>Quan canvia de <strong>decline → accept</strong>: els events es creen automàticament al seu Google Calendar (si està connectat)</li>
+        <li>Quan canvia de <strong>accept → decline</strong>: els events que s'havien afegit al Google Calendar <strong>s'eliminen automàticament</strong> (via <code>deleteEventsForReserva</code>)</li>
+        <li>L'estat de la reserva s'actualitza coherentment: <code>confirmada</code> ↔ <code>pendent-form</code></li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📧 Notificacions intel·ligents al comercial</div>
+      <ul class="cl-list">
+        <li>Quan el formador canvia d'opinió, l'email al comercial té el prefix <code>⚠️ CANVI ·</code> al subject</li>
+        <li>El cos explica què havia respost abans i què ha respost ara</li>
+        <li>Si era accept→decline, també menciona que els events del calendari s'han eliminat</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🪪 UI del formador · pots canviar la teva resposta</div>
+      <ul class="cl-list">
+        <li>A la pàgina <code>/r/:token</code> ara <strong>sempre</strong> es mostren les opcions Acceptar / Declinar (no només si la resposta és <code>null</code>)</li>
+        <li>Després d'acceptar, apareix un bloc "Has canviat d'opinió? → Canviar a DECLINAR"</li>
+        <li>Després de declinar, apareix "T'has equivocat? → Canviar a ACCEPTAR"</li>
+        <li>Notificació visual quan el sistema detecta un canvi (banner ambre amb explicació)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⚡ Polling en temps real a /gestio</div>
+      <ul class="cl-list fixed">
+        <li><strong>Abans:</strong> el dashboard <code>/gestio</code> carregava les reserves un cop al obrir la pàgina i no s'actualitzava mai més. Si un formador acceptava/declinava, no veies el canvi fins recarregar manualment.</li>
+        <li><strong>Ara:</strong> mentre el tab està actiu, polleja <code>/api/reserves</code> cada 30 segons amb hash-diff intel·ligent (només re-renderitza si hi ha canvis reals)</li>
+        <li>Refresh immediat quan tornes a la pestanya (event <code>visibilitychange</code>)</li>
+        <li>Polling pausat automàticament quan el tab està en segon pla per estalviar bateria/banda</li>
+        <li>L'icona email-formador (verd ✓ / vermell ✕ / ambre / gris) es manté <strong>sincronitzada amb el servidor en menys de 30s</strong></li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v36 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v36 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v36 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Google Calendar 1-clic + Estat visual a la icona email-formador</div>

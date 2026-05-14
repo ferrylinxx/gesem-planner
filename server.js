@@ -619,37 +619,78 @@ app.get('/r/:token', (req, res) => {
   }
 });
 
+// Aplica la resposta del formador (accept o decline). Suporta canviar
+// d'opinió: cada acció es queda registrada a formadorResponseHistory
+// per a auditoria, i la sincronia Google es manté coherent.
+function applyFormadorResponse(reserva, reserves, accepted, declineReason) {
+  const previous = reserva.formadorAccepted;
+  const isChange = previous !== null && previous !== undefined && previous !== accepted;
+  reserva.formadorAccepted = accepted;
+  reserva.formadorRespondedAt = new Date().toISOString();
+  if (declineReason !== undefined) reserva.formadorDeclineReason = declineReason;
+  // History per auditoria
+  reserva.formadorResponseHistory = reserva.formadorResponseHistory || [];
+  reserva.formadorResponseHistory.push({
+    accepted,
+    at: reserva.formadorRespondedAt,
+    reason: accepted ? null : (declineReason || null),
+  });
+  // Cap a estat: si accepta, confirmar; si declina després d'acceptar, tornar a pendent-form
+  if (accepted) {
+    if (reserva.estat === 'pendent-form' || reserva.estat === 'pendent-cli') {
+      reserva.estat = 'confirmada';
+    }
+  } else {
+    // Si havia estat acceptada (estat=confirmada), tornem a pendent-form
+    if (isChange && reserva.estat === 'confirmada') {
+      reserva.estat = 'pendent-form';
+    }
+  }
+  writeJSON('reserves.json', reserves);
+  // Notificar el comercial
+  notifyAgentOfResponse(reserva, accepted, isChange).catch(e => console.warn('Notif agent fail:', e.message));
+  // Sincronia Google Calendar:
+  //   · accepted=true → crear events
+  //   · accepted=false + isChange (abans havia acceptat) → eliminar events
+  if (accepted) {
+    autoSyncReservaToGoogle(reserva).then(r => {
+      if (r.ok && r.created && r.created.length) {
+        console.log('[google] ✓', r.created.length, 'events creats per reserva', reserva.id);
+      }
+    }).catch(e => console.warn('[google] sync exception:', e.message));
+  } else if (isChange) {
+    // Format canvia de accept a decline: eliminar events creats abans
+    deleteReservaFromGoogle(reserva).then(r => {
+      if (r.ok && r.deleted) console.log('[google] ✓', r.deleted, 'events eliminats per reserva', reserva.id);
+    }).catch(e => console.warn('[google] delete exception:', e.message));
+  }
+  return { isChange, previous };
+}
+
+// Helper · elimina els events d'una reserva al calendari Google del formador
+async function deleteReservaFromGoogle(reserva) {
+  if (!google.isConfigured()) return { skipped: true };
+  if (!reserva || !reserva.formadorId) return { skipped: true };
+  const tokenStore = readJSON('google_tokens.json', {});
+  if (!tokenStore[reserva.formadorId]) return { skipped: true };
+  try {
+    const { accessToken, store } = await google.getValidAccessToken(tokenStore, reserva.formadorId);
+    writeJSON('google_tokens.json', store);
+    const result = await google.deleteEventsForReserva({ accessToken, reservaId: reserva.id });
+    return { ok: true, ...result };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
 function acceptReserva(token, req, res) {
   try {
     const { reserva, reserves } = loadReservaFromToken(token);
-    let justAccepted = false;
-    if (reserva.formadorAccepted == null) {
-      reserva.formadorAccepted = true;
-      reserva.formadorRespondedAt = new Date().toISOString();
-      // Auto-promote: si estava pendent-form, passa a confirmada
-      if (reserva.estat === 'pendent-form' || reserva.estat === 'pendent-cli') {
-        reserva.estat = 'confirmada';
-      }
-      writeJSON('reserves.json', reserves);
-      justAccepted = true;
-      // Notificar el comercial (asíncron, sense bloquejar la resposta)
-      notifyAgentOfResponse(reserva, true).catch(e => console.warn('Notif agent fail:', e.message));
-      // Auto-sync amb Google Calendar del formador si està connectat (asíncron)
-      autoSyncReservaToGoogle(reserva).then(r => {
-        if (r.ok && r.created && r.created.length) {
-          console.log('[google] ✓', r.created.length, 'events creats per reserva', reserva.id);
-        } else if (r.skipped) {
-          // formador no connectat o OAuth no configurat — normal
-        } else if (r.error) {
-          console.warn('[google] sync error per reserva', reserva.id, ':', r.error);
-        }
-      }).catch(e => console.warn('[google] sync exception:', e.message));
-    }
+    const { isChange } = applyFormadorResponse(reserva, reserves, true);
     const baseUrl = process.env.BASE_URL || ('http://' + (req.get('host') || 'localhost:3001'));
-    // Comprovar si l'usuari té Google OAuth connectat (per a UX a la pàgina de resposta)
     const tokenStore = readJSON('google_tokens.json', {});
     const googleConnected = !!(reserva.formadorId && tokenStore[reserva.formadorId]);
-    res.send(tmpl.responsePage({ reserva, action: 'accept', token, baseUrl, message: 'ok', googleConnected, justAccepted }));
+    res.send(tmpl.responsePage({ reserva, action: 'accept', token, baseUrl, message: 'ok', googleConnected, justAccepted: true, changed: isChange }));
   } catch (e) {
     const baseUrl = process.env.BASE_URL || 'http://localhost:3001';
     res.status(400).send(tmpl.responsePage({ action: 'view', token, baseUrl, error: e.message }));
@@ -661,14 +702,9 @@ app.post('/r/:token/decline', express.urlencoded({ extended: false }), (req, res
   const baseUrl = process.env.BASE_URL || ('http://' + (req.get('host') || 'localhost:3001'));
   try {
     const { reserva, reserves } = loadReservaFromToken(req.params.token);
-    if (reserva.formadorAccepted == null) {
-      reserva.formadorAccepted = false;
-      reserva.formadorDeclineReason = (req.body.reason || '').slice(0, 500);
-      reserva.formadorRespondedAt = new Date().toISOString();
-      writeJSON('reserves.json', reserves);
-      notifyAgentOfResponse(reserva, false).catch(e => console.warn('Notif agent fail:', e.message));
-    }
-    res.send(tmpl.responsePage({ reserva, action: 'decline', token: req.params.token, baseUrl, message: 'ok' }));
+    const reason = (req.body.reason || '').slice(0, 500);
+    const { isChange } = applyFormadorResponse(reserva, reserves, false, reason);
+    res.send(tmpl.responsePage({ reserva, action: 'decline', token: req.params.token, baseUrl, message: 'ok', changed: isChange }));
   } catch (e) {
     res.status(400).send(tmpl.responsePage({ action: 'view', token: req.params.token, baseUrl, error: e.message }));
   }
@@ -736,22 +772,27 @@ app.get('/r/:token/subscribe-url', (req, res) => {
   }
 });
 
-// Notifica al comercial que el formador ha respost
-async function notifyAgentOfResponse(reserva, accepted) {
+// Notifica al comercial que el formador ha respost.
+// isChange: true si l'usuari està canviant d'opinió (havia acceptat i ara
+// declina, o viceversa) — el subject ho indica explícitament.
+async function notifyAgentOfResponse(reserva, accepted, isChange) {
   if (!mailer.isConfigured()) return;
   if (!reserva.comercial) return;
-  // Busca el correu real de l'agent comercial; si no n'hi ha, fallback a l'autogenerat
   const agents = readJSON('agents.json', []);
   const agent = agents.find(a => (a.nom || '').toLowerCase() === (reserva.comercial || '').toLowerCase());
   const agentEmail = (agent && agent.email)
     ? agent.email
     : ((reserva.comercial || '').toLowerCase().replace(/\s+/g, '.') + '@gesem.es');
+  const prefix = isChange ? '⚠️ CANVI · ' : '';
   const subject = accepted
-    ? `✓ ${reserva.formador} ha ACCEPTAT · ${reserva.curs} · ${reserva.client}`
-    : `✕ ${reserva.formador} ha DECLINAT · ${reserva.curs} · ${reserva.client}`;
+    ? `${prefix}✓ ${reserva.formador} ha ${isChange ? 'CANVIAT a ACCEPTAR' : 'ACCEPTAT'} · ${reserva.curs} · ${reserva.client}`
+    : `${prefix}✕ ${reserva.formador} ha ${isChange ? 'CANVIAT a DECLINAR' : 'DECLINAT'} · ${reserva.curs} · ${reserva.client}`;
+  const changeNote = isChange
+    ? `\n\n⚠️ ATENCIÓ: el formador ja havia respost abans i ara ha canviat la seva resposta. Pot ser que t'hagis de coordinar amb ell/ella per esbrinar què ha passat.\n`
+    : '';
   const body = accepted
-    ? `Hola ${reserva.comercial},\n\nEl formador ${reserva.formador} ha acceptat les dates de la reserva pel curs "${reserva.curs}" del client ${reserva.client}.\n\nHa estat afegit al seu calendari (envia el fitxer .ics).\n\nLa reserva s'ha marcat com a CONFIRMADA al sistema.\n\nGESEM Planner`
-    : `Hola ${reserva.comercial},\n\nEl formador ${reserva.formador} ha DECLINAT la reserva pel curs "${reserva.curs}" del client ${reserva.client}.\n\nMotiu indicat:\n${reserva.formadorDeclineReason || '(sense motiu)'}\n\nCaldrà buscar dates alternatives o un altre formador.\n\nGESEM Planner`;
+    ? `Hola ${reserva.comercial},${changeNote}\n\nEl formador ${reserva.formador} ha ${isChange ? 'canviat la seva resposta i ara ACCEPTA' : 'acceptat'} les dates de la reserva pel curs "${reserva.curs}" del client ${reserva.client}.\n\nLa reserva s'ha marcat com a CONFIRMADA al sistema.\n\nGESEM Planner`
+    : `Hola ${reserva.comercial},${changeNote}\n\nEl formador ${reserva.formador} ha ${isChange ? 'canviat la seva resposta i ara DECLINA' : 'DECLINAT'} la reserva pel curs "${reserva.curs}" del client ${reserva.client}.\n\nMotiu indicat:\n${reserva.formadorDeclineReason || '(sense motiu)'}\n\n${isChange ? 'Els events que ja s\'havien afegit al calendari del formador via Google s\'han eliminat automàticament.\n\n' : ''}Caldrà buscar dates alternatives o un altre formador.\n\nGESEM Planner`;
   await mailer.sendMail({ to: agentEmail, subject, text: body });
 }
 

@@ -1176,6 +1176,45 @@ function copyEmailF(){const full=`Per a: ${document.getElementById('emailf-para'
 // ── GESTIÓ RESERVES ─────────────────────────────────────────────
 function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('act'));btn.classList.add('act');renderGest();}
 
+// ── POLLING DE RESERVES · refresc en temps real ────────────────
+// Mantenim les reserves actualitzades polejant /api/reserves cada 30s mentre
+// el tab de Gestió està actiu. També es refresca quan l'usuari torna a la
+// pestanya (visibilitychange) per evitar veure dades obsoletes.
+//
+// Detecta canvis comparant un hash simple (estats + formadorAccepted) i només
+// re-renderitza si hi ha alguna diferència, per evitar reflows innecessaris.
+let _gestPollIv=null;
+let _gestLastHash='';
+function _hashReserves(list){
+  // Hash compact que canvia quan canvia estat o resposta del formador
+  return list.map(r=>r.id+':'+r.estat+':'+(r.formadorAccepted??'null')).join('|');
+}
+async function refreshReservesFromServer(){
+  try{
+    const r=await fetch('/api/reserves',{credentials:'include',cache:'no-store'});
+    if(!r.ok)return;
+    const data=await r.json();
+    if(!Array.isArray(data))return;
+    const newHash=_hashReserves(data);
+    if(newHash===_gestLastHash)return; // res ha canviat
+    _gestLastHash=newHash;
+    RESERVES=data;
+    if(getCurrentPage()==='gest' && typeof renderGest==='function')renderGest();
+  }catch(e){/* silenci - reintentarem */}
+}
+function startGestPolling(){
+  if(_gestPollIv)return; // ja iniciat
+  _gestLastHash=_hashReserves(RESERVES||[]);
+  _gestPollIv=setInterval(()=>{
+    if(document.hidden)return; // no polejar si el tab està en segon pla
+    refreshReservesFromServer();
+  },30000);
+  // Refresc immediat quan l'usuari torna a la pestanya
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden && getCurrentPage()==='gest')refreshReservesFromServer();
+  });
+}
+
 function renderGest(){
   const fc=document.getElementById('gest-com-f').value;
   const sort=document.getElementById('gest-sort').value;
@@ -3615,7 +3654,13 @@ async function initApp(){
           setTimeout(()=>refreshAllCalendars().then(()=>{if(typeof lf==='function')lf();}).catch(()=>{}), 500);
         }
       }
-      else if(page==='gest'){renderGest();}
+      else if(page==='gest'){
+        renderGest();
+        // Polling intel·ligent · refresca les reserves cada 30s mentre el tab està actiu
+        // perquè els canvis de resposta del formador (accept/decline) es vegin
+        // en temps real al dashboard sense haver de recarregar la pàgina.
+        if(typeof startGestPolling==='function')startGestPolling();
+      }
       else if(page==='canvis'){renderCanvis();}
       else if(page==='f'){
         renderFP();initFiltreEsp();
