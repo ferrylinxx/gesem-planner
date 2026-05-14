@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/css/styles.css"/>
+<script src="/js/teams.js" defer></script>
 <style>
 .cl-wrap{max-width:780px;margin:0 auto;padding:32px 24px}
 .cl-hero{text-align:center;margin-bottom:36px}
@@ -148,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v29</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v30</span>
 </div>
 <div class="content-area">
 
@@ -157,13 +158,90 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v29 · actual</div>
+    <div class="cl-current">v30 · actual</div>
+  </div>
+
+  <!-- ════════════ v30 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v30 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Producció: HTTPS · Microsoft Teams · Login multi-usuari</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🌐 Domini públic + HTTPS</div>
+      <ul class="cl-list">
+        <li>Migració del servidor LAN a domini públic <strong>planner.gesem.es</strong></li>
+        <li><strong>Nginx reverse proxy</strong> davant del Node (port intern 3001 → 443 públic)</li>
+        <li><strong>Let's Encrypt</strong> per al certificat SSL · renovació automàtica via cron</li>
+        <li>Redirect HTTP → HTTPS forçat · HSTS de 6 mesos · cookies <code>Secure</code></li>
+        <li><code>BASE_URL</code> actualitzat a <code>https://planner.gesem.es</code> per a OAuth callbacks i emails</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📱 Integració amb Microsoft Teams</div>
+      <ul class="cl-list">
+        <li>GESEM Planner ara és una <strong>app instal·lable a Teams</strong> com a pestanya personal</li>
+        <li>Headers HTTP nous: <code>Content-Security-Policy: frame-ancestors</code> que permet embed des de tots els subdominis de Microsoft</li>
+        <li>SDK de Teams JS carregat dinàmicament (<code>public/js/teams.js</code>): detecta si corre dins de Teams i crida <code>app.notifySuccess()</code> al boot</li>
+        <li>Manifest <code>v2.0.0</code> amb logo propi (3 rectangles verds apilats sobre fons clar · silueta blanca per mode fosc)</li>
+        <li>Icones generades dinàmicament: <code>color.png</code> 192×192 + <code>outline.png</code> 32×32</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔐 Sistema de login multi-usuari</div>
+      <ul class="cl-list">
+        <li>Pàgina <strong>/login</strong> nova (disseny propi amb gradient verd, blobs animats, brand GESEM)</li>
+        <li>Passwords hashats amb <strong>bcrypt (cost 10)</strong> · mai en clar a la BD</li>
+        <li>Sessions: token aleatori de <strong>32 bytes</strong> + cookie <code>HttpOnly + Secure + SameSite=Lax</code></li>
+        <li><strong>30 dies d'expiració</strong> amb renovació automàtica (sliding · si queden &lt;7 dies es renova en accedir)</li>
+        <li>Cleanup automàtic de sessions caducades cada 6 hores</li>
+        <li>Middleware d'auth amb whitelist: <code>/login</code>, <code>/api/auth/*</code>, <code>/r/:token</code>, <code>/api/google/callback</code>, <code>/maintenance</code>, assets estàtics</li>
+        <li>Redirecció intel·ligent: peticions HTML sense sessió → <code>/login?next=&lt;path&gt;</code> · peticions API → <code>401 JSON</code></li>
+        <li>Auto-creació d'usuari admin inicial a partir d'<code>ADMIN_EMAIL</code> + <code>ADMIN_PASSWORD</code> del <code>.env</code> al primer boot</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">👥 Gestió d'usuaris a /admin</div>
+      <ul class="cl-list">
+        <li>Secció nova a <code>/admin</code> per gestionar tots els usuaris</li>
+        <li>Formulari per <strong>crear usuaris</strong> nous (email, nom, password, rol)</li>
+        <li>2 rols: <strong>admin</strong> (pot gestionar usuaris) i <strong>user</strong> (només usar l'app)</li>
+        <li>Per cada usuari: reset password · promoure/degradar admin · eliminar</li>
+        <li>Salvaguarda: no et pots eliminar el teu propi compte</li>
+        <li>Mostra últim accés de cada usuari</li>
+        <li>Endpoints API protegits: <code>POST /api/auth/users</code>, <code>PUT /api/auth/users/:email</code>, <code>DELETE /api/auth/users/:email</code></li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🪪 UI · usuari connectat a la sidebar</div>
+      <ul class="cl-list">
+        <li>Avatar i nom de l'usuari logat es mostren dinàmicament al footer de la sidebar (es llegeix de <code>/api/auth/me</code>)</li>
+        <li>Botó <strong>"Sortir"</strong> nou al footer per fer logout · invalida la sessió i redirigeix a <code>/login</code></li>
+        <li>Funciona a totes les pàgines (peticio, gestio, canvis, formadors, entrades, admin, changelog)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📦 GitHub + auto-deploy</div>
+      <ul class="cl-list">
+        <li>Codi publicat a <code>github.com/ferrylinxx/gesem-planner</code></li>
+        <li>Workflow <code>.github/workflows/deploy.yml</code> per a auto-deploy via SSH a cada push a <code>main</code></li>
+        <li>SSH key dedicada per a GitHub Actions (separada de l'admin)</li>
+        <li><code>README.md</code> + <code>.env.example</code> sense secrets reals · <code>.gitignore</code> exhaustiu</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v29 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v29 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v29 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">07 maig 2026</div>
     </div>
     <div class="cl-vtitle">Parser iCal pro: RRULE + TZID + cache persistent · Sincronitzacions que mai més es perden</div>

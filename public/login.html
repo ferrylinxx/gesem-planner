@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GESEM Planner · Inicia sessió</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="apple-touch-icon" href="/favicon.svg"/>
+<meta name="theme-color" content="#059669"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="/js/teams.js" defer></script>
+<style>
+:root {
+  --primary: #059669;
+  --primary-dark: #047857;
+  --primary-soft: #ECFDF5;
+  --bg: #FAFAF7;
+  --bg-card: #fff;
+  --text: #1a1a1a;
+  --text-muted: #71717A;
+  --text-subtle: #6b6b67;
+  --border: rgba(0,0,0,0.1);
+  --shadow: 0 10px 40px rgba(0,0,0,0.08);
+  --accent-red: #DC2626;
+  --accent-red-soft: #FEE2E2;
+}
+* { box-sizing: border-box }
+html, body { margin:0; padding:0; height:100% }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #ECFDF5 0%, #FAFAF7 50%, #F0FDF4 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--text);
+}
+.bg-deco {
+  position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+}
+.bg-deco::before, .bg-deco::after {
+  content: ''; position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5;
+}
+.bg-deco::before {
+  width: 500px; height: 500px; background: #A7F3D0;
+  top: -100px; left: -100px;
+  animation: float1 20s ease-in-out infinite;
+}
+.bg-deco::after {
+  width: 400px; height: 400px; background: #34D399;
+  bottom: -100px; right: -100px;
+  animation: float2 25s ease-in-out infinite;
+}
+@keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,40px)} }
+@keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,-40px)} }
+
+.card {
+  position: relative; z-index: 1;
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 36px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: var(--shadow);
+  border: 0.5px solid var(--border);
+}
+.brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.brand-logo {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+  border-radius: 14px;
+  margin-bottom: 14px;
+}
+.brand-name {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
+  margin-bottom: 3px;
+}
+.brand-name span { color: var(--primary) }
+.brand-sub {
+  font-size: 12px; color: var(--text-muted);
+}
+h1 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+}
+.desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 22px;
+}
+.fi { margin-bottom: 14px }
+.fi label {
+  display: block; font-size: 11px; font-weight: 500;
+  color: var(--text-subtle); margin-bottom: 5px;
+}
+.fi input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0.5px solid var(--border);
+  border-radius: 9px;
+  background: #f5f4f0;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+.fi input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(5,150,105,0.1);
+}
+.btn-primary {
+  width: 100%;
+  padding: 11px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s;
+  margin-top: 6px;
+}
+.btn-primary:hover { box-shadow: 0 4px 14px rgba(5,150,105,0.3); transform: translateY(-1px) }
+.btn-primary:active { transform: translateY(0) }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none }
+
+.error {
+  display: none;
+  background: var(--accent-red-soft);
+  color: var(--accent-red);
+  padding: 9px 13px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 12px;
+  border: 0.5px solid rgba(220,38,38,0.2);
+}
+.error.show { display: block }
+
+.foot {
+  margin-top: 18px; padding-top: 18px;
+  border-top: 0.5px solid var(--border);
+  text-align: center; font-size: 11px;
+  color: var(--text-muted);
+}
+
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+</style>
+</head>
+<body>
+
+<div class="bg-deco"></div>
+
+<div class="card">
+  <div class="brand">
+    <div class="brand-logo">
+      <svg width="32" height="32" viewBox="0 0 56 56" fill="none">
+        <rect x="8" y="14" width="36" height="10" rx="2" fill="#A7F3D0" transform="rotate(-4 26 19)"/>
+        <rect x="10" y="22" width="36" height="10" rx="2" fill="#34D399"/>
+        <rect x="12" y="32" width="36" height="10" rx="2" fill="#059669" transform="rotate(3 30 37)"/>
+      </svg>
+    </div>
+    <div class="brand-name">GESEM <span>Planner</span></div>
+    <div class="brand-sub">Gestió de reserves de formació</div>
+  </div>
+
+  <h1>Inicia sessió</h1>
+  <p class="desc">Accedeix amb el teu compte corporatiu</p>
+
+  <div class="error" id="err"></div>
+
+  <form id="login-form" autocomplete="on">
+    <div class="fi">
+      <label for="email">Correu electrònic</label>
+      <input type="email" id="email" name="email" required autocomplete="email" placeholder="usuari@gesem.es"/>
+    </div>
+    <div class="fi">
+      <label for="password">Contrasenya</label>
+      <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••"/>
+    </div>
+    <button type="submit" class="btn-primary" id="submit-btn">Entrar</button>
+  </form>
+
+  <div class="foot">
+    GESEM digital &amp; SoftSkills · <span style="opacity:0.6">v30</span>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('login-form');
+const errEl = document.getElementById('err');
+const btn = document.getElementById('submit-btn');
+
+function showError(msg) {
+  errEl.textContent = msg;
+  errEl.classList.add('show');
+}
+function clearError() {
+  errEl.classList.remove('show');
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearError();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { showError('Omple tots els camps'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Entrant...';
+
+  try {
+    const r = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      credentials: 'same-origin',
+    });
+    const data = await r.json();
+    if (!r.ok || !data.ok) {
+      showError(data.error || 'Credencials incorrectes');
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+      return;
+    }
+    // Redirigeix al destí original (?next=) o a /peticio
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get('next');
+    window.location.href = next && next.startsWith('/') ? next : '/peticio';
+  } catch (e) {
+    showError('Error de connexió. Torna-ho a provar.');
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  }
+});
+
+// Si ja estem autenticats, redirigeix
+fetch('/api/auth/me', { credentials: 'same-origin' })
+  .then(r => r.json())
+  .then(d => {
+    if (d.authenticated) {
+      const params = new URLSearchParams(window.location.search);
+      window.location.href = params.get('next') || '/peticio';
+    }
+  })
+  .catch(() => {});
+</script>
+
+</body>
+</html>

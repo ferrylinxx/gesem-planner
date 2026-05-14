@@ -3275,8 +3275,50 @@ window.addEventListener('pageshow',(e)=>{if(e.persisted)checkMaintenanceMode();}
 // Polling periòdic com a últim recurs (poc agressiu)
 setInterval(checkMaintenanceMode,30000);
 
+// Carrega l'usuari autenticat i decora la sidebar amb el seu nom + logout
+async function loadCurrentUser(){
+  try{
+    const r=await fetch('/api/auth/me',{credentials:'same-origin'});
+    const d=await r.json();
+    if(!d.authenticated || !d.user) return null;
+    const u=d.user;
+    window.currentUser=u;
+    // Actualitza l'avatar i el nom a la sidebar
+    const av=document.querySelector('.sidebar-user-av');
+    const nameEl=document.querySelector('.sidebar-user span');
+    if(av){
+      av.textContent=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+      av.title=u.email;
+    }
+    if(nameEl){
+      nameEl.textContent=u.name||u.email.split('@')[0];
+      nameEl.title=u.email+(u.role==='admin'?' · admin':'');
+    }
+    // Afegim un botó "Sortir" al footer de la sidebar si no hi és
+    const foot=document.querySelector('.sidebar-foot');
+    if(foot && !document.getElementById('sb-logout-btn')){
+      const btn=document.createElement('button');
+      btn.id='sb-logout-btn';
+      btn.className='sb-foot-item';
+      btn.setAttribute('aria-label','Sortir');
+      btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>Sortir</span>`;
+      btn.onclick=async()=>{
+        try{ await fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}); }catch(e){}
+        window.location.href='/login';
+      };
+      foot.appendChild(btn);
+    }
+    return u;
+  }catch(e){
+    console.warn('[auth] no s\'ha pogut carregar l\'usuari:',e);
+    return null;
+  }
+}
+
 async function initApp(){
   setActiveNavButton();
+  // Carrega l'usuari en paral·lel (no bloqueja la càrrega de dades)
+  loadCurrentUser();
   try{
     const data=await loadAllData();
 

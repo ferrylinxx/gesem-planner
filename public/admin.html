@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/css/styles.css"/>
+<script src="/js/teams.js" defer></script>
 <style>
 .admin-wrap{max-width:760px;margin:0 auto;padding:32px 24px}
 .admin-hero{display:flex;align-items:center;gap:14px;margin-bottom:28px}
@@ -137,8 +138,27 @@ textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgb
       <div class="k">SMTP</div><div class="v" id="info-smtp">—</div>
       <div class="k">IA (Groq)</div><div class="v" id="info-ai">—</div>
       <div class="k">Manteniment des de</div><div class="v" id="info-since">—</div>
-      <div class="k">Versió</div><div class="v">v29</div>
+      <div class="k">Versió</div><div class="v">v30</div>
     </div>
+  </div>
+
+  <!-- Gestió d'usuaris -->
+  <div class="section">
+    <h2>Usuaris</h2>
+    <p class="desc">Persones amb accés a GESEM Planner. Només els admins poden crear o eliminar usuaris.</p>
+
+    <div style="background:#fafafa;border:0.5px solid rgba(0,0,0,0.08);border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">Crear nou usuari</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div><label style="font-size:11px;color:#71717A;font-weight:500;display:block;margin-bottom:3px">Email</label><input type="email" id="newuser-email" placeholder="usuari@gesem.es" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;font-size:13px;font-family:inherit"/></div>
+        <div><label style="font-size:11px;color:#71717A;font-weight:500;display:block;margin-bottom:3px">Nom</label><input type="text" id="newuser-name" placeholder="Nom complet" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;font-size:13px;font-family:inherit"/></div>
+        <div><label style="font-size:11px;color:#71717A;font-weight:500;display:block;margin-bottom:3px">Contrasenya</label><input type="text" id="newuser-pwd" placeholder="Min 8 caràcters" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;font-size:13px;font-family:inherit"/></div>
+        <div><label style="font-size:11px;color:#71717A;font-weight:500;display:block;margin-bottom:3px">Rol</label><select id="newuser-role" style="width:100%;padding:8px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#fff;font-size:13px;font-family:inherit"><option value="user">Usuari</option><option value="admin">Administrador</option></select></div>
+      </div>
+      <button class="btn btn-sm" onclick="createNewUser()">+ Crear usuari</button>
+    </div>
+
+    <div id="users-list" style="display:flex;flex-direction:column;gap:6px"></div>
   </div>
 
   <!-- Acccions ràpides -->
@@ -221,7 +241,99 @@ async function saveMessage(){
   }catch(e){toast('Error: '+e.message);}
 }
 
-document.addEventListener('DOMContentLoaded',loadStatus);
+// ── GESTIÓ D'USUARIS ─────────────────────────────────────
+async function loadUsers(){
+  try{
+    const r=await fetch('/api/auth/users',{credentials:'same-origin'});
+    if(!r.ok){
+      const me=await fetch('/api/auth/me',{credentials:'same-origin'}).then(x=>x.json()).catch(()=>({}));
+      document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:#71717A;padding:10px">'+(me.user?.role!=='admin'?'Cal rol admin per gestionar usuaris':'Error carregant usuaris')+'</div>';
+      return;
+    }
+    const data=await r.json();
+    const meR=await fetch('/api/auth/me',{credentials:'same-origin'}).then(x=>x.json()).catch(()=>({}));
+    const me=meR.user?.email||'';
+    renderUsers(data.users||[],me);
+  }catch(e){
+    document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:#DC2626;padding:10px">Error: '+e.message+'</div>';
+  }
+}
+
+function renderUsers(users, meEmail){
+  if(!users.length){
+    document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:#71717A;padding:10px;text-align:center">Cap usuari registrat</div>';
+    return;
+  }
+  document.getElementById('users-list').innerHTML=users.map(u=>{
+    const isMe=u.email.toLowerCase()===meEmail.toLowerCase();
+    const last=u.lastLoginAt?new Date(u.lastLoginAt).toLocaleString('ca-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'mai';
+    const initials=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 11px;border:0.5px solid rgba(0,0,0,0.08);border-radius:10px;background:#fff">
+      <div style="width:32px;height:32px;border-radius:50%;background:#059669;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px">${u.name||u.email.split('@')[0]} ${u.role==='admin'?'<span style="background:#FEF3C7;color:#92400E;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600">ADMIN</span>':''} ${isMe?'<span style="background:#ECFDF5;color:#085041;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600">JO</span>':''}</div>
+        <div style="font-size:11px;color:#71717A">${u.email} · últim accés: ${last}</div>
+      </div>
+      <button class="btn btn-sm" style="font-size:11px" onclick="resetUserPwd('${u.email}')">🔑 Reset pwd</button>
+      ${u.role!=='admin'?`<button class="btn btn-sm" style="font-size:11px;background:#FEF3C7;border-color:#FCD34D;color:#92400E" onclick="promoteUser('${u.email}')">↑ Admin</button>`:`<button class="btn btn-sm" style="font-size:11px" onclick="demoteUser('${u.email}')">↓ Usuari</button>`}
+      ${isMe?'':`<button class="btn btn-sm" style="font-size:11px;background:#FEE2E2;border-color:#FCA5A5;color:#991B1B" onclick="deleteUser('${u.email}')">🗑</button>`}
+    </div>`;
+  }).join('');
+}
+
+async function createNewUser(){
+  const email=document.getElementById('newuser-email').value.trim();
+  const name=document.getElementById('newuser-name').value.trim();
+  const password=document.getElementById('newuser-pwd').value;
+  const role=document.getElementById('newuser-role').value;
+  if(!email||!password){toast('Email i password obligatoris');return;}
+  if(password.length<8){toast('Password mínim 8 caràcters');return;}
+  try{
+    const r=await fetch('/api/auth/users',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name,password,role})});
+    const d=await r.json();
+    if(!r.ok||!d.ok){toast(d.error||'Error');return;}
+    document.getElementById('newuser-email').value='';
+    document.getElementById('newuser-name').value='';
+    document.getElementById('newuser-pwd').value='';
+    document.getElementById('newuser-role').value='user';
+    toast('✓ Usuari creat');
+    loadUsers();
+  }catch(e){toast('Error: '+e.message);}
+}
+
+async function resetUserPwd(email){
+  const pwd=prompt('Nova contrasenya per a '+email+' (min 8 caràcters):');
+  if(!pwd)return;
+  if(pwd.length<8){toast('Mínim 8 caràcters');return;}
+  try{
+    const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+    const d=await r.json();
+    if(d.ok)toast('✓ Contrasenya actualitzada');else toast(d.error||'Error');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+async function promoteUser(email){
+  if(!confirm('Promocionar '+email+' a administrador?'))return;
+  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'admin'})});
+  const d=await r.json();
+  if(d.ok){toast('✓ Promogut a admin');loadUsers();}else toast(d.error||'Error');
+}
+
+async function demoteUser(email){
+  if(!confirm('Treure permisos d\'administrador a '+email+'?'))return;
+  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'user'})});
+  const d=await r.json();
+  if(d.ok){toast('✓ Convertit a usuari');loadUsers();}else toast(d.error||'Error');
+}
+
+async function deleteUser(email){
+  if(!confirm('Eliminar usuari '+email+'? Aquesta acció no es pot desfer.'))return;
+  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'DELETE',credentials:'same-origin'});
+  const d=await r.json();
+  if(d.ok){toast('✓ Usuari eliminat');loadUsers();}else toast(d.error||'Error');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{loadStatus();loadUsers();});
 </script>
 </body>
 </html>

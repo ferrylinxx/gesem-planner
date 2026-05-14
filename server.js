@@ -1,5 +1,6 @@
 const express = require('express');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const os = require('os');
 const { readJSON, writeJSON, hasKey, DATA_DIR, DB_PATH } = require('./db');
@@ -10,10 +11,35 @@ const icsLib = require('./lib/ics');
 const tmpl = require('./lib/emailTemplates');
 const google = require('./lib/google');
 const festius = require('./lib/festius');
+const auth = require('./lib/auth');
 
 const app = express();
 app.use(compression()); // gzip per a tot: redueix JS/HTML/CSS ~70%
 app.use(express.json({ limit: '32mb' }));
+app.use(cookieParser());
+
+// ── HEADERS PER A INTEGRACIÓ AMB MICROSOFT TEAMS ────────────────
+// Teams carrega l'app dins d'un iframe. Si retornem X-Frame-Options:DENY
+// (o un CSP frame-ancestors restrictiu), Teams mostra una pantalla en blanc.
+// Aquests dominis són els hosts on Teams pot embed contingut:
+//   · *.teams.microsoft.com  · *.skype.com  · *.microsoft365.com
+// Trust the proxy (Nginx) per a què req.protocol/req.ip funcionin bé
+app.set('trust proxy', 1);
+app.use((req, res, next) => {
+  // Permetre embed en Teams + clients Office
+  res.removeHeader('X-Frame-Options'); // per si alguna middleware el posa
+  res.setHeader('Content-Security-Policy',
+    "frame-ancestors 'self' " +
+    "https://teams.microsoft.com https://*.teams.microsoft.com " +
+    "https://*.skype.com https://*.microsoft365.com " +
+    "https://*.office.com https://*.officeapps.live.com " +
+    "https://*.sharepoint.com");
+  // HSTS si arribem via HTTPS (només si trust proxy detecta protocol)
+  if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+    res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+  }
+  next();
+});
 // ── MAINTENANCE MODE MIDDLEWARE ──────────────────────────────────
 // Si la flag està activa: tothom veu /maintenance.html
 // Excepcions (sempre accessibles): /admin*, /api/admin/*, /maintenance, assets estàtics
@@ -22,8 +48,11 @@ function isMaintenanceBypass(req) {
   if (p === '/admin' || p.startsWith('/admin/')) return true;
   if (p.startsWith('/api/admin/')) return true;
   if (p === '/maintenance' || p === '/maintenance.html') return true;
+  // Login: durant manteniment els admins han de poder entrar a /admin
+  if (p === '/login' || p === '/login.html') return true;
+  if (p.startsWith('/api/auth/')) return true;
   // Assets necessaris perquè la pàgina de manteniment renderitzi
-  if (p.startsWith('/css/') || p.startsWith('/js/i18n.js') || p === '/favicon.svg') return true;
+  if (p.startsWith('/css/') || p.startsWith('/js/') || p === '/favicon.svg') return true;
   return false;
 }
 
@@ -46,6 +75,96 @@ app.use((req, res, next) => {
 
 // `index: false` perquè la ruta "/" custom funcioni (redirigeix a /peticio)
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+
+// ── AUTH · endpoints + middleware ──────────────────────────────
+// Login: rep email+password, retorna sessió + cookie HttpOnly
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password) return res.status(400).json({ ok: false, error: 'Email i password obligatoris' });
+  const user = auth.findUserByEmail(email);
+  if (!user || !auth.verifyPassword(password, user.password)) {
+    // No revelem si l'usuari existeix o no
+    return res.status(401).json({ ok: false, error: 'Credencials incorrectes' });
+  }
+  const { token, expiresAt } = auth.createSession(user.email);
+  res.cookie(auth.COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+    sameSite: 'lax',
+    maxAge: auth.SESSION_TTL_MS,
+    path: '/',
+  });
+  const { password: _, ...safe } = user;
+  res.json({ ok: true, user: safe, expiresAt });
+});
+
+// Estat de sessió actual · si no està logat, 200 amb user:null (no 401)
+app.get('/api/auth/me', (req, res) => {
+  const token = req.cookies && req.cookies[auth.COOKIE_NAME];
+  const user = auth.validateSession(token);
+  res.json({ authenticated: !!user, user: user || null });
+});
+
+// Logout · esborra cookie + invalida sessió
+app.post('/api/auth/logout', (req, res) => {
+  const token = req.cookies && req.cookies[auth.COOKIE_NAME];
+  if (token) auth.revokeSession(token);
+  res.clearCookie(auth.COOKIE_NAME, { path: '/' });
+  res.json({ ok: true });
+});
+
+// Middleware d'autenticació · protegeix totes les rutes excepte les públiques
+// (login, assets, /r/:token, /api/google/callback, /maintenance)
+app.use(auth.middleware());
+
+// Crear usuari admin inicial al boot si encara no n'hi ha cap
+auth.ensureInitialAdmin();
+
+// Cleanup periòdic de sessions caducades (cada 6h)
+setInterval(() => { try { auth.cleanupExpired(); } catch(e){} }, 6 * 60 * 60 * 1000);
+
+// Endpoint per a /login (públic)
+app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/login.html', (req, res) => res.redirect('/login'));
+
+// ── ADMIN: gestió d'usuaris (només per admins) ─────────────────
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ ok: false, error: 'Cal rol admin' });
+  }
+  next();
+}
+
+app.get('/api/auth/users', requireAdmin, (req, res) => {
+  res.json({ users: auth.listUsers() });
+});
+
+app.post('/api/auth/users', requireAdmin, (req, res) => {
+  try {
+    const u = auth.createUser(req.body || {});
+    res.json({ ok: true, user: u });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: e.message });
+  }
+});
+
+app.put('/api/auth/users/:email', requireAdmin, (req, res) => {
+  try {
+    const u = auth.updateUser(decodeURIComponent(req.params.email), req.body || {});
+    res.json({ ok: true, user: u });
+  } catch (e) {
+    res.status(400).json({ ok: false, error: e.message });
+  }
+});
+
+app.delete('/api/auth/users/:email', requireAdmin, (req, res) => {
+  // No permetre eliminar el propi usuari (per evitar quedar-se fora)
+  if (decodeURIComponent(req.params.email).toLowerCase() === (req.user.email || '').toLowerCase()) {
+    return res.status(400).json({ ok: false, error: 'No pots eliminar el teu propi usuari' });
+  }
+  const ok = auth.deleteUser(decodeURIComponent(req.params.email));
+  res.json({ ok });
+});
 
 // ── ADMIN: estat de manteniment ────────────────────────────────
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
