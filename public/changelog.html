@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v46</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v47</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,51 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v46 · actual</div>
+    <div class="cl-current">v47 · actual</div>
+  </div>
+
+  <!-- ════════════ v47 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v47 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Fases de manteniment persistents · zero-flash al recarregar</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">💾 Estat del countdown i fases cachejat a localStorage</div>
+      <ul class="cl-list">
+        <li><strong>Símptoma anterior</strong>: en recarregar <code>/maintenance</code>, les fases tornaven momentàniament a 0% fins que el <code>fetch /api/admin/maintenance</code> responia (flash visual de ~200ms-1s)</li>
+        <li>Ara desem l'estat de manteniment (<code>endsAt</code>, <code>activatedAt</code>, <code>message</code>, <code>active</code>) a <strong>localStorage</strong> (clau <code>gesem_maint_state_v1</code>) cada cop que el servidor respon</li>
+        <li>Al carregar la pàgina, <strong>abans</strong> del fetch, llegim aquesta cache i pintem les fases immediatament al % correcte basant-nos en (now - activatedAt) / (endsAt - activatedAt)</li>
+        <li>La cache es considera vàlida fins a 5 min després del moment <code>endsAt</code> previst; si el manteniment ja s'ha desactivat (<code>active=false</code>), s'esborra automàticament</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⏱ Fake-progress ancorat a activatedAt (no més reset al refrescar)</div>
+      <ul class="cl-list">
+        <li><strong>Símptoma anterior</strong>: si NO hi havia <code>endsAt</code> configurat a /admin, les fases avançaven 1% cada 8s amb un comptador <em>en memòria</em>. Recarregar la pàgina = tornar a 0%</li>
+        <li>Ara, sense <code>endsAt</code>, calculem el progrés com <strong>(now − activatedAt) / 30min</strong>, capant a 95%</li>
+        <li>Resultat: el % és <strong>determinístic</strong> i depèn només del temps real transcorregut des de l'activació. Recarregar la pàgina manté exactament el mateix progrés</li>
+        <li>Tick de 1s en lloc dels 8s anteriors → progressió molt més fluïda</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎯 Sincronia 100% amb el countdown</div>
+      <ul class="cl-list">
+        <li>Cada segon, el mateix tick que actualitza els nombres del countdown (HH:MM:SS) recalcula també el % de les fases</li>
+        <li>Quan el countdown arriba a <strong>00:00:00</strong>, totes les fases passen a <strong>done</strong> alhora amb l'animació de celebració</li>
+        <li>L'estat es preserva entre recàrregues → l'experiència és contínua tot i refrescar</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v46 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v46 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v46</div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Redisseny complet de /admin · Dashboard real-time + tabs + activitat + backups</div>
