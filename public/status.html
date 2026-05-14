@@ -169,6 +169,9 @@ body{min-height:100vh}
 .svc-status.partial_outage{background:var(--amber-bg);color:#B45309}
 .svc-status.major_outage{background:var(--red-bg);color:#991B1B}
 .svc-status.maintenance{background:var(--violet-bg);color:#5B21B6}
+.svc-status.unconfigured{background:#F3F4F6;color:#6B7280}
+.svc-rt{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-subtle);margin-left:8px;flex-shrink:0}
+.svc-rt b{color:var(--text);font-weight:600}
 .svc-status .led{
   width:7px;height:7px;border-radius:50%;
   background:currentColor;
@@ -204,6 +207,7 @@ body{min-height:100vh}
 .uptime-bar.degraded{background:var(--amber)}
 .uptime-bar.partial_outage{background:#FB923C}
 .uptime-bar.major_outage{background:var(--red)}
+.uptime-bar.no_data{background:#E5E7EB}
 .uptime-bar:hover{transform:scaleY(1.15);opacity:0.85}
 .uptime-bar .tip{
   position:absolute;bottom:calc(100% + 8px);left:50%;
@@ -358,6 +362,8 @@ const SVC_STATUS_LBL = {
   partial_outage: 'Interromput',
   major_outage: 'Caigut',
   maintenance: 'Manteniment',
+  unconfigured: 'No configurat',
+  no_data: 'Sense dades',
 };
 const SVC_ICONS = {
   web: '🌐', api: '⚡', smtp: '✉️', ai: '🤖', google: '📅', db: '💾'
@@ -418,19 +424,28 @@ function render(data) {
   }
 
   // Services list
-  const svcHtml = (data.services || []).map(s => `
-    <div class="svc">
-      <div class="svc-icon ${s.id}">${SVC_ICONS[s.id] || '•'}</div>
-      <div class="svc-body">
-        <div class="svc-name">${s.name}</div>
-        <div class="svc-desc">${s.desc || ''}</div>
+  const svcHtml = (data.services || []).map(s => {
+    const rt = (typeof s.responseTime === 'number' && s.responseTime > 0)
+      ? `<div class="svc-rt"><b>${s.responseTime}</b>ms</div>` : '';
+    const errTooltip = s.error ? ` title="${(s.error || '').replace(/"/g,'&quot;')}"` : '';
+    const desc = s.error
+      ? `<div class="svc-desc" style="color:#DC2626"${errTooltip}>⚠ ${(s.error || '').slice(0, 60)}</div>`
+      : `<div class="svc-desc">${s.desc || ''}${s.meta && s.meta.rssMB ? ` · ${s.meta.rssMB}MB` : ''}${s.meta && typeof s.meta.tokensStored === 'number' ? ` · ${s.meta.tokensStored} tokens` : ''}</div>`;
+    return `
+      <div class="svc">
+        <div class="svc-icon ${s.id}">${SVC_ICONS[s.id] || '•'}</div>
+        <div class="svc-body">
+          <div class="svc-name">${s.name}</div>
+          ${desc}
+        </div>
+        ${rt}
+        <div class="svc-status ${s.status}">
+          <span class="led"></span>
+          <span>${SVC_STATUS_LBL[s.status] || s.status}</span>
+        </div>
       </div>
-      <div class="svc-status ${s.status}">
-        <span class="led"></span>
-        <span>${SVC_STATUS_LBL[s.status] || s.status}</span>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   // Uptime bars
   const days = (data.uptime && data.uptime.days) || [];
@@ -512,7 +527,9 @@ function render(data) {
     </section>
   `;
 
-  document.getElementById('last-check').textContent = new Date().toLocaleTimeString('ca-ES');
+  const lc = data.lastHealthCheck ? new Date(data.lastHealthCheck) : null;
+  const lcStr = lc ? `${lc.toLocaleTimeString('ca-ES')} · health checks reals cada 2 min` : 'esperant primer check...';
+  document.getElementById('last-check').textContent = lcStr;
 }
 
 async function load() {

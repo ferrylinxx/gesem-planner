@@ -12,6 +12,7 @@ const tmpl = require('./lib/emailTemplates');
 const google = require('./lib/google');
 const festius = require('./lib/festius');
 const auth = require('./lib/auth');
+const healthChecks = require('./lib/healthChecks');
 
 // Boot time per uptime tracking (fix per process restarts vs server uptime)
 const SERVER_BOOT_AT = Date.now();
@@ -421,6 +422,7 @@ app.post('/api/admin/maintenance', (req, res) => {
 // ── /api/status · estat públic del sistema (estil Supabase) ─────────
 // Retorna estat actual + historial uptime (90 dies) + incidents recents.
 // És PÚBLIC (no requereix auth) per a la pàgina /status.
+// Els health checks reals es fan en background cada 2 min (no aquí).
 app.get('/api/status', (req, res) => {
   try {
     const m = readJSON('maintenance.json', { active: false });
@@ -428,51 +430,93 @@ app.get('/api/status', (req, res) => {
     // Auto-resol incidents si hi ha un actiu però el manteniment ja no està
     let dirty = false;
     incidents.forEach(i => {
-      if (!i.resolvedAt && !m.active) { i.resolvedAt = new Date().toISOString(); dirty = true; }
+      if (!i.resolvedAt && !m.active && i.severity === 'maintenance') {
+        i.resolvedAt = new Date().toISOString();
+        const startedAt = Date.parse(i.startedAt);
+        if (!isNaN(startedAt)) i.durationMs = Date.now() - startedAt;
+        dirty = true;
+      }
     });
     if (dirty) writeJSON('incidents.json', incidents);
-    // Health checks bàsics (síncrons, no fan calls externs aquí · això ho fa /api/admin/health)
-    const services = [
-      { id: 'web', name: 'Web · planner.gesem.es', status: m.active ? 'maintenance' : 'operational', desc: 'Aplicació web principal' },
-      { id: 'api', name: 'API · backend', status: m.active ? 'maintenance' : 'operational', desc: 'Endpoints REST' },
-      { id: 'smtp', name: 'SMTP · correu', status: process.env.SMTP_HOST ? 'operational' : 'degraded', desc: 'Enviament de correus de confirmació' },
-      { id: 'ai', name: 'IA · Anthropic', status: process.env.ANTHROPIC_API_KEY ? 'operational' : 'degraded', desc: 'Suggeridor automàtic de formador' },
-      { id: 'google', name: 'Google Calendar', status: process.env.GOOGLE_CLIENT_ID ? 'operational' : 'degraded', desc: 'Sincronització de calendaris' },
-      { id: 'db', name: 'Base de dades', status: 'operational', desc: 'SQLite local · key-value' },
-    ];
-    // Overall status: pitjor de tots
-    const priorities = { 'major_outage': 4, 'partial_outage': 3, 'maintenance': 2, 'degraded': 1, 'operational': 0 };
+
+    // Llegir últim resultat dels health checks (cron a sota)
+    const cached = healthChecks.getCachedStatus();
+    const SVC_META = {
+      web:    { name: 'Web · planner.gesem.es', desc: 'Aplicació web principal' },
+      api:    { name: 'API · backend', desc: 'Endpoints REST' },
+      smtp:   { name: 'SMTP · correu', desc: 'Enviament de correus (verify real)' },
+      ai:     { name: 'IA · Groq', desc: 'Suggeridor automàtic de formador' },
+      google: { name: 'Google Calendar', desc: 'Sincronització de calendaris' },
+      db:     { name: 'Base de dades', desc: 'SQLite local · key-value' },
+    };
+    const services = ['web','api','smtp','ai','google','db'].map(id => {
+      const c = cached && cached.services && cached.services[id];
+      let status = m.active ? 'maintenance' : (c ? c.status : 'operational');
+      // Si està en manteniment, web/api passen a 'maintenance'; els altres mantenen el seu estat real
+      if (m.active && (id === 'web' || id === 'api')) status = 'maintenance';
+      return {
+        id,
+        name: SVC_META[id].name,
+        desc: SVC_META[id].desc,
+        status,
+        responseTime: c ? c.responseTime : null,
+        error: c ? c.error : null,
+        meta: c ? c.meta : null,
+        checkedAt: cached ? cached.at : null,
+      };
+    });
+
+    // Overall status: pitjor de tots (excloent "unconfigured" · només informatiu)
+    const priorities = { 'major_outage': 5, 'partial_outage': 4, 'maintenance': 3, 'degraded': 2, 'operational': 0 };
     let worst = 'operational';
-    services.forEach(s => { if (priorities[s.status] > priorities[worst]) worst = s.status; });
+    services.forEach(s => {
+      if (s.status === 'unconfigured') return; // no afecta overall
+      if ((priorities[s.status] || 0) > (priorities[worst] || 0)) worst = s.status;
+    });
     if (m.active) worst = 'maintenance';
-    // Uptime · últims 90 dies, derivem dels incidents (qualsevol no-resolt vell del dia compta com "down")
+
+    // Uptime per dia · combinem 2 fonts:
+    //   1) historial real de health checks (per detectar caigudes reals)
+    //   2) incidents (per a manteniments programats)
+    const histDays = healthChecks.computeDailyUptime(90);
     const DAY_MS = 24 * 60 * 60 * 1000;
     const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
-    const days = [];
-    for (let i = 89; i >= 0; i--) {
-      const dayStart = TODAY.getTime() - i * DAY_MS;
+    const days = histDays.map((d, idx) => {
+      const dayStart = TODAY.getTime() - (89 - idx) * DAY_MS;
       const dayEnd = dayStart + DAY_MS;
-      let downMs = 0;
+      // Down time pels incidents (manteniments)
+      let incidentDownMs = 0;
       incidents.forEach(inc => {
         const a = Date.parse(inc.startedAt);
         const b = inc.resolvedAt ? Date.parse(inc.resolvedAt) : Date.now();
         if (isNaN(a) || isNaN(b)) return;
         const overlapStart = Math.max(a, dayStart);
         const overlapEnd = Math.min(b, dayEnd);
-        if (overlapEnd > overlapStart) downMs += (overlapEnd - overlapStart);
+        if (overlapEnd > overlapStart) incidentDownMs += (overlapEnd - overlapStart);
       });
-      const uptimePct = Math.max(0, Math.min(100, 100 - (downMs / DAY_MS) * 100));
-      days.push({
-        date: new Date(dayStart).toISOString().slice(0, 10),
-        uptimePct: Math.round(uptimePct * 100) / 100,
-        downMs,
-        status: downMs === 0 ? 'operational' : (downMs > DAY_MS * 0.5 ? 'major_outage' : (downMs > DAY_MS * 0.05 ? 'partial_outage' : 'degraded')),
-      });
-    }
-    const uptime90 = days.reduce((s, d) => s + d.uptimePct, 0) / days.length;
+      const incidentUptime = Math.max(0, 100 - (incidentDownMs / DAY_MS) * 100);
+      // Si no tenim snapshots del dia, utilitzem només incidents
+      const healthUptime = d.uptimePct == null ? 100 : d.uptimePct;
+      const finalUptime = Math.min(incidentUptime, healthUptime);
+      let status = 'operational';
+      if (finalUptime < 50) status = 'major_outage';
+      else if (finalUptime < 95) status = 'partial_outage';
+      else if (finalUptime < 99.9) status = 'degraded';
+      if (d.snaps === 0 && incidentDownMs === 0) status = 'no_data';
+      return {
+        date: d.date,
+        uptimePct: Math.round(finalUptime * 100) / 100,
+        status,
+        snaps: d.snaps,
+      };
+    });
+    const validDays = days.filter(d => d.status !== 'no_data');
+    const uptime90 = validDays.length ? validDays.reduce((s, d) => s + d.uptimePct, 0) / validDays.length : 100;
+
     res.json({
       status: worst,
       checkedAt: new Date().toISOString(),
+      lastHealthCheck: cached ? cached.at : null,
       maintenance: m.active ? { active: true, message: m.message, activatedAt: m.activatedAt, endsAt: m.endsAt } : null,
       services,
       uptime: {
@@ -484,6 +528,16 @@ app.get('/api/status', (req, res) => {
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
+  }
+});
+
+// Endpoint admin per forçar un re-check ara mateix (útil després de canviar config)
+app.post('/api/admin/health/recheck', async (req, res) => {
+  try {
+    const result = await healthChecks.runAllChecks();
+    res.json({ ok: true, ...result });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
   }
 });
 
@@ -1717,4 +1771,17 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('══════════════════════════════════════════\n');
   // Activar el cron diari de refresc de calendaris
   scheduleDailyCalendarRefresh();
+
+  // Health checks reals: primer en startup (després de 5s · permet que el servidor
+  // s'estabilitzi i les variables d'entorn estiguin disponibles), després cada 2 min.
+  setTimeout(() => {
+    healthChecks.runAllChecks().then(r => {
+      const svc = r.services;
+      console.log('[health] inicial · SMTP:%s IA:%s Google:%s DB:%s', svc.smtp.status, svc.ai.status, svc.google.status, svc.db.status);
+    }).catch(e => console.warn('[health] error startup:', e.message));
+  }, 5000);
+  // Cada 2 minuts
+  setInterval(() => {
+    healthChecks.runAllChecks().catch(e => console.warn('[health] error cron:', e.message));
+  }, 2 * 60 * 1000);
 });

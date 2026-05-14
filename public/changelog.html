@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v48</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v49</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,78 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v48 · actual</div>
+    <div class="cl-current">v49 · actual</div>
+  </div>
+
+  <!-- ════════════ v49 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v49 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Health checks 100% reals · proves connectivitat + historial persistent</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔬 De "fake" a real · cada servei es prova de veritat</div>
+      <ul class="cl-list">
+        <li><strong>Abans</strong> (v48): la status page només mirava si la variable d'entorn existia. No provava si el servei realment responia</li>
+        <li><strong>Ara</strong> (v49): cada servei fa una trucada real i mesura el <strong>response time</strong>:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li><strong>SMTP</strong> · <code>transporter.verify()</code> de Nodemailer connecta amb el servidor de correu real</li>
+            <li><strong>Anthropic IA</strong> · fa una crida real a <code>POST /v1/messages</code> amb 1 token (cost ~$0.0001/dia)</li>
+            <li><strong>Google Calendar</strong> · fetch a <code>discovery/v1/apis/calendar/v3/rest</code> + recompte de tokens guardats</li>
+            <li><strong>Base de dades</strong> · escriu + llegeix una key de test (verifica integritat read/write)</li>
+            <li><strong>Web/API</strong> · monitorea la <code>RSS memory</code> del procés (degradat &gt;800MB, caigut &gt;1500MB)</li>
+          </ul>
+        </li>
+        <li>Cada check té timeout (5-6s) i captura errors → si Anthropic falla, veuràs <code>"Auth failed"</code> o el codi HTTP real</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⏱ Cron cada 2 min + cache</div>
+      <ul class="cl-list">
+        <li>Els checks s'executen <strong>en background</strong> cada 2 min (no a cada request /api/status)</li>
+        <li>Resultats cachejats a <code>health_status.json</code> (últim) + <code>health_history.json</code> (rolling 30 dies, ~21600 snapshots)</li>
+        <li><code>/api/status</code> retorna el resultat cachejat instantàniament + indica quan va ser l'última prova</li>
+        <li>Primer check 5s després del boot (deixa estabilitzar variables d'entorn)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📈 Uptime 90 dies basat en historial real</div>
+      <ul class="cl-list">
+        <li>Cada snapshot del historial conté l'estat de tots els serveis en aquell moment</li>
+        <li>L'uptime diari es calcula com <code>(snaps_OK / total_snaps) × 100</code> per dia</li>
+        <li>Es <strong>combina</strong> amb els incidents (per a manteniments programats) per donar la xifra final</li>
+        <li>Dies sense dades es marquen com <code>no_data</code> (gris) en lloc de fer-se passar per 100% operational</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 UI millorada de la status page</div>
+      <ul class="cl-list">
+        <li>Cada servei mostra el <strong>response time</strong> real (ex: <em>284ms</em>) en JetBrains Mono</li>
+        <li>Si un check falla, el missatge d'error es mostra en vermell sota el nom del servei</li>
+        <li>Memòria RSS del procés visible sota Web/API</li>
+        <li>Comptador de tokens Google guardats sota el servei Google Calendar</li>
+        <li>Header indica "última prova fa X" amb timestamp del cron</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🛠 Nous endpoints</div>
+      <ul class="cl-list">
+        <li><code>POST /api/admin/health/recheck</code> · força un re-check ara mateix (útil després de canviar config SMTP/AI)</li>
+        <li>Nou mòdul <code>lib/healthChecks.js</code> reutilitzable</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v48 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v48 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v48</div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Status page pública (estil Supabase) + auto-update countdown</div>
