@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v42</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v43</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,60 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v42 · actual</div>
+    <div class="cl-current">v43 · actual</div>
+  </div>
+
+  <!-- ════════════ v43 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v43 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Countdown configurable al manteniment · Card més amunt i ample</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⏱ Countdown gran a la pàgina de manteniment</div>
+      <ul class="cl-list">
+        <li>Quan defineixes una <strong>hora prevista de tornar a estar operatiu</strong> des de <code>/admin</code>, la pàgina de manteniment mostra ara un <strong>countdown gegant</strong> (HH:MM:SS) amb:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>Nombres en <strong>JetBrains Mono</strong> amb gradient verd→clar i text-shadow lluminós</li>
+            <li><strong>Micro-animació "tick"</strong> cada vegada que canvia un dígit (scale 1.08)</li>
+            <li>Separadors <strong>"</strong>:<strong>"</strong> parpellejant suaument (1.5s)</li>
+            <li><strong>Barra de progrés</strong> entre l'inici del manteniment i el endsAt (gradient verd→blau, amb glow)</li>
+            <li><strong>ETA línia inferior</strong>: <em>"Operatius cap a les 16:30"</em></li>
+            <li><strong>Mode "overdue"</strong>: si passa el temps i el manteniment segueix actiu, els colors canvien a ambre + missatge disculpa</li>
+          </ul>
+        </li>
+        <li>Si NO definexes <code>endsAt</code> a /admin, el countdown no es mostra (comportament igual que abans)</li>
+        <li>Actualització cada segon · sincronitzat amb el rellotge real (no acumula deriva)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⚙️ Nou camp endsAt a /admin</div>
+      <ul class="cl-list">
+        <li>Nou input <strong>datetime-local</strong> a /admin per definir quan tornem a estar operatius</li>
+        <li><strong>Botons ràpids</strong>: +15 min · +30 min · +1h · +2h · ✕ Treure</li>
+        <li>Conversió automàtica hora local ↔ ISO 8601 (UTC) pel servidor</li>
+        <li>Backend: <code>POST /api/admin/maintenance</code> accepta i emmagatzema <code>endsAt</code> al <code>maintenance.json</code></li>
+        <li>Layout reorganitzat: hora prevista + missatge en grid 2 columnes</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📐 Card de manteniment més ampla i amunt</div>
+      <ul class="cl-list">
+        <li>Amplada màxima <strong>640px → 880px</strong> (+37% més contingut sense scroll)</li>
+        <li>Padding superior reduït · la card apareix gairebé al cim de la pantalla</li>
+        <li>Responsive: en mòbil els nombres del countdown baixen a 38px (era 54px desktop)</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v42 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v42 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v42 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Fix splash: loading bar mal posicionada</div>

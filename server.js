@@ -236,12 +236,23 @@ app.get('/api/admin/maintenance', (req, res) => {
 });
 
 app.post('/api/admin/maintenance', (req, res) => {
-  const { active, message } = req.body || {};
+  const { active, message, endsAt } = req.body || {};
   const cur = readJSON('maintenance.json', { active: false });
+  // endsAt: ISO string opcional. Si arriba string buit → es treu (sense countdown).
+  let nextEndsAt;
+  if (endsAt === '' || endsAt === null) nextEndsAt = null;
+  else if (endsAt !== undefined) {
+    // Validar que sigui una data parsejable i en el futur
+    const ts = Date.parse(endsAt);
+    nextEndsAt = isNaN(ts) ? null : new Date(ts).toISOString();
+  } else {
+    nextEndsAt = cur.endsAt || null;
+  }
   const next = {
     active: !!active,
     message: typeof message === 'string' ? message : (cur.message || ''),
     activatedAt: active && !cur.active ? new Date().toISOString() : (active ? cur.activatedAt : null),
+    endsAt: nextEndsAt,
   };
   writeJSON('maintenance.json', next);
   res.json({ ok: true, ...next });
