@@ -3474,6 +3474,23 @@ window.addEventListener('pageshow',(e)=>{if(e.persisted)checkMaintenanceMode();}
 setInterval(checkMaintenanceMode,30000);
 
 // Carrega l'usuari autenticat i decora la sidebar amb el seu nom + logout
+// ── PRESÈNCIA · heartbeat + estat en línia ────────────────────
+// Heartbeat: cada 60s envia un POST a /api/auth/heartbeat per mantenir
+// la marca lastActivityAt. Pausat quan el tab està en segon pla.
+let _heartbeatIv=null;
+function startHeartbeat(){
+  if(_heartbeatIv)return;
+  const ping=async()=>{
+    if(document.hidden)return;
+    try{ await fetch('/api/auth/heartbeat',{method:'POST',credentials:'include'}); }
+    catch(e){/* silenci */}
+  };
+  ping(); // immediat un cop al carregar
+  _heartbeatIv=setInterval(ping,60000);
+  // Quan torna a la pestanya, ping immediat per actualitzar el "fa N min"
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden)ping(); });
+}
+
 async function loadCurrentUser(){
   try{
     const r=await fetch('/api/auth/me',{credentials:'include'});
@@ -3482,6 +3499,8 @@ async function loadCurrentUser(){
     const u=d.user;
     window.currentUser=u;
     renderSidebarUser(u);
+    // Inicia el heartbeat per a l'estat en línia
+    startHeartbeat();
     // Afegim un botó "Sortir" al footer de la sidebar si no hi és
     const foot=document.querySelector('.sidebar-foot');
     if(foot && !document.getElementById('sb-logout-btn')){
@@ -3510,15 +3529,17 @@ function renderSidebarUser(u){
   const nameEl=document.querySelector('.sidebar-user span');
   if(av){
     const initials=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+    // Punt d'estat en línia · com som l'usuari connectat, sempre estem en línia
+    const dotHtml='<span class="online-dot" title="En línia"></span>';
     if(u.img && !String(u.img).includes('data:image/svg')){
-      av.innerHTML=`<img src="${u.img}" alt="${u.name||u.email}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+      av.innerHTML=`<img src="${u.img}" alt="${u.name||u.email}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>${dotHtml}`;
       av.style.padding='0';
       av.style.background='transparent';
     }else{
-      av.textContent=initials;
+      av.innerHTML=initials+dotHtml;
       av.style.padding='';
     }
-    av.title=u.email;
+    av.title=u.email+' · En línia';
   }
   if(nameEl){
     nameEl.textContent=u.name||u.email.split('@')[0];
@@ -3614,7 +3635,7 @@ function openProfileEditor(){
     <div class="ed-card">
       <div class="ed-header">
         <label for="profile-foto-inp" class="ed-av-wrap" title="Clica per canviar foto">
-          <div id="profile-av" class="ed-av"></div>
+          <div id="profile-av" class="ed-av" style="position:relative"><span class="online-dot large" title="En línia"></span></div>
           <div class="ed-av-overlay">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </div>
@@ -3757,12 +3778,14 @@ function openProfileEditor(){
   const av=document.getElementById('profile-av');
   const initials=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
   const rmBtn=document.getElementById('profile-foto-rm');
+  // Preservem el punt verd d'online en redibuixar l'avatar
+  const onlineDot='<span class="online-dot large" title="En línia"></span>';
   if(u.img && !String(u.img).includes('data:image/svg')){
-    av.innerHTML=`<img id="profile-av-img" src="${u.img}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+    av.innerHTML=`<img id="profile-av-img" src="${u.img}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>${onlineDot}`;
     av.style.padding='0';av.style.background='transparent';
     rmBtn.style.display='inline-flex';
   }else{
-    av.textContent=initials;
+    av.innerHTML=initials+onlineDot;
     av.style.padding='';av.style.background='#059669';
     rmBtn.style.display='none';
   }
@@ -3817,7 +3840,7 @@ function loadProfileFoto(input){
       const bg=document.getElementById('profile-edit-bg');
       if(bg){bg.dataset.pendingImg=cropped;bg.dataset.imgRemoved='';}
       const av=document.getElementById('profile-av');
-      av.innerHTML=`<img src="${cropped}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+      av.innerHTML=`<img src="${cropped}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/><span class="online-dot large" title="En línia"></span>`;
       av.style.padding='0';av.style.background='transparent';
       document.getElementById('profile-foto-rm').style.display='block';
     });
@@ -3832,8 +3855,8 @@ function removeProfileFoto(){
   bg.dataset.imgRemoved='1';
   const u=window.currentUser||{};
   const av=document.getElementById('profile-av');
-  av.innerHTML='';
-  av.textContent=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+  const initials=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
+  av.innerHTML=initials+'<span class="online-dot large" title="En línia"></span>';
   av.style.padding='';av.style.background='#059669';
   document.getElementById('profile-foto-rm').style.display='none';
   const inp=document.getElementById('profile-foto-inp');

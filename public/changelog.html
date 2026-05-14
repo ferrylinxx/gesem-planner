@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v39</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v40</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,64 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v39 · actual</div>
+    <div class="cl-current">v40 · actual</div>
+  </div>
+
+  <!-- ════════════ v40 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v40 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Sistema d'estat en línia · Punt verd amb pulse a l'avatar</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🟢 Punt verd "En línia" a l'avatar de l'usuari</div>
+      <ul class="cl-list">
+        <li>Quan estàs connectat a l'app, apareix un <strong>punt verd amb pulse animat</strong> a la cantonada inferior dreta del teu avatar a la sidebar</li>
+        <li>Animació pulse suau (1.8s, easing Material Design) — fa l'avatar "viu" sense ser invasiu</li>
+        <li>El mateix punt apareix a l'<strong>avatar gran del modal "Editar perfil"</strong></li>
+        <li>A <code>/admin → Usuaris</code>, cada usuari de la llista mostra el punt verd si està en línia · a més d'un badge <span style="background:#DCFCE7;color:#166534;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:600">EN LÍNIA</span></li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔄 Sistema de presència · heartbeat</div>
+      <ul class="cl-list">
+        <li><strong>Heartbeat client</strong>: cada 60 segons s'envia un <code>POST /api/auth/heartbeat</code> per mantenir actualitzat el camp <code>lastActivityAt</code></li>
+        <li><strong>Pausat en segon pla</strong>: si el tab està minimitzat o ocult, no es fan pings (estalvi de bateria i banda)</li>
+        <li><strong>Refresh immediat</strong> quan tornes a la pestanya (event <code>visibilitychange</code>)</li>
+        <li><strong>Activitat passiva</strong>: el middleware del servidor també actualitza <code>lastActivityAt</code> a cada request autenticada (debouncat a 15s per evitar I/O)</li>
+        <li><strong>Llindar online</strong>: 3 minuts sense activitat → es considera offline</li>
+        <li>Endpoint nou <code>GET /api/auth/online</code> retorna la llista d'emails en línia per altres usos</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 CSS reutilitzable per al punt d'estat</div>
+      <ul class="cl-list">
+        <li>Classe <code>.online-dot</code> al CSS global · funciona dins de qualsevol avatar arrodonit</li>
+        <li>3 mides: default (9px), <code>.medium</code> (11px), <code>.large</code> (13px)</li>
+        <li>Border blanc per a contrast sobre qualsevol color de fons d'avatar</li>
+        <li><code>::after</code> amb keyframe animation per al pulse halo</li>
+        <li>Variant <code>.offline</code> en gris sense pulse (per a usos futurs)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🛠 Implementació tècnica</div>
+      <ul class="cl-list">
+        <li>Backend (<code>lib/auth.js</code>): <code>updateLastActivity()</code>, <code>isUserOnline()</code>, <code>listOnlineUsers()</code></li>
+        <li>Frontend (<code>app.js</code>): <code>startHeartbeat()</code> amb interval cada 60s i pause/resume per visibilitat</li>
+        <li>Admin (<code>admin.html</code>): polling cada 30s que actualitza només els punts verds (DOM diff intel·ligent) sense recarregar la llista completa</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v39 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v39 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v39 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Polish: favicon a la pàgina pública + logo oficial WhatsApp</div>

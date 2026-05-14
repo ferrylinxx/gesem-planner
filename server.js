@@ -111,6 +111,21 @@ app.get('/api/auth/me', (req, res) => {
   res.json({ authenticated: !!user, user: user || null });
 });
 
+// Heartbeat · el client el crida cada 60s per mantenir l'estat "en línia"
+// També es pot detectar online via lastActivityAt en altres endpoints.
+app.post('/api/auth/heartbeat', (req, res) => {
+  const token = req.cookies && req.cookies[auth.COOKIE_NAME];
+  const user = auth.validateSession(token);
+  if (!user) return res.status(401).json({ ok: false });
+  auth.updateLastActivity(user.email);
+  res.json({ ok: true, t: Date.now() });
+});
+
+// Llista d'emails dels usuaris actualment en línia (activitat < 3 min)
+app.get('/api/auth/online', (req, res) => {
+  res.json({ online: auth.listOnlineUsers() });
+});
+
 // Edita el propi perfil · només l'usuari pot tocar el seu compte (no rol!)
 // Permet canviar: name, img · password (requereix currentPassword)
 app.put('/api/auth/me', (req, res) => {

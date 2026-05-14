@@ -128,7 +128,44 @@ body.dark .sb-foot-item .sun{display:inline-block}
   background:var(--primary);color:#fff;
   display:flex;align-items:center;justify-content:center;
   font-size:10.5px;font-weight:700;letter-spacing:.02em;
+  position:relative; /* per al punt d'estat */
 }
+
+/* ── INDICADOR D'ESTAT EN LÍNIA ──────────────────────────────
+   Punt verd amb pulse animat a la cantonada inferior dreta de l'avatar.
+   Aplicable a qualsevol avatar arrodonit posant la classe .has-online-dot
+   al contenidor + position:relative. */
+.online-dot{
+  position:absolute;
+  bottom:-1px;right:-1px;
+  width:9px;height:9px;
+  background:#22C55E;
+  border-radius:50%;
+  border:2px solid #fff;
+  z-index:2;
+  pointer-events:none;
+}
+.online-dot::after{
+  content:'';
+  position:absolute;inset:-1px;
+  border-radius:50%;
+  background:#22C55E;
+  opacity:0.55;
+  animation:onlinePulse 1.8s cubic-bezier(0.4,0,0.6,1) infinite;
+  z-index:-1;
+}
+@keyframes onlinePulse{
+  0%{transform:scale(1);opacity:0.55}
+  70%{transform:scale(2.2);opacity:0}
+  100%{transform:scale(2.2);opacity:0}
+}
+
+/* Variant per a avatars més grans (modal de perfil 64px, llista admin 32px) */
+.online-dot.large{width:13px;height:13px;border-width:2.5px;bottom:1px;right:1px}
+.online-dot.medium{width:11px;height:11px;border-width:2px;bottom:0;right:0}
+/* En mode "offline" — sense pulse, gris */
+.online-dot.offline{background:#94A3B8}
+.online-dot.offline::after{display:none}
 
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
