@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v37</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v38</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,69 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v37 · actual</div>
+    <div class="cl-current">v38 · actual</div>
+  </div>
+
+  <!-- ════════════ v38 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v38 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Modals d'edició completament redissenyats · Fix error post-enviament</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🐛 Fix · Error "Cannot read properties of null" al enviar reserva+email</div>
+      <ul class="cl-list fixed">
+        <li><strong>Símptoma:</strong> en clicar "Reservar + email (Comercial)" a /peticio, l'email s'enviava correctament però apareixia un toast d'error <em>"Cannot read properties of null (reading 'value')"</em></li>
+        <li><strong>Causa:</strong> <code>renderGest()</code> era cridada per refrescar després de la creació, però utilitzava <code>document.getElementById('gest-com-f').value</code> i <code>'gest-sort'</code> que <strong>només existeixen a /gestio</strong>. A /peticio retornaven <code>null</code> → crash al accedir <code>.value</code>.</li>
+        <li><strong>Fix:</strong> guard inicial a <code>renderGest()</code> · si els selectors no existeixen (no estem a /gestio), surt sense fer res</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">✨ Modal "Editar perfil" redissenyat</div>
+      <ul class="cl-list">
+        <li><strong>Disseny modern</strong>: header amb gradient verd subtil, animacions d'entrada amb spring easing, backdrop blur, secció en cards arrodonides</li>
+        <li><strong>Camps nous</strong>: telèfon i càrrec (per als emails de signatura)</li>
+        <li>El correu electrònic ara és visible (read-only) com a referència</li>
+        <li><strong>Show/hide password</strong>: botó ull a cada input de contrasenya per veure el que escrius</li>
+        <li><strong>Strength meter</strong>: barra de color que indica la força de la nova contrasenya en temps real (verd = fort)</li>
+        <li><strong>Activitat</strong>: secció amb "Compte creat" i "Últim accés" formatats en català</li>
+        <li><strong>Badge de rol</strong>: 👑 Administrador o Usuari ben visible al header</li>
+        <li>Explicació clara: <em>"Les contrasenyes es desen encriptades amb bcrypt i no es poden recuperar"</em></li>
+        <li>Tecla <code>Escape</code> per tancar · clic fora del modal també tanca</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">✨ Modal "Editar agent comercial" redissenyat</div>
+      <ul class="cl-list">
+        <li>Mateixa estètica i sistema de seccions que el modal de perfil</li>
+        <li><strong>Camps nous</strong>: telèfon + càrrec (per a fitxa completa de l'agent)</li>
+        <li><strong>Color picker</strong>: hover scale + active state amb anell fosc, no més colors plans</li>
+        <li><strong>Badge de reserves</strong>: si l'agent té reserves associades es mostra al header (ex: <em>"3 reserves associades"</em>)</li>
+        <li>Avís ambre <strong>només quan és rellevant</strong> (canviar el nom propaga a reserves)</li>
+        <li>Botó <strong>"🗑 Eliminar agent"</strong> al footer esquerre, ben separat dels botons d'acció principal</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 Sistema de modals reutilitzable</div>
+      <ul class="cl-list">
+        <li>Nou CSS compartit <code>EDITOR_MODAL_CSS</code> amb classes <code>.ed-*</code></li>
+        <li>Inclou: cards arrodonides, headers amb gradient, secció amb icones, inputs amb focus ring verd, color picker, password show/hide</li>
+        <li><strong>Pesa només 1.2 KB</strong> · només s'injecta una vegada quan obres el primer modal</li>
+        <li>Animacions suaus amb <code>cubic-bezier(0.4, 0, 0.2, 1)</code> (Material Design easing)</li>
+        <li>Backdrop amb <code>backdrop-filter: blur(4px)</code> per a focus visual</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v37 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v37 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v37 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">El formador pot canviar la seva resposta · Polling en temps real</div>

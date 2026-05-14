@@ -117,10 +117,12 @@ app.put('/api/auth/me', (req, res) => {
   const token = req.cookies && req.cookies[auth.COOKIE_NAME];
   const sessionUser = auth.validateSession(token);
   if (!sessionUser) return res.status(401).json({ ok: false, error: 'No autenticat' });
-  const { name, img, currentPassword, newPassword } = req.body || {};
+  const { name, img, phone, position, currentPassword, newPassword } = req.body || {};
   const patch = {};
   if (name !== undefined && String(name).trim()) patch.name = String(name).trim();
   if (img !== undefined) patch.img = img;  // null o data URL
+  if (phone !== undefined) patch.phone = String(phone).trim();
+  if (position !== undefined) patch.position = String(position).trim();
   // Canvi de contrasenya: verificar la actual
   if (newPassword) {
     if (!currentPassword) return res.status(400).json({ ok: false, error: 'Cal la contrasenya actual per a canviar-la' });
@@ -831,12 +833,14 @@ app.get('/api/agents', (req, res) => {
   res.json(readJSON('agents.json', []));
 });
 app.post('/api/agents', (req, res) => {
-  const { nom, email, color, img } = req.body;
+  const { nom, email, phone, position, color, img } = req.body;
   if (!nom) return res.status(400).json({ error: 'nom requerit' });
   const agents = readJSON('agents.json', []);
   const idx = agents.findIndex(a => a.nom === nom);
   const next = { nom, color };
   if (email !== undefined) next.email = (email || '').trim().toLowerCase();
+  if (phone !== undefined) next.phone = String(phone || '').trim();
+  if (position !== undefined) next.position = String(position || '').trim();
   if (img !== undefined) next.img = img;
   if (idx >= 0) agents[idx] = { ...agents[idx], ...next };
   else agents.push(next);
@@ -852,7 +856,7 @@ app.delete('/api/agents/:nom', (req, res) => {
 // PUT: editar (suporta canvi de nom) — la URL porta el nom antic
 app.put('/api/agents/:nom', (req, res) => {
   const oldNom = decodeURIComponent(req.params.nom);
-  const { nom, email, color, img } = req.body || {};
+  const { nom, email, phone, position, color, img } = req.body || {};
   if (!nom) return res.status(400).json({ error: 'nom requerit' });
   const agents = readJSON('agents.json', []);
   const idx = agents.findIndex(a => a.nom === oldNom);
@@ -866,6 +870,11 @@ app.put('/api/agents/:nom', (req, res) => {
   if (email === undefined) updated.email = agents[idx].email;
   else if (email === '' || email === null) { /* es treu */ }
   else updated.email = String(email).trim().toLowerCase();
+  // phone i position: mateixa lògica
+  if (phone === undefined) updated.phone = agents[idx].phone;
+  else updated.phone = String(phone).trim();
+  if (position === undefined) updated.position = agents[idx].position;
+  else updated.position = String(position).trim();
   // img: undefined = mantenir l'antic; null = treure; string = nou
   if (img === undefined) updated.img = agents[idx].img;
   else if (img === null) { /* no inclou img → es treu */ }

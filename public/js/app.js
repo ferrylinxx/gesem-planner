@@ -386,82 +386,140 @@ function getAgentEmail(nom){
 function editAgent(nom){
   const a=AGENTS.find(x=>x.nom===nom);
   if(!a)return;
-  // Crea l'overlay si no existeix
+  ensureEditorCss();
   let bg=document.getElementById('agent-edit-bg');
   if(!bg){
     bg=document.createElement('div');
     bg.id='agent-edit-bg';
-    bg.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;align-items:center;justify-content:center';
-    bg.innerHTML=`<div style="background:#fff;border-radius:14px;padding:18px 20px;width:400px;max-width:90vw;box-shadow:0 12px 40px rgba(0,0,0,0.18)">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-        <label for="agent-edit-foto-inp" id="agent-edit-av-wrap" title="Clica per canviar la foto" style="position:relative;flex-shrink:0;cursor:pointer;display:block">
-          <div id="agent-edit-av" style="width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:18px;transition:filter .15s"></div>
-          <div id="agent-edit-av-overlay" style="position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;opacity:0;transition:opacity .15s;pointer-events:none">📷</div>
+    bg.className='ed-modal';
+    bg.innerHTML=`
+    <div class="ed-card">
+      <div class="ed-header">
+        <label for="agent-edit-foto-inp" class="ed-av-wrap" title="Clica per canviar foto">
+          <div id="agent-edit-av" class="ed-av"></div>
+          <div class="ed-av-overlay">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
           <input type="file" id="agent-edit-foto-inp" accept="image/*" style="display:none" onchange="loadAgentFoto(this)"/>
         </label>
-        <div style="flex:1">
-          <div style="font-size:14px;font-weight:600">Editar agent comercial</div>
-          <div id="agent-edit-original" style="font-size:11px;color:#71717A"></div>
-          <div style="font-size:10px;color:#71717A;margin-top:2px">Clica l'avatar per pujar foto · JPG/PNG max 20MB</div>
+        <div class="ed-header-info">
+          <h2>Agent comercial</h2>
+          <div class="ed-subtitle" id="agent-edit-original"></div>
+          <div style="margin-top:5px;display:flex;gap:5px;align-items:center"><span id="agent-edit-reserves" class="ed-badge" style="display:none"></span></div>
         </div>
-        <button id="agent-edit-foto-rm" type="button" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;padding:4px 8px;border-radius:6px;font-size:10px;cursor:pointer" onclick="removeAgentFoto()">Treure foto</button>
+        <button class="ed-close" onclick="closeAgentEdit()" aria-label="Tancar">✕</button>
       </div>
-      <style>#agent-edit-av-wrap:hover #agent-edit-av-overlay{opacity:1}</style>
-      <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:3px">Nom complet</label>
-      <input type="text" id="agent-edit-nom" style="width:100%;padding:7px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box" onkeydown="if(event.key==='Enter')saveAgentEdit();if(event.key==='Escape')closeAgentEdit()"/>
-      <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin:10px 0 3px">Correu electrònic <span style="font-weight:400;color:#9CA3AF">(per a confirmacions)</span></label>
-      <input type="email" id="agent-edit-email" placeholder="correu@gesem.es" style="width:100%;padding:7px 10px;border:0.5px solid rgba(0,0,0,0.18);border-radius:8px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box" onkeydown="if(event.key==='Enter')saveAgentEdit();if(event.key==='Escape')closeAgentEdit()"/>
-      <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin:10px 0 5px">Color de l'avatar <span style="font-weight:400;color:#9CA3AF">(visible si no hi ha foto)</span></label>
-      <div id="agent-edit-colors" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-      <div id="agent-edit-warn" style="display:none;margin-top:10px;padding:7px 10px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:7px;font-size:11px;color:#92400E"></div>
-      <div style="display:flex;justify-content:space-between;gap:8px;margin-top:14px">
-        <button class="btn btn-sm" style="background:#FEE2E2;border-color:#FCA5A5;color:#991B1B" onclick="deleteAgent()">🗑 Eliminar</button>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-sm" onclick="closeAgentEdit()">Cancel·lar</button>
-          <button class="btn btn-p btn-sm" onclick="saveAgentEdit()">Desar</button>
+
+      <div id="agent-edit-err" class="ed-error"></div>
+      <div id="agent-edit-warn" class="ed-success" style="background:#FFFBEB;border-color:#FCD34D;color:#92400E"></div>
+
+      <div class="ed-body">
+        <!-- Secció 1: Informació de contacte -->
+        <div class="ed-section">
+          <div class="ed-sec-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Dades de contacte</span>
+          </div>
+          <div class="ed-field">
+            <label class="ed-label">Nom complet</label>
+            <input type="text" id="agent-edit-nom" class="ed-input" placeholder="Nom i cognoms" onkeydown="if(event.key==='Escape')closeAgentEdit()"/>
+          </div>
+          <div class="ed-field">
+            <label class="ed-label">Correu electrònic <span class="ed-hint">(per a confirmacions)</span></label>
+            <input type="email" id="agent-edit-email" class="ed-input" placeholder="correu@gesem.es" onkeydown="if(event.key==='Escape')closeAgentEdit()"/>
+          </div>
+          <div class="ed-grid-2">
+            <div class="ed-field">
+              <label class="ed-label">Telèfon <span class="ed-hint">(opcional)</span></label>
+              <input type="tel" id="agent-edit-phone" class="ed-input" placeholder="+34 600 000 000"/>
+            </div>
+            <div class="ed-field">
+              <label class="ed-label">Càrrec <span class="ed-hint">(opcional)</span></label>
+              <input type="text" id="agent-edit-position" class="ed-input" placeholder="Ex: Comercial sènior"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secció 2: Aparença -->
+        <div class="ed-section">
+          <div class="ed-sec-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+            <span>Aparença</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+            <button class="ed-btn" onclick="document.getElementById('agent-edit-foto-inp').click()">📷 Canviar foto</button>
+            <button id="agent-edit-foto-rm" class="ed-btn ed-btn-danger" onclick="removeAgentFoto()" style="display:none">Treure foto</button>
+            <span class="ed-meta">Max 20MB</span>
+          </div>
+          <div class="ed-field">
+            <label class="ed-label">Color de l'avatar <span class="ed-hint">(visible si no hi ha foto)</span></label>
+            <div id="agent-edit-colors" class="ed-color-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ed-footer">
+        <button class="ed-btn ed-btn-danger" onclick="deleteAgent()">🗑 Eliminar agent</button>
+        <div style="display:flex;gap:8px">
+          <button class="ed-btn" onclick="closeAgentEdit()">Cancel·lar</button>
+          <button class="ed-btn ed-btn-primary" onclick="saveAgentEdit()">Desar canvis</button>
         </div>
       </div>
     </div>`;
     bg.addEventListener('click',e=>{if(e.target===bg)closeAgentEdit();});
     document.body.appendChild(bg);
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==='Escape'&&bg.style.display==='flex')closeAgentEdit();
+    });
   }
   // Marca l'agent en edició + reset de l'estat de foto pendent
   bg.dataset.editingNom=nom;
-  bg.dataset.pendingImg=''; // si l'usuari puja una foto nova, es desa aquí
+  bg.dataset.pendingImg='';
   bg.dataset.imgRemoved='';
   document.getElementById('agent-edit-nom').value=a.nom;
   document.getElementById('agent-edit-email').value=a.email||'';
-  document.getElementById('agent-edit-original').textContent='Editant: '+a.nom;
+  document.getElementById('agent-edit-phone').value=a.phone||'';
+  document.getElementById('agent-edit-position').value=a.position||'';
+  document.getElementById('agent-edit-original').textContent=a.email||'Sense correu configurat';
+  document.getElementById('agent-edit-err').style.display='none';
   const av=document.getElementById('agent-edit-av');
-  av.style.background=a.color;
+  av.style.background=a.color||'#94A3B8';
   // Prioritat: imatge pròpia → formador match → inicials
   const ownImg=a.img && !String(a.img).includes('data:image/svg')?a.img:null;
   const matchedFormador=ownImg?null:FORMADORS.find(f=>f.nom===a.nom && f.img && !String(f.img).includes('data:image/svg'));
   const initialImg=ownImg||matchedFormador?.img;
   const rmBtn=document.getElementById('agent-edit-foto-rm');
   if(initialImg){
-    av.innerHTML=`<img id="agent-edit-img" src="${initialImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+    av.innerHTML=`<img src="${initialImg}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
     av.style.padding='0';
-    if(rmBtn)rmBtn.style.display=ownImg?'block':'none'; // només es pot treure la foto pròpia
+    if(rmBtn)rmBtn.style.display=ownImg?'inline-flex':'none';
   }else{
     av.textContent=ini(a.nom);av.style.padding='';
     if(rmBtn)rmBtn.style.display='none';
   }
   // Pinta colors triables
   const cw=document.getElementById('agent-edit-colors');
-  cw.innerHTML=AV_COLORS.map(c=>`<button type="button" data-color="${c}" onclick="pickAgentColor(this)" style="width:26px;height:26px;border-radius:50%;border:${c===a.color?'2.5px solid #1a1a1a':'1px solid rgba(0,0,0,0.15)'};background:${c};cursor:pointer;padding:0"></button>`).join('');
-  // Warning si hi ha reserves amb aquest nom
+  cw.innerHTML=AV_COLORS.map(c=>`<button type="button" data-color="${c}" onclick="pickAgentColor(this)" class="ed-color-dot ${c===a.color?'active':''}" style="background:${c}"></button>`).join('');
+  // Info de reserves associades
   const reservesAmb=(window.RESERVES||[]).filter(r=>r.comercial===a.nom).length;
+  const badge=document.getElementById('agent-edit-reserves');
+  if(reservesAmb>0){
+    badge.style.display='inline-block';
+    badge.textContent=`${reservesAmb} reserva${reservesAmb>1?'s':''} associades`;
+    badge.style.background='#DBEAFE';badge.style.color='#1E40AF';
+  }else{
+    badge.style.display='none';
+  }
   const warn=document.getElementById('agent-edit-warn');
-  if(reservesAmb>0){warn.style.display='block';warn.innerHTML=`⚠️ Aquest agent té <strong>${reservesAmb}</strong> reserva${reservesAmb>1?'s':''} associades. Si el renomenes, s'actualitzaran totes automàticament. Si l'elimines, perdran l'agent assignat.`;}
+  if(reservesAmb>0){warn.style.display='block';warn.innerHTML=`⚠️ Si renomenes aquest agent, les <strong>${reservesAmb}</strong> reserves associades s'actualitzaran automàticament.`;}
   else warn.style.display='none';
   bg.style.display='flex';
   setTimeout(()=>document.getElementById('agent-edit-nom').focus(),50);
 }
 
 function pickAgentColor(btn){
-  document.querySelectorAll('#agent-edit-colors button').forEach(b=>{b.style.border='1px solid rgba(0,0,0,0.15)';});
-  btn.style.border='2.5px solid #1a1a1a';
+  document.querySelectorAll('#agent-edit-colors button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
   document.getElementById('agent-edit-av').style.background=btn.dataset.color;
 }
 
@@ -548,9 +606,11 @@ async function saveAgentEdit(){
   if(!a){closeAgentEdit();return;}
   const newNom=document.getElementById('agent-edit-nom').value.trim();
   const newEmail=(document.getElementById('agent-edit-email').value||'').trim().toLowerCase();
+  const newPhone=(document.getElementById('agent-edit-phone')?.value||'').trim();
+  const newPosition=(document.getElementById('agent-edit-position')?.value||'').trim();
   if(!newNom){toast('El nom no pot estar buit');return;}
   if(newEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){toast('Correu no vàlid');return;}
-  const selBtn=document.querySelector('#agent-edit-colors button[style*="2.5px"]');
+  const selBtn=document.querySelector('#agent-edit-colors button.active');
   const newColor=selBtn?.dataset.color||a.color;
   if(newNom!==oldNom && AGENTS.find(x=>x.nom===newNom)){toast('Ja existeix un agent amb aquest nom');return;}
   // Resoldre la imatge a desar
@@ -562,10 +622,10 @@ async function saveAgentEdit(){
   else finalImg=a.img||null;                   // mantenir l'existent
   // Actualitzar al servidor (PUT amb nom antic com a key)
   try{
-    const r=await fetch('/api/agents/'+encodeURIComponent(oldNom),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:newNom,email:newEmail,color:newColor,img:finalImg})});
+    const r=await fetch('/api/agents/'+encodeURIComponent(oldNom),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({nom:newNom,email:newEmail,phone:newPhone,position:newPosition,color:newColor,img:finalImg})});
     if(!r.ok){const d=await r.json().catch(()=>({}));toast('Error: '+(d.error||r.status));return;}
     const result=await r.json();
-    a.nom=newNom;a.email=newEmail;a.color=newColor;a.img=finalImg||null;
+    a.nom=newNom;a.email=newEmail;a.phone=newPhone;a.position=newPosition;a.color=newColor;a.img=finalImg||null;
     // Propagació local a reserves (el servidor ja ho ha fet, però mantenim memòria sincronitzada)
     if(newNom!==oldNom){
       (window.RESERVES||[]).forEach(r=>{if(r.comercial===oldNom)r.comercial=newNom;});
@@ -1216,8 +1276,14 @@ function startGestPolling(){
 }
 
 function renderGest(){
-  const fc=document.getElementById('gest-com-f').value;
-  const sort=document.getElementById('gest-sort').value;
+  // Salvaguarda: aquesta funció requereix els elements de la pàgina /gestio.
+  // Si es crida des d'una altra pàgina (ex: post-creació de reserva a /peticio
+  // per refrescar el polling), els selectors no existeixen i fa null.value crash.
+  const fcEl=document.getElementById('gest-com-f');
+  const sortEl=document.getElementById('gest-sort');
+  if(!fcEl||!sortEl)return; // no estem a /gestio · res a renderitzar
+  const fc=fcEl.value;
+  const sort=sortEl.value;
   let list=activeFilter?RESERVES.filter(r=>r.estat===activeFilter):RESERVES.filter(r=>r.estat!=='vf');
   if(fc)list=list.filter(r=>r.comercial===fc);
   if(sort==='agent')list.sort((a,b)=>(a.comercial||'').localeCompare(b.comercial||''));
@@ -3473,67 +3539,220 @@ function renderSidebarUser(u){
 }
 
 // ── MODAL · Editar el meu perfil ─────────────────────────────────
+// CSS compartit per als modals d'editor (perfil + agent)
+const EDITOR_MODAL_CSS = `
+  .ed-modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:20px;animation:edFadeIn 0.18s ease-out}
+  @keyframes edFadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes edSlideIn{from{transform:translateY(12px) scale(0.98);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+  .ed-card{background:#fff;border-radius:18px;padding:0;width:460px;max-width:100%;box-shadow:0 24px 60px rgba(0,0,0,0.28);max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:edSlideIn 0.22s cubic-bezier(0.4,0,0.2,1)}
+  .ed-header{padding:22px 24px 18px;background:linear-gradient(135deg,#ECFDF5 0%,#F0FDF4 100%);border-bottom:1px solid rgba(0,0,0,0.05);display:flex;align-items:center;gap:14px;position:relative}
+  .ed-header-info{flex:1;min-width:0}
+  .ed-header h2{font-size:17px;font-weight:700;color:#0F172A;margin:0 0 2px;letter-spacing:-0.01em}
+  .ed-header .ed-subtitle{font-size:12px;color:#64748B}
+  .ed-close{position:absolute;top:14px;right:14px;width:28px;height:28px;border:none;background:rgba(255,255,255,0.7);border-radius:8px;font-size:16px;cursor:pointer;color:#64748B;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .ed-close:hover{background:#fff;color:#0F172A}
+  .ed-body{padding:18px 24px;overflow-y:auto;flex:1}
+  .ed-section{margin-bottom:18px}
+  .ed-section:last-child{margin-bottom:0}
+  .ed-sec-title{font-size:11px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .ed-sec-title svg{width:13px;height:13px;opacity:0.75}
+  .ed-field{margin-bottom:10px}
+  .ed-field:last-child{margin-bottom:0}
+  .ed-label{font-size:11.5px;color:#475569;font-weight:500;display:block;margin-bottom:4px}
+  .ed-label .ed-hint{font-weight:400;color:#94A3B8;margin-left:4px}
+  .ed-input{width:100%;padding:9px 12px;border:1px solid #E2E8F0;border-radius:9px;background:#F8FAFC;color:#0F172A;font-size:13px;font-family:inherit;box-sizing:border-box;transition:border-color .15s,background .15s,box-shadow .15s}
+  .ed-input:hover{background:#fff}
+  .ed-input:focus{outline:none;border-color:#10B981;background:#fff;box-shadow:0 0 0 3px rgba(16,185,129,0.12)}
+  .ed-input[readonly]{color:#64748B;cursor:not-allowed}
+  .ed-input[readonly]:hover{background:#F8FAFC}
+  .ed-pwd-wrap{position:relative}
+  .ed-pwd-toggle{position:absolute;top:50%;right:8px;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;padding:5px;border-radius:6px;color:#94A3B8;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s}
+  .ed-pwd-toggle:hover{color:#0F172A;background:#F1F5F9}
+  .ed-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ed-color-grid{display:flex;flex-wrap:wrap;gap:7px}
+  .ed-color-dot{width:28px;height:28px;border-radius:50%;border:1px solid rgba(0,0,0,0.1);cursor:pointer;padding:0;transition:transform .12s}
+  .ed-color-dot:hover{transform:scale(1.1)}
+  .ed-color-dot.active{border:3px solid #0F172A;transform:scale(1.05)}
+  .ed-footer{padding:14px 24px;background:#F8FAFC;border-top:1px solid #E2E8F0;display:flex;justify-content:space-between;gap:8px;align-items:center}
+  .ed-error{display:none;margin:0 24px 14px;padding:10px 13px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:9px;font-size:12px;color:#991B1B}
+  .ed-success{display:none;margin:0 24px 14px;padding:10px 13px;background:#ECFDF5;border:1px solid #6EE7B7;border-radius:9px;font-size:12px;color:#065F46}
+  .ed-av-wrap{position:relative;flex-shrink:0;cursor:pointer;display:block;border-radius:50%;width:64px;height:64px}
+  .ed-av{width:64px;height:64px;border-radius:50%;background:#059669;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+  .ed-av-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;opacity:0;transition:opacity .15s;pointer-events:none}
+  .ed-av-wrap:hover .ed-av-overlay{opacity:1}
+  .ed-btn{padding:8px 14px;border-radius:8px;border:1px solid #CBD5E1;background:#fff;color:#0F172A;font-size:12.5px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .15s}
+  .ed-btn:hover{background:#F8FAFC;border-color:#94A3B8}
+  .ed-btn:disabled{opacity:0.5;cursor:not-allowed}
+  .ed-btn-primary{background:linear-gradient(135deg,#10B981,#059669);border-color:#059669;color:#fff;font-weight:600}
+  .ed-btn-primary:hover{background:linear-gradient(135deg,#059669,#047857);transform:translateY(-1px);box-shadow:0 4px 12px rgba(5,150,105,0.3)}
+  .ed-btn-danger{background:#fff;border-color:#FCA5A5;color:#DC2626}
+  .ed-btn-danger:hover{background:#FEF2F2}
+  .ed-meta{font-size:11px;color:#94A3B8;font-style:italic;display:flex;align-items:center;gap:6px}
+  .ed-badge{display:inline-block;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+  .ed-badge-admin{background:#FEF3C7;color:#92400E}
+  .ed-badge-user{background:#E0F2FE;color:#075985}
+`;
+
+function ensureEditorCss(){
+  if(document.getElementById('editor-modal-css'))return;
+  const s=document.createElement('style');
+  s.id='editor-modal-css';
+  s.textContent=EDITOR_MODAL_CSS;
+  document.head.appendChild(s);
+}
+
 function openProfileEditor(){
   const u=window.currentUser;
   if(!u){toast('Cal estar autenticat');return;}
+  ensureEditorCss();
   let bg=document.getElementById('profile-edit-bg');
   if(!bg){
     bg=document.createElement('div');
     bg.id='profile-edit-bg';
-    bg.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:20px';
+    bg.className='ed-modal';
     bg.innerHTML=`
-    <div style="background:#fff;border-radius:14px;padding:22px 24px;width:420px;max-width:100%;box-shadow:0 14px 50px rgba(0,0,0,0.25);max-height:90vh;overflow-y:auto">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-        <label for="profile-foto-inp" id="profile-av-wrap" title="Clica per canviar foto" style="position:relative;flex-shrink:0;cursor:pointer;display:block">
-          <div id="profile-av" style="width:64px;height:64px;border-radius:50%;background:#059669;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;overflow:hidden"></div>
-          <div id="profile-av-overlay" style="position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;opacity:0;transition:opacity .15s;pointer-events:none">📷</div>
+    <div class="ed-card">
+      <div class="ed-header">
+        <label for="profile-foto-inp" class="ed-av-wrap" title="Clica per canviar foto">
+          <div id="profile-av" class="ed-av"></div>
+          <div class="ed-av-overlay">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
           <input type="file" id="profile-foto-inp" accept="image/*" style="display:none" onchange="loadProfileFoto(this)"/>
         </label>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:16px;font-weight:700">Editar perfil</div>
-          <div id="profile-email" style="font-size:12px;color:#71717A"></div>
-          <div style="font-size:10px;color:#71717A;margin-top:2px">Clica la foto per canviar-la · JPG/PNG max 20MB</div>
+        <div class="ed-header-info">
+          <h2>El meu perfil</h2>
+          <div class="ed-subtitle" id="profile-email"></div>
+          <div style="margin-top:5px"><span id="profile-role-badge" class="ed-badge"></span></div>
         </div>
-        <button id="profile-foto-rm" type="button" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;padding:5px 8px;border-radius:7px;font-size:10px;cursor:pointer;align-self:flex-start" onclick="removeProfileFoto()">Treure foto</button>
-      </div>
-      <style>#profile-av-wrap:hover #profile-av-overlay{opacity:1}</style>
-
-      <div style="margin-bottom:12px">
-        <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:4px">Nom complet</label>
-        <input type="text" id="profile-nom" style="width:100%;padding:9px 11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:9px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+        <button class="ed-close" onclick="closeProfileEditor()" aria-label="Tancar">✕</button>
       </div>
 
-      <div style="margin:18px 0 10px 0;padding-top:14px;border-top:0.5px solid rgba(0,0,0,0.08)">
-        <div style="font-size:13px;font-weight:600;margin-bottom:6px">Canviar contrasenya</div>
-        <div style="font-size:11px;color:#71717A;margin-bottom:10px">Deixa-ho buit si no la vols canviar</div>
-        <div style="margin-bottom:9px">
-          <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:4px">Contrasenya actual</label>
-          <input type="password" id="profile-cur-pwd" autocomplete="current-password" style="width:100%;padding:9px 11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:9px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+      <div id="profile-err" class="ed-error"></div>
+      <div id="profile-success" class="ed-success"></div>
+
+      <div class="ed-body">
+        <!-- Secció 1: Informació personal -->
+        <div class="ed-section">
+          <div class="ed-sec-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Informació personal</span>
+          </div>
+          <div class="ed-field">
+            <label class="ed-label">Nom complet</label>
+            <input type="text" id="profile-nom" class="ed-input" placeholder="Ex: Maria Garcia"/>
+          </div>
+          <div class="ed-grid-2">
+            <div class="ed-field">
+              <label class="ed-label">Telèfon <span class="ed-hint">(opcional)</span></label>
+              <input type="tel" id="profile-phone" class="ed-input" placeholder="+34 600 000 000"/>
+            </div>
+            <div class="ed-field">
+              <label class="ed-label">Càrrec <span class="ed-hint">(opcional)</span></label>
+              <input type="text" id="profile-position" class="ed-input" placeholder="Ex: Coordinadora docent"/>
+            </div>
+          </div>
+          <div class="ed-field">
+            <label class="ed-label">Correu electrònic <span class="ed-hint">(no es pot canviar)</span></label>
+            <input type="email" id="profile-email-ro" class="ed-input" readonly/>
+          </div>
         </div>
-        <div>
-          <label style="font-size:11px;color:#6b6b67;font-weight:500;display:block;margin-bottom:4px">Nova contrasenya <span style="font-weight:400;color:#9CA3AF">(min 8 caràcters)</span></label>
-          <input type="password" id="profile-new-pwd" autocomplete="new-password" style="width:100%;padding:9px 11px;border:0.5px solid rgba(0,0,0,0.18);border-radius:9px;background:#f5f4f0;color:#1a1a1a;font-size:13px;font-family:inherit;box-sizing:border-box"/>
+
+        <!-- Secció 2: Foto -->
+        <div class="ed-section">
+          <div class="ed-sec-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Foto de perfil</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="ed-btn" onclick="document.getElementById('profile-foto-inp').click()">📷 Canviar foto</button>
+            <button id="profile-foto-rm" class="ed-btn ed-btn-danger" onclick="removeProfileFoto()" style="display:none">Treure foto</button>
+            <span class="ed-meta">JPG/PNG · max 20MB</span>
+          </div>
+        </div>
+
+        <!-- Secció 3: Seguretat -->
+        <div class="ed-section">
+          <div class="ed-sec-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Contrasenya</span>
+          </div>
+          <div style="font-size:11.5px;color:#64748B;margin-bottom:10px;line-height:1.5">⚠️ Les contrasenyes es desen <strong>encriptades amb bcrypt</strong> i no es poden recuperar. Si la vols canviar, has d'introduir l'actual + la nova.</div>
+          <div class="ed-field">
+            <label class="ed-label">Contrasenya actual</label>
+            <div class="ed-pwd-wrap">
+              <input type="password" id="profile-cur-pwd" class="ed-input" autocomplete="current-password" placeholder="••••••••" style="padding-right:36px"/>
+              <button type="button" class="ed-pwd-toggle" onclick="togglePwd('profile-cur-pwd', this)" tabindex="-1" aria-label="Mostrar contrasenya">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="ed-field">
+            <label class="ed-label">Nova contrasenya <span class="ed-hint">(min 8 caràcters)</span></label>
+            <div class="ed-pwd-wrap">
+              <input type="password" id="profile-new-pwd" class="ed-input" autocomplete="new-password" placeholder="••••••••" style="padding-right:36px"/>
+              <button type="button" class="ed-pwd-toggle" onclick="togglePwd('profile-new-pwd', this)" tabindex="-1" aria-label="Mostrar contrasenya">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div id="profile-pwd-strength" style="margin-top:6px;height:3px;border-radius:2px;background:#E2E8F0;overflow:hidden">
+              <div id="profile-pwd-bar" style="height:100%;width:0%;background:#94A3B8;transition:width .2s,background .2s"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secció 4: Info de la sessió (read-only) -->
+        <div class="ed-section">
+          <div class="ed-sec-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Activitat</span>
+          </div>
+          <div style="background:#F8FAFC;border-radius:9px;padding:11px 13px;font-size:12px;color:#475569">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:#94A3B8">Compte creat:</span> <span id="profile-created"></span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#94A3B8">Últim accés:</span> <span id="profile-last-login"></span></div>
+          </div>
         </div>
       </div>
 
-      <div id="profile-err" style="display:none;margin-top:10px;padding:8px 12px;background:#FEE2E2;border:0.5px solid #FCA5A5;border-radius:7px;font-size:11px;color:#991B1B"></div>
-
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-        <button class="btn btn-sm" onclick="closeProfileEditor()">Cancel·lar</button>
-        <button class="btn btn-p btn-sm" onclick="saveProfile()" id="profile-save-btn">Desar canvis</button>
+      <div class="ed-footer">
+        <div class="ed-meta" id="profile-meta">Edita el teu perfil personal</div>
+        <div style="display:flex;gap:8px">
+          <button class="ed-btn" onclick="closeProfileEditor()">Cancel·lar</button>
+          <button class="ed-btn ed-btn-primary" onclick="saveProfile()" id="profile-save-btn">Desar canvis</button>
+        </div>
       </div>
     </div>`;
     bg.addEventListener('click',e=>{if(e.target===bg)closeProfileEditor();});
     document.body.appendChild(bg);
+    // Tecla Esc per tancar
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==='Escape'&&bg.style.display==='flex')closeProfileEditor();
+    });
+    // Strength meter en temps real
+    document.getElementById('profile-new-pwd').addEventListener('input',updatePwdStrength);
   }
   // Reset estats
   bg.dataset.pendingImg='';
   bg.dataset.imgRemoved='';
   document.getElementById('profile-email').textContent=u.email;
+  document.getElementById('profile-email-ro').value=u.email;
   document.getElementById('profile-nom').value=u.name||'';
+  document.getElementById('profile-phone').value=u.phone||'';
+  document.getElementById('profile-position').value=u.position||'';
   document.getElementById('profile-cur-pwd').value='';
   document.getElementById('profile-new-pwd').value='';
   document.getElementById('profile-err').style.display='none';
+  document.getElementById('profile-success').style.display='none';
+  // Rol badge
+  const roleBadge=document.getElementById('profile-role-badge');
+  if(u.role==='admin'){roleBadge.textContent='👑 Administrador';roleBadge.className='ed-badge ed-badge-admin';}
+  else{roleBadge.textContent='Usuari';roleBadge.className='ed-badge ed-badge-user';}
+  // Info activitat
+  const fmtDateTime=(iso)=>iso?new Date(iso).toLocaleString('ca-ES',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  document.getElementById('profile-created').textContent=fmtDateTime(u.createdAt);
+  document.getElementById('profile-last-login').textContent=fmtDateTime(u.lastLoginAt);
+  // Pwd strength reset
+  document.getElementById('profile-pwd-bar').style.width='0%';
   // Avatar
   const av=document.getElementById('profile-av');
   const initials=(u.name||u.email||'?').trim().split(/\s+/).map(s=>s[0]).join('').slice(0,2).toUpperCase();
@@ -3541,7 +3760,7 @@ function openProfileEditor(){
   if(u.img && !String(u.img).includes('data:image/svg')){
     av.innerHTML=`<img id="profile-av-img" src="${u.img}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
     av.style.padding='0';av.style.background='transparent';
-    rmBtn.style.display='block';
+    rmBtn.style.display='inline-flex';
   }else{
     av.textContent=initials;
     av.style.padding='';av.style.background='#059669';
@@ -3549,6 +3768,38 @@ function openProfileEditor(){
   }
   bg.style.display='flex';
   setTimeout(()=>document.getElementById('profile-nom').focus(),60);
+}
+
+// Helper · toggle show/hide password (es comparteix entre modals)
+function togglePwd(inpId, btn){
+  const inp=document.getElementById(inpId);
+  if(!inp)return;
+  if(inp.type==='password'){
+    inp.type='text';
+    btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    btn.style.color='#10B981';
+  }else{
+    inp.type='password';
+    btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    btn.style.color='#94A3B8';
+  }
+}
+
+// Helper · password strength meter
+function updatePwdStrength(){
+  const pwd=document.getElementById('profile-new-pwd').value;
+  const bar=document.getElementById('profile-pwd-bar');
+  if(!bar)return;
+  let score=0;
+  if(pwd.length>=8)score++;
+  if(pwd.length>=12)score++;
+  if(/[A-Z]/.test(pwd))score++;
+  if(/[0-9]/.test(pwd))score++;
+  if(/[^A-Za-z0-9]/.test(pwd))score++;
+  const colors=['#94A3B8','#F87171','#FB923C','#FBBF24','#34D399','#10B981'];
+  const widths=['0%','20%','40%','60%','80%','100%'];
+  bar.style.width=widths[score]||'0%';
+  bar.style.background=colors[score]||'#94A3B8';
 }
 
 function closeProfileEditor(){
@@ -3592,10 +3843,14 @@ function removeProfileFoto(){
 async function saveProfile(){
   const bg=document.getElementById('profile-edit-bg');
   const errEl=document.getElementById('profile-err');
+  const succEl=document.getElementById('profile-success');
   const btn=document.getElementById('profile-save-btn');
-  const showErr=(msg)=>{errEl.textContent=msg;errEl.style.display='block';};
-  errEl.style.display='none';
+  const showErr=(msg)=>{errEl.textContent=msg;errEl.style.display='block';succEl.style.display='none';};
+  const showSuccess=(msg)=>{succEl.textContent=msg;succEl.style.display='block';errEl.style.display='none';};
+  errEl.style.display='none';succEl.style.display='none';
   const nom=document.getElementById('profile-nom').value.trim();
+  const phone=document.getElementById('profile-phone').value.trim();
+  const position=document.getElementById('profile-position').value.trim();
   const curPwd=document.getElementById('profile-cur-pwd').value;
   const newPwd=document.getElementById('profile-new-pwd').value;
   if(!nom){showErr('El nom no pot estar buit');return;}
@@ -3604,7 +3859,7 @@ async function saveProfile(){
   // Determinar img
   const pendingImg=bg.dataset.pendingImg||'';
   const imgRemoved=bg.dataset.imgRemoved==='1';
-  const payload={name:nom};
+  const payload={name:nom,phone,position};
   if(pendingImg)payload.img=pendingImg;
   else if(imgRemoved)payload.img=null;
   if(newPwd){payload.currentPassword=curPwd;payload.newPassword=newPwd;}
@@ -3615,8 +3870,14 @@ async function saveProfile(){
     if(!r.ok||!d.ok){showErr(d.error||'Error desant');btn.disabled=false;btn.textContent='Desar canvis';return;}
     window.currentUser=d.user;
     renderSidebarUser(d.user);
-    closeProfileEditor();
-    toast('✓ Perfil actualitzat');
+    // Si hi havia canvi de contrasenya, mostra confirmació breu abans de tancar
+    if(newPwd){
+      showSuccess('✓ Perfil i contrasenya actualitzats');
+      setTimeout(()=>{closeProfileEditor();toast('✓ Perfil actualitzat');},1200);
+    }else{
+      closeProfileEditor();
+      toast('✓ Perfil actualitzat');
+    }
   }catch(e){showErr('Error de connexió: '+e.message);}
   finally{btn.disabled=false;btn.textContent='Desar canvis';}
 }
