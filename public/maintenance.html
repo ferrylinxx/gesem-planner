@@ -259,32 +259,118 @@ body{
 
 .center{text-align:center}
 
-/* ───────── PROGRESS PHASES ───────── */
+/* ───────── PROGRESS PHASES · stepper modern ───────── */
 .phases{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
-  margin:0 0 28px;
+  display:flex;align-items:flex-start;
+  gap:0;
+  margin:8px 0 28px;
+  padding:4px 0;
+  position:relative;
+}
+/* Línia base que connecta totes les fases (a darrere dels cercles) */
+.phases::before{
+  content:'';position:absolute;
+  top:22px;left:22px;right:22px;height:2px;
+  background:rgba(255,255,255,0.08);
+  border-radius:1px;z-index:0;
+}
+/* Línia de progrés que s'omple segons la fase activa */
+.phases::after{
+  content:'';position:absolute;
+  top:22px;left:22px;height:2px;
+  background:linear-gradient(90deg, #10B981, #34D399);
+  border-radius:1px;z-index:0;
+  width:var(--phases-progress, 0%);
+  max-width:calc(100% - 44px);
+  transition:width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:0 0 8px rgba(16,185,129,0.4);
 }
 .phase{
-  background:rgba(255,255,255,0.03);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:11px 10px 12px;
-  position:relative;overflow:hidden;
-  text-align:left;
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;z-index:1;
+  text-align:center;
+  padding:0 4px;
 }
-.phase.done{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3)}
-.phase.active{background:rgba(251,191,36,0.08);border-color:rgba(251,191,36,0.3)}
-.phase.active::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg, transparent, rgba(251,191,36,0.15), transparent);
-  animation:phase-shimmer 1.5s linear infinite;
+.phase-circle{
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(15,23,42,0.85);
+  border:2px solid rgba(255,255,255,0.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+  margin-bottom:10px;
+  position:relative;
+  transition:all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-@keyframes phase-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.phase-icon{font-size:14px;margin-bottom:4px;display:block}
-.phase-label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:2px}
-.phase-status{font-size:11.5px;color:var(--text);font-weight:500}
-.phase.done .phase-status{color:var(--primary)}
-.phase.active .phase-status{color:var(--amber)}
+.phase-label{
+  font-size:9.5px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+  font-weight:600;margin-bottom:3px;
+  transition:color 0.3s ease;
+}
+.phase-status{
+  font-size:12px;color:var(--text);font-weight:600;
+  letter-spacing:-0.01em;
+  transition:color 0.3s ease;
+}
+.phase-time{
+  font-size:9.5px;color:rgba(255,255,255,0.4);
+  margin-top:2px;font-weight:500;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:0.02em;
+}
+/* DONE · verd amb check */
+.phase.done .phase-circle{
+  background:linear-gradient(135deg, #10B981, #059669);
+  border-color:#10B981;
+  box-shadow:0 0 0 4px rgba(16,185,129,0.15), 0 2px 8px rgba(16,185,129,0.3);
+  color:#fff;
+}
+.phase.done .phase-label{color:rgba(16,185,129,0.7)}
+.phase.done .phase-status{color:#10B981}
+.phase.done .phase-circle::after{
+  content:'✓';position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:700;color:#fff;
+}
+.phase.done .phase-icon-emoji{display:none}
+/* ACTIVE · ambre amb spinner + halo pulsant */
+.phase.active .phase-circle{
+  background:linear-gradient(135deg, #FBBF24, #F59E0B);
+  border-color:#FBBF24;
+  box-shadow:0 0 0 4px rgba(251,191,36,0.18), 0 0 24px rgba(251,191,36,0.5);
+  animation:phase-pulse 1.8s ease-in-out infinite;
+}
+@keyframes phase-pulse{
+  0%,100%{box-shadow:0 0 0 4px rgba(251,191,36,0.18), 0 0 24px rgba(251,191,36,0.5)}
+  50%{box-shadow:0 0 0 8px rgba(251,191,36,0.08), 0 0 32px rgba(251,191,36,0.7)}
+}
+.phase.active .phase-icon-emoji{
+  animation:phase-spin 2s linear infinite;
+  display:block;
+}
+@keyframes phase-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.phase.active .phase-label{color:#FCD34D}
+.phase.active .phase-status{color:#FBBF24}
+/* PENDING · gris esmorteït */
+.phase:not(.done):not(.active) .phase-circle{
+  background:rgba(255,255,255,0.04);
+  border-color:rgba(255,255,255,0.08);
+  color:rgba(255,255,255,0.3);
+}
+.phase:not(.done):not(.active) .phase-label{color:rgba(255,255,255,0.25)}
+.phase:not(.done):not(.active) .phase-status{color:rgba(255,255,255,0.35)}
+
+/* Quan l'overall progres és 100% (countdown=0), totes les fases done */
+.phases.completed .phase{animation:phase-celebrate 0.4s ease-out both}
+.phases.completed .phase:nth-child(2){animation-delay:0.1s}
+.phases.completed .phase:nth-child(3){animation-delay:0.2s}
+.phases.completed .phase:nth-child(4){animation-delay:0.3s}
+@keyframes phase-celebrate{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.08)}
+  100%{transform:scale(1)}
+}
 
 /* ───────── DIAGNOSTIC TERMINAL ───────── */
 .terminal{
@@ -583,7 +669,7 @@ body.success{transition:background 0.5s}
       </svg>
       <div class="brand-text">
         <span class="brand-name">GESEM Planner</span>
-        <span class="brand-sub">SYSTEM v44 · MAINTENANCE</span>
+        <span class="brand-sub">SYSTEM v45 · MAINTENANCE</span>
       </div>
     </div>
     <div class="status-pill">
@@ -632,27 +718,31 @@ body.success{transition:background 0.5s}
         <div class="custom-msg-content" id="custom-msg-content"></div>
       </div>
 
-      <!-- Phase progress -->
-      <div class="phases">
-        <div class="phase done">
-          <span class="phase-icon">✓</span>
+      <!-- Phase progress · stepper dinàmic vinculat al countdown -->
+      <div class="phases" id="phases" data-progress="0">
+        <div class="phase" data-phase="1" data-threshold="15">
+          <div class="phase-circle"><span class="phase-icon-emoji">💾</span></div>
           <div class="phase-label">Fase 1</div>
           <div class="phase-status">Backup</div>
+          <div class="phase-time" data-time></div>
         </div>
-        <div class="phase done">
-          <span class="phase-icon">✓</span>
+        <div class="phase" data-phase="2" data-threshold="40">
+          <div class="phase-circle"><span class="phase-icon-emoji">🗄️</span></div>
           <div class="phase-label">Fase 2</div>
           <div class="phase-status">Migració</div>
+          <div class="phase-time" data-time></div>
         </div>
-        <div class="phase active" id="phase-active">
-          <span class="phase-icon">⚙️</span>
+        <div class="phase" data-phase="3" data-threshold="80">
+          <div class="phase-circle"><span class="phase-icon-emoji">⚙️</span></div>
           <div class="phase-label">Fase 3</div>
           <div class="phase-status">Actualitzant</div>
+          <div class="phase-time" data-time></div>
         </div>
-        <div class="phase">
-          <span class="phase-icon">⏳</span>
+        <div class="phase" data-phase="4" data-threshold="100">
+          <div class="phase-circle"><span class="phase-icon-emoji">🔍</span></div>
           <div class="phase-label">Fase 4</div>
           <div class="phase-status">Verificació</div>
+          <div class="phase-time" data-time></div>
         </div>
       </div>
 
@@ -978,9 +1068,76 @@ function updateBigCountdown() {
       etaEl.innerHTML = `Operatius cap a les <b>${etaStr}</b>${isToday ? '' : ' · ' + etaDate}`;
     }
   }
+  // Actualitza també l'estat de les fases segons el progrés (0-100%)
+  updatePhases(window._maintStartForCd ? Math.min(100, Math.max(0, (now - window._maintStartForCd) / (window._maintEndsAt - window._maintStartForCd) * 100)) : 0);
 }
+
+// ════════════════════════════════════════════════════════
+// PHASES · progressió dinàmica vinculada al countdown
+// ════════════════════════════════════════════════════════
+// Cada fase té un data-threshold (% del temps total al qual passa a "done").
+// La línia de progrés s'omple proporcionalment.
+function updatePhases(progressPct) {
+  const phases = document.getElementById('phases');
+  if (!phases) return;
+  // Si la fase 4 acaba al 100, però volem que el "done" final es vegi just abans, fem progress amb una mica de buffer
+  const adjusted = Math.min(progressPct, 100);
+  phases.style.setProperty('--phases-progress', `calc(${adjusted}% - ${adjusted * 0.44}px)`);
+  let activeFound = false;
+  let allDone = adjusted >= 100;
+  const items = phases.querySelectorAll('.phase');
+  items.forEach((el, i) => {
+    const th = parseFloat(el.dataset.threshold) || 25 * (i + 1);
+    // Threshold de "entrada" a la fase = threshold de la fase ANTERIOR (o 0 per la primera)
+    const prevTh = i === 0 ? 0 : (parseFloat(items[i - 1].dataset.threshold) || 0);
+    el.classList.remove('active', 'done');
+    if (allDone || adjusted >= th) {
+      el.classList.add('done');
+      // Marca el timestamp de finalització si no està posat
+      const timeEl = el.querySelector('[data-time]');
+      if (timeEl && !timeEl.textContent && window._maintStartForCd && window._maintEndsAt) {
+        const completedAt = new Date(window._maintStartForCd + (th / 100) * (window._maintEndsAt - window._maintStartForCd));
+        timeEl.textContent = '✓ ' + completedAt.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
+      }
+    } else if (!activeFound && adjusted >= prevTh) {
+      el.classList.add('active');
+      activeFound = true;
+      // Mostra "en curs · X%"
+      const timeEl = el.querySelector('[data-time]');
+      if (timeEl) {
+        const range = th - prevTh;
+        const local = ((adjusted - prevTh) / range) * 100;
+        timeEl.textContent = 'En curs · ' + Math.round(local) + '%';
+      }
+    } else {
+      // Pendent
+      const timeEl = el.querySelector('[data-time]');
+      if (timeEl) timeEl.textContent = '';
+    }
+  });
+  if (allDone) phases.classList.add('completed');
+  else phases.classList.remove('completed');
+}
+
 // Tick cada segon
 setInterval(() => { if (window._maintEndsAt) updateBigCountdown(); }, 1000);
+
+// Si no hi ha countdown configurat, simulem una progressió lenta per mantenir
+// les fases vives (evita que es vegi sempre tot pendent)
+setInterval(() => {
+  if (!window._maintEndsAt) {
+    // Avancem 1% cada 8s sense countdown configurat (cicle complet ~13min)
+    const phases = document.getElementById('phases');
+    if (!phases) return;
+    let p = parseFloat(phases.dataset.fakeProgress || '0');
+    p = (p + 1) % 100;
+    phases.dataset.fakeProgress = String(p);
+    updatePhases(p);
+  }
+}, 8000);
+// Inicial
+if (document.readyState !== 'loading') updatePhases(0);
+else document.addEventListener('DOMContentLoaded', () => updatePhases(0));
 
 function celebrateAndRedirect() {
   const overlay = document.getElementById('success');

@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v44</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v45</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,66 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v44 · actual</div>
+    <div class="cl-current">v45 · actual</div>
+  </div>
+
+  <!-- ════════════ v45 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v45 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Auto-desactivar manteniment + Stepper de fases redissenyat</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🤖 Auto-disable del manteniment al final del countdown</div>
+      <ul class="cl-list">
+        <li>Quan defineixes una hora prevista (<code>endsAt</code>) a /admin i s'arriba al moment, el manteniment es <strong>desactiva automàticament</strong> sense intervenció</li>
+        <li><strong>3 capes de defensa</strong> per garantir que mai oblidem desactivar-lo:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li><strong>Middleware</strong>: cada request HTTP comprova si endsAt ha passat i desactiva al moment</li>
+            <li><strong>Endpoint poll</strong>: <code>GET /api/admin/maintenance</code> (que la pàgina /maintenance crida cada 30s) també detecta i auto-desactiva</li>
+            <li><strong>Cron intern</strong>: cada 20 segons, un timer al servidor comprova i desactiva si cal</li>
+          </ul>
+        </li>
+        <li>Resultat: encara que tothom estigui de vacances, l'app es desbloqueja sola a l'hora exacta. La pàgina /maintenance al detectar-ho mostra l'animació "Operativa de nou!" i redirigeix l'usuari a /peticio</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 Stepper de fases completament redissenyat</div>
+      <ul class="cl-list">
+        <li>Les 4 fases del manteniment ara són un <strong>stepper modern</strong> amb:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li><strong>Cercles 44px</strong> connectats per una línia base gris</li>
+            <li>Línia de progrés verda que <strong>creix gradualment</strong> segons el % del countdown</li>
+            <li>Fase <strong>"done"</strong>: cercle ple verd amb checkmark blanc + glow subtil</li>
+            <li>Fase <strong>"active"</strong>: cercle ambre amb halo pulsant + emoji girant</li>
+            <li>Fase <strong>"pending"</strong>: cercle gris esmorteït amb emoji al 30% opacitat</li>
+          </ul>
+        </li>
+        <li><strong>Vinculades al countdown</strong>: cada fase té un threshold (Fase 1: 15%, Fase 2: 40%, Fase 3: 80%, Fase 4: 100% del temps total). A mesura que avança el countdown, les fases es completen progressivament.</li>
+        <li><strong>Timestamps automàtics</strong>: cada fase done mostra l'hora estimada en què s'ha completat (ex: <em>✓ 14:32</em>). La fase activa mostra <em>"En curs · 45%"</em></li>
+        <li><strong>Celebració al final</strong>: quan totes les fases passen a done (countdown=0), s'aplica una animació de scale cascading</li>
+        <li>Si NO hi ha countdown configurat, les fases simulen una progressió lenta automàtica (1% cada 8s) per no quedar-se sempre quietes</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🛠 Implementació tècnica</div>
+      <ul class="cl-list">
+        <li>Nou helper <code>updatePhases(progressPct)</code> que llegeix els <code>data-threshold</code> i pinta cada fase</li>
+        <li>CSS variable <code>--phases-progress</code> per la línia de progrés (transició suau 0.8s)</li>
+        <li>Backend: helper inline al middleware + setInterval(20s) + check al GET endpoint</li>
+        <li>Es preserva el <code>message</code> custom al desactivar automàticament (per si vols saber què va passar)</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v44 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v44 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v44 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Fix card de manteniment tallada · Scroll permès</div>

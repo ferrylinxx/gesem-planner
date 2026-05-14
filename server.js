@@ -60,6 +60,12 @@ app.use((req, res, next) => {
   if (isMaintenanceBypass(req)) return next();
   const m = readJSON('maintenance.json', { active: false });
   if (!m.active) return next();
+  // Auto-disable · si endsAt ha passat, desactivem el manteniment automàticament
+  if (m.endsAt && Date.parse(m.endsAt) <= Date.now()) {
+    console.log('[maintenance] auto-desactivat · endsAt arribat:', m.endsAt);
+    writeJSON('maintenance.json', { active: false, message: m.message || '', endsAt: null, activatedAt: null });
+    return next();
+  }
   // Headers anti-cache perquè el navegador no es quedi amb la pàgina anterior
   res.set({
     'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
@@ -183,6 +189,19 @@ auth.ensureInitialAdmin();
 // Cleanup periòdic de sessions caducades (cada 6h)
 setInterval(() => { try { auth.cleanupExpired(); } catch(e){} }, 6 * 60 * 60 * 1000);
 
+// Auto-desactivar manteniment quan s'arriba al endsAt (check cada 20s, ràpid però
+// no aclapara). Així si no hi ha cap request durant el countdown, igualment
+// s'apaga sol a l'hora prevista.
+setInterval(() => {
+  try {
+    const m = readJSON('maintenance.json', { active: false });
+    if (m.active && m.endsAt && Date.parse(m.endsAt) <= Date.now()) {
+      console.log('[maintenance] auto-desactivat (cron) · endsAt:', m.endsAt);
+      writeJSON('maintenance.json', { active: false, message: m.message || '', endsAt: null, activatedAt: null });
+    }
+  } catch(e){}
+}, 20 * 1000);
+
 // Endpoint per a /login (públic)
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/login.html', (req, res) => res.redirect('/login'));
@@ -232,7 +251,14 @@ app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'adm
 app.get('/maintenance', (req, res) => res.sendFile(path.join(__dirname, 'public', 'maintenance.html')));
 
 app.get('/api/admin/maintenance', (req, res) => {
-  res.json(readJSON('maintenance.json', { active: false }));
+  const m = readJSON('maintenance.json', { active: false });
+  // Auto-desactiva si endsAt ha passat (per a clients que polegen aquest endpoint)
+  if (m.active && m.endsAt && Date.parse(m.endsAt) <= Date.now()) {
+    const off = { active: false, message: m.message || '', endsAt: null, activatedAt: null };
+    writeJSON('maintenance.json', off);
+    return res.json(off);
+  }
+  res.json(m);
 });
 
 app.post('/api/admin/maintenance', (req, res) => {
