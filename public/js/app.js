@@ -2805,16 +2805,24 @@ function _saveFM(data){
     data.id=eFId; // ← fix: sempre usar eFId, no data.id
     const idx=FORMADORS.findIndex(f=>f.id===eFId);
     if(idx>-1){
+      const prevIcsUrl=FORMADORS[idx].icsUrl||'';
       FORMADORS[idx]={...FORMADORS[idx],...data};
-      apiPut('formadors/'+eFId,FORMADORS[idx]); // ← fix: eFId en lloc de data.id
-      // Si ha canviat la URL del calendari, invalidar cache
-      if(data.icsUrl!==undefined){
+      apiPut('formadors/'+eFId,FORMADORS[idx]);
+      // Només invalidem el calendari si la URL HA CANVIAT.
+      // Abans s'invalidava SEMPRE perquè `data.icsUrl!==undefined` sempre era true
+      // (el form sempre porta el camp), i a més el codi de re-fetch utilitzava
+      // un format de calData obsolet (`new Set(busyDates)`) que feia que el
+      // card mai més tornés a detectar-se com a sincronitzat.
+      const newIcsUrl=(data.icsUrl||'').trim();
+      if(newIcsUrl!==(prevIcsUrl||'').trim()){
         delete calData[eFId];
-        if(data.icsUrl){
-          fetch('/api/disponibilitat/'+eFId+'/cache',{method:'DELETE'});
-          fetch('/api/disponibilitat/'+eFId).then(r=>r.json()).then(r=>{
-            calData[eFId]=new Set(r.busyDates||[]);
-            lf();
+        if(typeof persistCalData==='function')persistCalData();
+        if(newIcsUrl){
+          // refreshCal ja gestiona el format correcte ({slots, fullDayDates, syncedAt})
+          // i persisteix a localStorage automàticament
+          refreshCal(eFId,{silent:true}).then(()=>{
+            if(typeof renderFP==='function')renderFP();
+            if(typeof lf==='function')lf();
           }).catch(()=>{});
         }
       }
