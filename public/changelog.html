@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v41</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v42</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,39 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v41 · actual</div>
+    <div class="cl-current">v42 · actual</div>
+  </div>
+
+  <!-- ════════════ v42 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v42 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Fix splash: loading bar mal posicionada</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🐛 Loading bar del splash mal posicionada</div>
+      <ul class="cl-list fixed">
+        <li><strong>Símptoma:</strong> la barra de càrrega del splash apareixia a la cantonada inferior dreta enlloc d'estar centrada sota el logo</li>
+        <li><strong>Causa:</strong> usava <code>position: absolute</code> amb <code>left: 50%; transform: translateX(-50%)</code> que pot fallar en alguns contextos. A més, l'animació del <code>::before</code> usava <code>translateX(-100% a 400%)</code> amb percentatges relatius al seu propi width — un càlcul fràgil.</li>
+        <li><strong>Fix:</strong>
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>Treta del posicionament absolute · ara dins del flex container <code>.gs-logo-wrap</code> com a fill natural</li>
+            <li><code>margin: 28px auto 0</code> per centrar horitzontalment de manera robusta</li>
+            <li>Animació amb <code>left: -40% → 100%</code> (percentatges relatius al parent, més estable)</li>
+            <li>Element fill <code>.gs-loader-bar</code> en lloc de <code>::before</code></li>
+            <li>Easing <code>cubic-bezier(0.65, 0, 0.35, 1)</code> per a moviment més natural</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v41 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v41 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v41 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Splash screen al primer accés · Logo animat amb branding</div>

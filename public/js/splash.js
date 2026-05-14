@@ -116,24 +116,25 @@
       letter-spacing: 0.01em;
     }
 
-    /* Loading bar minimalista a sota */
+    /* Loading bar minimalista · centrada sota el branding (flux natural · sense absolute) */
     .gs-loader {
-      position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%);
-      width: 180px; height: 2.5px;
-      background: rgba(5, 150, 105, 0.12);
-      border-radius: 2px; overflow: hidden;
-      z-index: 1;
+      margin: 28px auto 0;
+      width: 160px; height: 3px;
+      background: rgba(5, 150, 105, 0.15);
+      border-radius: 3px; overflow: hidden;
+      position: relative;
       animation: gsTextIn 0.6s ease-out 0.4s both;
     }
-    .gs-loader::before {
-      content: ''; display: block;
-      height: 100%; width: 30%;
-      background: linear-gradient(90deg, transparent, #059669, transparent);
-      animation: gsLoaderSlide 1.4s ease-in-out infinite;
+    .gs-loader-bar {
+      position: absolute; top: 0; left: 0;
+      width: 40%; height: 100%;
+      background: linear-gradient(90deg, transparent 0%, #059669 50%, transparent 100%);
+      border-radius: 3px;
+      animation: gsLoaderSlide 1.3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
     }
     @keyframes gsLoaderSlide {
-      0%   { transform: translateX(-100%); }
-      100% { transform: translateX(400%); }
+      0%   { left: -40%; }
+      100% { left: 100%; }
     }
 
     /* No-scroll mentre el splash està visible */
@@ -169,8 +170,8 @@
         <div class="gs-brand-name">GESEM <span>Planner</span></div>
         <div class="gs-brand-sub">Gestió de reserves de formació</div>
       </div>
+      <div class="gs-loader" aria-hidden="true"><div class="gs-loader-bar"></div></div>
     </div>
-    <div class="gs-loader" aria-hidden="true"></div>
   `;
 
   // Afegir-ho el més aviat possible (incloent abans del DOM ready si cal)
