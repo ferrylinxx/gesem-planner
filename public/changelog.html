@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v30</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v31</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,47 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v30 · actual</div>
+    <div class="cl-current">v31 · actual</div>
+  </div>
+
+  <!-- ════════════ v31 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v31 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Fix: login dins de Microsoft Teams (cookies cross-site)</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🐛 Login no persistia dins de Microsoft Teams</div>
+      <ul class="cl-list fixed">
+        <li><strong>Símptoma:</strong> a l'app de Teams introduïes les credencials, prems Entrar, els camps s'esborraven però et quedaves a la mateixa pàgina de login. A través del navegador (planner.gesem.es directe) sí funcionava.</li>
+        <li><strong>Causa:</strong> Microsoft Teams carrega les apps dins d'un <strong>iframe</strong> on el "top frame" és <code>teams.microsoft.com</code> i la nostra app és <code>planner.gesem.es</code> (cross-site). El navegador tractava la nostra cookie de sessió com a <strong>third-party cookie</strong>: amb <code>SameSite=Lax</code> el browser la bloquejava silenciosament → el backend feia login OK però la cookie no s'arribava a guardar.</li>
+        <li><strong>Fix backend:</strong> la cookie de sessió ara s'emet amb <code>SameSite=None; Secure</code> (només quan l'app corre via HTTPS) — això autoritza explícitament l'enviament cross-site. <code>Secure</code> obligatori per evitar exposició en HTTP.</li>
+        <li><strong>Fix client:</strong> els <code>fetch()</code> de login/auth ara usen <code>credentials:'include'</code> enlloc de <code>'same-origin'</code> perquè el browser enviï la cookie en context cross-site.</li>
+        <li><strong>Fix logout:</strong> el <code>clearCookie()</code> ara replica els mateixos atributs (sense això el browser no esborrava la cookie correctament).</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔒 Tradeoff de seguretat</div>
+      <ul class="cl-list">
+        <li><code>SameSite=None</code> elimina la protecció CSRF nativa que oferia <code>Lax</code>. Risc baix al nostre cas perquè:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>L'app no té formularis sensibles exposats per GET (només POST/PUT/DELETE)</li>
+            <li>L'app és d'ús intern corporatiu, no exposada a usuaris no confiables</li>
+            <li>Les rutes destructives requereixen sessió vàlida (no es pot CSRF si no estàs logat)</li>
+          </ul>
+        </li>
+        <li>Mantenim <code>HttpOnly</code> (cookie no llegible per JS, protecció anti-XSS) + <code>Secure</code> (només HTTPS).</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v30 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v30 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v30 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Producció: HTTPS · Microsoft Teams · Login multi-usuari</div>
