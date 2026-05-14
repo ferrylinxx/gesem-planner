@@ -452,7 +452,8 @@ function render(data) {
   const barsHtml = days.map(d => {
     const cls = d.status === 'operational' ? '' : d.status;
     const dateStr = new Date(d.date).toLocaleDateString('ca-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-    return `<div class="uptime-bar ${cls}" title="${dateStr} · ${d.uptimePct.toFixed(2)}%"><span class="tip">${dateStr} · ${d.uptimePct.toFixed(2)}%</span></div>`;
+    const lbl = d.noData ? `${dateStr} · Operacional (sense dades històriques)` : `${dateStr} · ${d.uptimePct.toFixed(2)}%`;
+    return `<div class="uptime-bar ${cls}" title="${lbl}"><span class="tip">${lbl}</span></div>`;
   }).join('');
 
   // Incidents

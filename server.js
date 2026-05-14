@@ -502,16 +502,17 @@ app.get('/api/status', (req, res) => {
       if (finalUptime < 50) status = 'major_outage';
       else if (finalUptime < 95) status = 'partial_outage';
       else if (finalUptime < 99.9) status = 'degraded';
-      if (d.snaps === 0 && incidentDownMs === 0) status = 'no_data';
+      // Dies sense dades i sense incidents → operacional (no notícies = bones notícies)
       return {
         date: d.date,
         uptimePct: Math.round(finalUptime * 100) / 100,
         status,
         snaps: d.snaps,
+        noData: d.snaps === 0 && incidentDownMs === 0,
       };
     });
-    const validDays = days.filter(d => d.status !== 'no_data');
-    const uptime90 = validDays.length ? validDays.reduce((s, d) => s + d.uptimePct, 0) / validDays.length : 100;
+    // Tots els dies compten · els que no tenen dades són 100% per defecte
+    const uptime90 = days.length ? days.reduce((s, d) => s + d.uptimePct, 0) / days.length : 100;
 
     res.json({
       status: worst,

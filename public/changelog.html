@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v50</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v51</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,32 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v50 · actual</div>
+    <div class="cl-current">v51 · actual</div>
+  </div>
+
+  <!-- ════════════ v51 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v51 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Status page · barres uptime verdes per defecte</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🟢 Dies sense dades = operatius (no més grisos)</div>
+      <ul class="cl-list">
+        <li><strong>Abans</strong>: els dies anteriors a l'activació dels health checks reals (v49) sortien tots en gris (<code>no_data</code>), donant la sensació que el sistema no havia funcionat</li>
+        <li><strong>Ara</strong>: aplicació de la regla "no notícies = bones notícies". Si no tenim snapshots ni incidents registrats per un dia → barra <strong>verda</strong> (100% operacional)</li>
+        <li>El tooltip al passar el cursor diu "Operacional (sense dades històriques)" per ser transparent sobre què sabem i què no</li>
+        <li>El càlcul d'<strong>avg90d</strong> ara inclou tots els dies (els no-data com a 100%), donant una xifra més coherent visualment</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v50 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v50 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v50</div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Status page · auto-refresh cada 10s (3× més ràpid)</div>
