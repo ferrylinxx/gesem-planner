@@ -600,6 +600,7 @@ app.get('/r/:token', (req, res) => {
 function acceptReserva(token, req, res) {
   try {
     const { reserva, reserves } = loadReservaFromToken(token);
+    let justAccepted = false;
     if (reserva.formadorAccepted == null) {
       reserva.formadorAccepted = true;
       reserva.formadorRespondedAt = new Date().toISOString();
@@ -608,11 +609,25 @@ function acceptReserva(token, req, res) {
         reserva.estat = 'confirmada';
       }
       writeJSON('reserves.json', reserves);
+      justAccepted = true;
       // Notificar el comercial (asíncron, sense bloquejar la resposta)
       notifyAgentOfResponse(reserva, true).catch(e => console.warn('Notif agent fail:', e.message));
+      // Auto-sync amb Google Calendar del formador si està connectat (asíncron)
+      autoSyncReservaToGoogle(reserva).then(r => {
+        if (r.ok && r.created && r.created.length) {
+          console.log('[google] ✓', r.created.length, 'events creats per reserva', reserva.id);
+        } else if (r.skipped) {
+          // formador no connectat o OAuth no configurat — normal
+        } else if (r.error) {
+          console.warn('[google] sync error per reserva', reserva.id, ':', r.error);
+        }
+      }).catch(e => console.warn('[google] sync exception:', e.message));
     }
     const baseUrl = process.env.BASE_URL || ('http://' + (req.get('host') || 'localhost:3001'));
-    res.send(tmpl.responsePage({ reserva, action: 'accept', token, baseUrl, message: 'ok' }));
+    // Comprovar si l'usuari té Google OAuth connectat (per a UX a la pàgina de resposta)
+    const tokenStore = readJSON('google_tokens.json', {});
+    const googleConnected = !!(reserva.formadorId && tokenStore[reserva.formadorId]);
+    res.send(tmpl.responsePage({ reserva, action: 'accept', token, baseUrl, message: 'ok', googleConnected, justAccepted }));
   } catch (e) {
     const baseUrl = process.env.BASE_URL || 'http://localhost:3001';
     res.status(400).send(tmpl.responsePage({ action: 'view', token, baseUrl, error: e.message }));

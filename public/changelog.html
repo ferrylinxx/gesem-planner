@@ -149,7 +149,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v33</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v34</span>
 </div>
 <div class="content-area">
 
@@ -158,13 +158,62 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v33 · actual</div>
+    <div class="cl-current">v34 · actual</div>
+  </div>
+
+  <!-- ════════════ v34 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v34 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Sincronització automàtica al calendari quan el formador accepta</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📅 Auto-add al Google Calendar quan s'accepta</div>
+      <ul class="cl-list">
+        <li>Quan el formador clica <strong>Acceptar</strong> al correu, si té el <strong>Google Calendar connectat via OAuth</strong>, els events es <strong>creen automàticament al seu calendari</strong> sense que hagi de fer res més.</li>
+        <li>La pàgina de confirmació mostra un badge verd <em>"Ja afegit al teu Google Calendar · N sessions sincronitzades"</em></li>
+        <li>Aprofita la infraestructura OAuth ja existent a <code>lib/google.js</code> i el helper <code>autoSyncReservaToGoogle(reserva)</code></li>
+        <li>Sense intervenció: la sincronització és asíncrona i no bloqueja la resposta al formador</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔗 Botons "Add to Calendar" per a tots els proveïdors</div>
+      <ul class="cl-list">
+        <li>Per a formadors que <strong>no tinguin Google Calendar OAuth connectat</strong>, la pàgina d'acceptació ara ofereix botons directes:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>📅 <strong>Afegir a Google Calendar</strong> — deeplink a <code>calendar.google.com/render?action=TEMPLATE</code></li>
+            <li>📧 <strong>Afegir a Outlook</strong> — deeplink a <code>outlook.office.com/calendar/deeplink/compose</code></li>
+            <li>📎 <strong>Descarregar .ics</strong> — fitxer iCal compatible amb Apple Calendar, Thunderbird, etc.</li>
+          </ul>
+        </li>
+        <li><strong>UX adaptativa</strong>:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>1 sola sessió → els 3 botons en línia (Google / Outlook / .ics)</li>
+            <li>Múltiples sessions → <strong>.ics primari</strong> (afegeix totes alhora) + <em>"Prefereixo afegir-les una per una"</em> col·lapsable amb links per session</li>
+          </ul>
+        </li>
+        <li>Els deeplinks contenen títol, dates correctes amb timezone <code>Europe/Madrid</code>, descripció completa amb client/curs/formador i ID de reserva</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🛠 Implementació tècnica</div>
+      <ul class="cl-list">
+        <li>Nous helpers a <code>lib/emailTemplates.js</code>: <code>googleCalendarUrl(reserva, sessionIdx)</code> + <code>outlookCalendarUrl(reserva, sessionIdx)</code></li>
+        <li>Parser de torn millorat (regex flexible per <code>9:30–11:30h</code>, <code>9.30-11.30</code>, etc.)</li>
+        <li>El paràmetre <code>googleConnected</code> passa a <code>responsePage()</code> per pintar la UI correcta</li>
+        <li><code>acceptReserva()</code> al servidor crida <code>autoSyncReservaToGoogle()</code> en segon pla quan el formador accepta per primera vegada</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v33 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v33 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v33 <span class="cl-tag minor">Minor</span></div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Correu electrònic real per agents comercials</div>
