@@ -150,7 +150,7 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v47</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v48</span>
 </div>
 <div class="content-area">
 
@@ -159,13 +159,73 @@
   <div class="cl-hero">
     <h1>Historial de canvis</h1>
     <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v47 · actual</div>
+    <div class="cl-current">v48 · actual</div>
+  </div>
+
+  <!-- ════════════ v48 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v48 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Status page pública (estil Supabase) + auto-update countdown</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📊 Nova pàgina pública <code>/status</code></div>
+      <ul class="cl-list">
+        <li>Inspirada en <a href="https://status.supabase.com" target="_blank" rel="noopener">status.supabase.com</a>: dashboard d'estat del sistema accessible <strong>sense autenticació</strong> per a clients i formadors externs</li>
+        <li><strong>Hero amb estat global</strong>: "Tots els sistemes operatius" en verd, "Manteniment en curs" en violeta, "Rendiment degradat" en ambre, o "Interrupció" en vermell, segons el pitjor estat detectat</li>
+        <li><strong>Llistat de 6 serveis</strong> amb estat individual i descripció:
+          <ul style="margin:6px 0 0 18px;color:#71717A;font-size:12px">
+            <li>🌐 Web · planner.gesem.es</li>
+            <li>⚡ API · backend REST</li>
+            <li>✉️ SMTP · correu de confirmacions</li>
+            <li>🤖 IA · Anthropic API (suggeridor)</li>
+            <li>📅 Google Calendar · sincronització</li>
+            <li>💾 Base de dades · SQLite local</li>
+          </ul>
+        </li>
+        <li><strong>Uptime dels últims 90 dies</strong>: % global + grid de barres estil Supabase (cada barra = 1 dia, hover mostra data + uptime%)</li>
+        <li><strong>Historial d'incidents</strong>: cada cop que s'activa el manteniment es registra com a incident, i quan es desactiva es marca com resolt (amb durada calculada)</li>
+        <li>Banner de manteniment <strong>amb hora de tornada</strong> quan està actiu</li>
+        <li>Auto-refresh cada 30s amb countdown visual</li>
+        <li>Accessible des de /admin · <strong>Quick Actions → 📊 Veure /status</strong></li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔧 Backend: <code>GET /api/status</code> + tracking d'incidents</div>
+      <ul class="cl-list">
+        <li>Nou endpoint públic <code>GET /api/status</code> que retorna estat actual, serveis, uptime 90d i incidents</li>
+        <li>Cada canvi a <code>POST /api/admin/maintenance</code> ara <strong>registra automàticament un incident</strong> a <code>incidents.json</code></li>
+        <li>El càlcul d'uptime per dia es basa en l'overlap entre la finestra del dia (00:00-23:59) i les durades dels incidents</li>
+        <li>Serveis amb fallback intel·ligent: si <code>ANTHROPIC_API_KEY</code> falta → IA marcada com "degraded"; si <code>GOOGLE_CLIENT_ID</code> falta → Google "degraded"; etc.</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⚡ Auto-update del countdown a <code>/maintenance</code> (sense recarregar)</div>
+      <ul class="cl-list">
+        <li><strong>Símptoma anterior</strong>: si canviaves <code>endsAt</code> a <code>/admin</code>, la pàgina <code>/maintenance</code> dels usuaris no es refrescava fins al següent poll (30s). Havien de recarregar manualment</li>
+        <li><strong>Ara</strong>: poll cada <strong>5s</strong> (en lloc dels 30s anteriors) + re-poll instantani quan la pestanya torna a primer pla (<code>visibilitychange</code>)</li>
+        <li>El servidor ara afegeix <code>lastChangedAt</code> a cada resposta perquè el client detecti canvis i recalculi fases/countdown al moment</li>
+        <li>Si el missatge custom s'esborra a admin → desapareix del client automàticament (abans es quedava cachejat)</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔐 Auth · rutes públiques actualitzades</div>
+      <ul class="cl-list">
+        <li><code>/status</code>, <code>/status.html</code> i <code>/api/status</code> afegits a la whitelist de l'auth middleware</li>
+        <li>També afegits al <code>isMaintenanceBypass()</code> → la pàgina <code>/status</code> és accessible <strong>fins i tot durant manteniment</strong> (és precisament quan més es necessita)</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v47 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v47 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v47</div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Fases de manteniment persistents · zero-flash al recarregar</div>

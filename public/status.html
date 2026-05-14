@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GESEM Planner · Estat del sistema</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<meta name="theme-color" content="#059669"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAFAF7;
+  --bg-card:#fff;
+  --bg-soft:#F4F4EE;
+  --text:#1a1a1a;
+  --text-muted:#71717A;
+  --text-subtle:#A1A1AA;
+  --border:rgba(0,0,0,0.08);
+  --border-strong:rgba(0,0,0,0.14);
+  --shadow:0 1px 3px rgba(0,0,0,0.04),0 8px 24px rgba(0,0,0,0.04);
+  --green:#10B981;
+  --green-soft:#D1FAE5;
+  --green-bg:#ECFDF5;
+  --amber:#F59E0B;
+  --amber-soft:#FEF3C7;
+  --amber-bg:#FFFBEB;
+  --red:#EF4444;
+  --red-soft:#FEE2E2;
+  --red-bg:#FEF2F2;
+  --violet:#A78BFA;
+  --violet-soft:#EDE9FE;
+  --violet-bg:#F5F3FF;
+  --blue:#3B82F6;
+  --blue-soft:#DBEAFE;
+}
+html,body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.5}
+body{min-height:100vh}
+
+.wrap{max-width:980px;margin:0 auto;padding:32px 24px 60px}
+
+/* ─── HEADER ─── */
+.header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:36px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:36px;height:36px}
+.brand-text{display:flex;flex-direction:column}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-0.01em}
+.brand-name span{color:var(--green)}
+.brand-sub{font-size:11px;color:var(--text-muted);font-weight:500;font-family:'JetBrains Mono',monospace}
+.refresh-info{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.refresh-info .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(16,185,129,0.15);animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ─── HERO STATUS BANNER ─── */
+.hero{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:32px 36px;
+  margin-bottom:24px;
+  display:flex;align-items:center;gap:24px;
+  box-shadow:var(--shadow);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:var(--green);
+}
+.hero.amber::before{background:var(--amber)}
+.hero.red::before{background:var(--red)}
+.hero.violet::before{background:var(--violet)}
+.hero-icon{
+  width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  background:var(--green-bg);
+  color:var(--green);
+  position:relative;
+}
+.hero.amber .hero-icon{background:var(--amber-bg);color:var(--amber)}
+.hero.red .hero-icon{background:var(--red-bg);color:var(--red)}
+.hero.violet .hero-icon{background:var(--violet-bg);color:var(--violet)}
+.hero-icon::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:2px solid currentColor;opacity:0.25;
+  animation:ring 2s ease-in-out infinite;
+}
+@keyframes ring{0%,100%{opacity:0.25;transform:scale(1)}50%{opacity:0.05;transform:scale(1.15)}}
+.hero-icon svg{width:32px;height:32px}
+.hero-body{flex:1;min-width:0}
+.hero-title{font-size:22px;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px}
+.hero-sub{font-size:13.5px;color:var(--text-muted)}
+.hero-uptime{
+  text-align:right;flex-shrink:0;
+}
+.hero-uptime-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:28px;font-weight:700;color:var(--green);
+  letter-spacing:-0.02em;line-height:1;
+}
+.hero.amber .hero-uptime-num{color:var(--amber)}
+.hero.red .hero-uptime-num{color:var(--red)}
+.hero-uptime-lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-top:6px}
+
+/* ─── MAINTENANCE BANNER ─── */
+.maint-banner{
+  background:linear-gradient(135deg, var(--violet-bg), var(--violet-soft));
+  border:1px solid rgba(167,139,250,0.3);
+  border-left:4px solid var(--violet);
+  border-radius:12px;
+  padding:18px 22px;
+  margin-bottom:24px;
+  display:none;
+}
+.maint-banner.show{display:block}
+.mb-title{font-size:14px;font-weight:700;color:#6D28D9;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mb-msg{font-size:13px;color:#5B21B6;line-height:1.55}
+.mb-eta{font-size:12px;color:#6D28D9;font-family:'JetBrains Mono',monospace;margin-top:8px;font-weight:600}
+
+/* ─── SECTIONS ─── */
+.section{margin-bottom:32px}
+.section-title{
+  font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--text-muted);margin-bottom:12px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ─── SERVICES LIST ─── */
+.services{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.svc{
+  display:flex;align-items:center;gap:16px;
+  padding:18px 22px;
+  border-bottom:1px solid var(--border);
+  transition:background 0.15s;
+}
+.svc:last-child{border-bottom:none}
+.svc:hover{background:var(--bg-soft)}
+.svc-icon{
+  width:36px;height:36px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:16px;
+}
+.svc-icon.web{background:var(--green-bg);color:var(--green)}
+.svc-icon.api{background:var(--blue-soft);color:var(--blue)}
+.svc-icon.smtp{background:var(--amber-bg);color:var(--amber)}
+.svc-icon.ai{background:var(--violet-bg);color:var(--violet)}
+.svc-icon.google{background:#FEE2E2;color:#DC2626}
+.svc-icon.db{background:#F3F4F6;color:#6B7280}
+.svc-body{flex:1;min-width:0}
+.svc-name{font-size:14px;font-weight:600;letter-spacing:-0.005em;margin-bottom:2px}
+.svc-desc{font-size:12px;color:var(--text-muted)}
+.svc-status{
+  display:flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;
+  padding:5px 12px;border-radius:999px;
+  flex-shrink:0;
+}
+.svc-status.operational{background:var(--green-bg);color:#047857}
+.svc-status.degraded{background:var(--amber-bg);color:#92400E}
+.svc-status.partial_outage{background:var(--amber-bg);color:#B45309}
+.svc-status.major_outage{background:var(--red-bg);color:#991B1B}
+.svc-status.maintenance{background:var(--violet-bg);color:#5B21B6}
+.svc-status .led{
+  width:7px;height:7px;border-radius:50%;
+  background:currentColor;
+  box-shadow:0 0 0 3px currentColor;opacity:0.9;
+}
+.svc-status.operational .led{animation:led-pulse 2s ease-in-out infinite}
+@keyframes led-pulse{0%,100%{opacity:0.9}50%{opacity:0.3}}
+
+/* ─── UPTIME BARS · estil Supabase ─── */
+.uptime-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:22px 24px;
+  box-shadow:var(--shadow);
+}
+.uptime-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.uptime-head-l{font-size:13px;font-weight:600}
+.uptime-head-r{font-size:11.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+.uptime-bars{
+  display:flex;align-items:stretch;
+  gap:2px;height:32px;
+  margin:8px 0 12px;
+}
+.uptime-bar{
+  flex:1;min-width:0;
+  background:var(--green);
+  border-radius:2px;
+  position:relative;
+  cursor:pointer;
+  transition:transform 0.15s ease, opacity 0.15s ease;
+}
+.uptime-bar.degraded{background:var(--amber)}
+.uptime-bar.partial_outage{background:#FB923C}
+.uptime-bar.major_outage{background:var(--red)}
+.uptime-bar:hover{transform:scaleY(1.15);opacity:0.85}
+.uptime-bar .tip{
+  position:absolute;bottom:calc(100% + 8px);left:50%;
+  transform:translateX(-50%);
+  background:#1F2937;color:#fff;
+  padding:6px 10px;border-radius:6px;
+  font-size:11px;font-weight:600;
+  white-space:nowrap;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.15s;
+  z-index:10;
+  font-family:'JetBrains Mono',monospace;
+}
+.uptime-bar .tip::after{
+  content:'';position:absolute;top:100%;left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:#1F2937;
+}
+.uptime-bar:hover .tip{opacity:1}
+.uptime-foot{
+  display:flex;justify-content:space-between;
+  font-size:10.5px;color:var(--text-subtle);
+  margin-top:8px;font-family:'JetBrains Mono',monospace;
+}
+
+/* ─── INCIDENTS ─── */
+.incidents{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.no-inc{
+  padding:32px 24px;text-align:center;
+  color:var(--text-muted);font-size:13px;
+}
+.no-inc .em{font-size:32px;display:block;margin-bottom:8px}
+.inc{
+  padding:18px 22px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:14px;
+}
+.inc:last-child{border-bottom:none}
+.inc-dot{
+  width:10px;height:10px;border-radius:50%;
+  margin-top:6px;flex-shrink:0;
+}
+.inc-dot.resolved{background:var(--green);box-shadow:0 0 0 3px var(--green-bg)}
+.inc-dot.ongoing{background:var(--amber);box-shadow:0 0 0 3px var(--amber-bg);animation:led-pulse 1.5s ease-in-out infinite}
+.inc-body{flex:1;min-width:0}
+.inc-title{font-size:13.5px;font-weight:700;margin-bottom:3px;letter-spacing:-0.005em}
+.inc-meta{
+  display:flex;flex-wrap:wrap;gap:10px;
+  font-size:11px;color:var(--text-muted);
+  font-family:'JetBrains Mono',monospace;
+  margin-bottom:6px;
+}
+.inc-meta b{color:var(--text);font-weight:600}
+.inc-msg{font-size:12.5px;color:var(--text-muted);line-height:1.5}
+.inc-tag{
+  display:inline-block;
+  font-size:9.5px;font-weight:700;
+  padding:2px 7px;border-radius:4px;
+  text-transform:uppercase;letter-spacing:0.06em;
+  font-family:'JetBrains Mono',monospace;
+}
+.inc-tag.resolved{background:var(--green-bg);color:#047857}
+.inc-tag.ongoing{background:var(--amber-bg);color:#92400E}
+.inc-tag.maintenance{background:var(--violet-bg);color:#5B21B6}
+
+/* ─── FOOTER ─── */
+.foot{
+  margin-top:40px;padding-top:24px;
+  border-top:1px solid var(--border);
+  text-align:center;font-size:11.5px;color:var(--text-muted);
+  font-family:'JetBrains Mono',monospace;
+}
+.foot a{color:var(--green);text-decoration:none;font-weight:600}
+.foot a:hover{text-decoration:underline}
+
+/* ─── LOADING ─── */
+.loading{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.spinner{
+  width:32px;height:32px;
+  border:3px solid var(--border);
+  border-top-color:var(--green);
+  border-radius:50%;
+  margin:0 auto 16px;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media (max-width:640px){
+  .wrap{padding:20px 16px 40px}
+  .hero{padding:22px;flex-direction:column;text-align:center}
+  .hero-uptime{text-align:center}
+  .uptime-bars{height:28px;gap:1px}
+  .svc{padding:14px 18px;gap:12px}
+  .hero-title{font-size:19px}
+  .hero-uptime-num{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <rect x="8" y="14" width="36" height="10" rx="2" fill="#A7F3D0" transform="rotate(-4 26 19)"/>
+        <rect x="10" y="22" width="36" height="10" rx="2" fill="#34D399"/>
+        <rect x="12" y="32" width="36" height="10" rx="2" fill="#059669" transform="rotate(3 30 37)"/>
+      </svg>
+      <div class="brand-text">
+        <div class="brand-name">GESEM <span>Planner</span> · Estat</div>
+        <div class="brand-sub" id="brand-sub">SYSTEM STATUS</div>
+      </div>
+    </div>
+    <div class="refresh-info">
+      <span class="dot"></span>
+      <span>Auto-refresh · <b id="next-refresh">30</b>s</span>
+    </div>
+  </header>
+
+  <div id="content">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>Carregant estat del sistema...</div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <div>GESEM digital &amp; SoftSkills · <a href="/peticio">Tornar a l'app</a></div>
+    <div style="margin-top:6px;opacity:0.6">Última comprovació · <span id="last-check">--:--:--</span></div>
+  </footer>
+
+</div>
+
+<script>
+const STATUS_LABELS = {
+  operational: { title: 'Tots els sistemes operatius', sub: 'Tot funciona com s\'espera. Cap incident actiu.', cls: '', icon: 'check' },
+  degraded: { title: 'Rendiment degradat', sub: 'Alguns serveis funcionen amb limitacions. Estem investigant-ho.', cls: 'amber', icon: 'warn' },
+  partial_outage: { title: 'Interrupció parcial', sub: 'Alguns serveis no estan disponibles.', cls: 'amber', icon: 'warn' },
+  major_outage: { title: 'Interrupció general', sub: 'Hi ha una interrupció important. Estem treballant per restaurar-ho.', cls: 'red', icon: 'cross' },
+  maintenance: { title: 'Manteniment en curs', sub: 'Estem fent millores programades. Tornarem aviat.', cls: 'violet', icon: 'tools' },
+};
+const SVC_STATUS_LBL = {
+  operational: 'Operatiu',
+  degraded: 'Degradat',
+  partial_outage: 'Interromput',
+  major_outage: 'Caigut',
+  maintenance: 'Manteniment',
+};
+const SVC_ICONS = {
+  web: '🌐', api: '⚡', smtp: '✉️', ai: '🤖', google: '📅', db: '💾'
+};
+const ICONS = {
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  cross: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  tools: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+};
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('ca-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function fmtRelative(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'ara mateix';
+  if (mins < 60) return `fa ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `fa ${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `fa ${days}d`;
+  return fmtDate(iso);
+}
+function fmtDuration(ms) {
+  if (!ms || ms < 0) return '—';
+  const s = Math.floor(ms / 1000);
+  if (s < 60) return s + 's';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'min';
+  const h = Math.floor(m / 60);
+  const rem = m % 60;
+  if (h < 24) return rem ? `${h}h ${rem}min` : `${h}h`;
+  const d = Math.floor(h / 24);
+  return `${d}d ${h % 24}h`;
+}
+
+function render(data) {
+  const cs = STATUS_LABELS[data.status] || STATUS_LABELS.operational;
+  const uptimeNum = (data.uptime && typeof data.uptime.avg90d === 'number') ? data.uptime.avg90d.toFixed(3) : '100.000';
+
+  // Maintenance ETA
+  let maintHtml = '';
+  if (data.maintenance && data.maintenance.active) {
+    const eta = data.maintenance.endsAt ? `Operatius cap a les <b>${new Date(data.maintenance.endsAt).toLocaleTimeString('ca-ES', { hour:'2-digit', minute:'2-digit' })}</b>` : 'Sense hora estimada de tornada';
+    maintHtml = `
+      <div class="maint-banner show">
+        <div class="mb-title">🛠️ Manteniment actiu</div>
+        <div class="mb-msg">${(data.maintenance.message || 'Estem fent millores al sistema').replace(/[<>]/g, c => c === '<' ? '&lt;' : '&gt;')}</div>
+        <div class="mb-eta">${eta}</div>
+      </div>
+    `;
+  }
+
+  // Services list
+  const svcHtml = (data.services || []).map(s => `
+    <div class="svc">
+      <div class="svc-icon ${s.id}">${SVC_ICONS[s.id] || '•'}</div>
+      <div class="svc-body">
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-desc">${s.desc || ''}</div>
+      </div>
+      <div class="svc-status ${s.status}">
+        <span class="led"></span>
+        <span>${SVC_STATUS_LBL[s.status] || s.status}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // Uptime bars
+  const days = (data.uptime && data.uptime.days) || [];
+  const barsHtml = days.map(d => {
+    const cls = d.status === 'operational' ? '' : d.status;
+    const dateStr = new Date(d.date).toLocaleDateString('ca-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    return `<div class="uptime-bar ${cls}" title="${dateStr} · ${d.uptimePct.toFixed(2)}%"><span class="tip">${dateStr} · ${d.uptimePct.toFixed(2)}%</span></div>`;
+  }).join('');
+
+  // Incidents
+  let incHtml = '';
+  if (!data.incidents || data.incidents.length === 0) {
+    incHtml = '<div class="no-inc"><span class="em">🎉</span>Cap incident registrat. El sistema ha estat estable.</div>';
+  } else {
+    incHtml = data.incidents.map(i => {
+      const isResolved = !!i.resolvedAt;
+      const tagCls = isResolved ? 'resolved' : (i.severity === 'maintenance' ? 'maintenance' : 'ongoing');
+      const tagLbl = isResolved ? 'Resolt' : (i.severity === 'maintenance' ? 'Manteniment' : 'Actiu');
+      const dur = isResolved ? fmtDuration(i.durationMs || (Date.parse(i.resolvedAt) - Date.parse(i.startedAt))) : 'en curs';
+      return `
+        <div class="inc">
+          <div class="inc-dot ${isResolved ? 'resolved' : 'ongoing'}"></div>
+          <div class="inc-body">
+            <div class="inc-title">${i.title || 'Incident'} <span class="inc-tag ${tagCls}">${tagLbl}</span></div>
+            <div class="inc-meta">
+              <span>Inici · <b>${fmtDate(i.startedAt)}</b></span>
+              ${isResolved ? `<span>Final · <b>${fmtDate(i.resolvedAt)}</b></span>` : ''}
+              <span>Durada · <b>${dur}</b></span>
+            </div>
+            <div class="inc-msg">${(i.message || '').replace(/[<>]/g, c => c === '<' ? '&lt;' : '&gt;')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Today first day in bars / 90d ago last
+  const firstDay = days[0] ? new Date(days[0].date).toLocaleDateString('ca-ES', { day:'2-digit', month:'short' }) : '';
+  const lastDay = days[days.length - 1] ? new Date(days[days.length - 1].date).toLocaleDateString('ca-ES', { day:'2-digit', month:'short' }) : '';
+
+  document.getElementById('content').innerHTML = `
+    <div class="hero ${cs.cls}">
+      <div class="hero-icon">${ICONS[cs.icon]}</div>
+      <div class="hero-body">
+        <div class="hero-title">${cs.title}</div>
+        <div class="hero-sub">${cs.sub}</div>
+      </div>
+      <div class="hero-uptime">
+        <div class="hero-uptime-num">${uptimeNum}%</div>
+        <div class="hero-uptime-lbl">Uptime · 90 dies</div>
+      </div>
+    </div>
+
+    ${maintHtml}
+
+    <section class="section">
+      <div class="section-title">Serveis</div>
+      <div class="services">${svcHtml}</div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Uptime · últims 90 dies</div>
+      <div class="uptime-card">
+        <div class="uptime-head">
+          <div class="uptime-head-l">Disponibilitat global</div>
+          <div class="uptime-head-r">${uptimeNum}% uptime</div>
+        </div>
+        <div class="uptime-bars">${barsHtml}</div>
+        <div class="uptime-foot">
+          <span>fa 90 dies (${firstDay})</span>
+          <span>avui (${lastDay})</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Incidents recents</div>
+      <div class="incidents">${incHtml}</div>
+    </section>
+  `;
+
+  document.getElementById('last-check').textContent = new Date().toLocaleTimeString('ca-ES');
+}
+
+async function load() {
+  try {
+    const r = await fetch('/api/status', { cache: 'no-store' });
+    const data = await r.json();
+    render(data);
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<div class="loading"><div style="font-size:32px;margin-bottom:12px">😕</div>Error carregant l'estat · <button onclick="load()" style="background:none;border:none;color:var(--green);font-weight:600;cursor:pointer;text-decoration:underline">Reintenta</button></div>`;
+  }
+}
+
+let countdown = 30;
+function tickCountdown() {
+  countdown = countdown > 0 ? countdown - 1 : 30;
+  const el = document.getElementById('next-refresh');
+  if (el) el.textContent = countdown;
+  if (countdown === 0) load();
+}
+setInterval(tickCountdown, 1000);
+
+// Inicial
+load();
+
+// També quan la pestanya torna a primer pla (no esperar 30s)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) { countdown = 30; load(); }
+});
+</script>
+
+</body>
+</html>

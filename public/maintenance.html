@@ -669,7 +669,7 @@ body.success{transition:background 0.5s}
       </svg>
       <div class="brand-text">
         <span class="brand-name">GESEM Planner</span>
-        <span class="brand-sub">SYSTEM v47 · MAINTENANCE</span>
+        <span class="brand-sub">SYSTEM v48 · MAINTENANCE</span>
       </div>
     </div>
     <div class="status-pill">
@@ -983,11 +983,18 @@ const MAINT_CACHE_KEY = 'gesem_maint_state_v1';
 
 function applyMaintState(d, fromCache) {
   if (!d) return;
+  // Detectar si l'estat ha canviat des de l'última aplicació (per recalcular fases al moment)
+  const sig = [d.active, d.endsAt || '', d.activatedAt || '', d.message || '', d.lastChangedAt || ''].join('|');
+  const changed = sig !== window._maintLastSig;
+  window._maintLastSig = sig;
   // Custom message
   if (d.message) {
     const wrap = document.getElementById('custom-msg');
     const content = document.getElementById('custom-msg-content');
     if (wrap && content) { content.textContent = d.message; wrap.style.display = 'block'; }
+  } else {
+    const wrap = document.getElementById('custom-msg');
+    if (wrap) wrap.style.display = 'none';
   }
   // Uptime tracking
   if (d.activatedAt) {
@@ -1039,7 +1046,12 @@ async function pollMaintenance() {
   } catch (e) { /* silent */ }
 }
 pollMaintenance();
-setInterval(pollMaintenance, 30000);
+// Poll ràpid (5s) per detectar canvis al moment quan l'admin modifica el countdown.
+// També re-poll instantani quan la pestanya torna a primer pla.
+setInterval(pollMaintenance, 5000);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) pollMaintenance();
+});
 
 // ════════════════════════════════════════════════════════
 // BIG COUNTDOWN (cada segon, només si hi ha endsAt)

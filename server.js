@@ -13,6 +13,9 @@ const google = require('./lib/google');
 const festius = require('./lib/festius');
 const auth = require('./lib/auth');
 
+// Boot time per uptime tracking (fix per process restarts vs server uptime)
+const SERVER_BOOT_AT = Date.now();
+
 const app = express();
 app.use(compression()); // gzip per a tot: redueix JS/HTML/CSS ~70%
 app.use(express.json({ limit: '32mb' }));
@@ -48,6 +51,7 @@ function isMaintenanceBypass(req) {
   if (p === '/admin' || p.startsWith('/admin/')) return true;
   if (p.startsWith('/api/admin/')) return true;
   if (p === '/maintenance' || p === '/maintenance.html') return true;
+  if (p === '/status' || p === '/status.html' || p === '/api/status') return true;
   // Login: durant manteniment els admins han de poder entrar a /admin
   if (p === '/login' || p === '/login.html') return true;
   if (p.startsWith('/api/auth/')) return true;
@@ -382,9 +386,109 @@ app.post('/api/admin/maintenance', (req, res) => {
     activatedAt: active && !cur.active ? new Date().toISOString() : (active ? cur.activatedAt : null),
     endsAt: nextEndsAt,
   };
+  // També actualitzem un "lastChangedAt" perquè el client pugui detectar canvis ràpid
+  next.lastChangedAt = new Date().toISOString();
   writeJSON('maintenance.json', next);
+  // Log d'incident: si passa de inactiu→actiu o actiu→inactiu, deixem traça
+  try {
+    const incidents = readJSON('incidents.json', []);
+    if (active && !cur.active) {
+      incidents.unshift({
+        id: 'inc_' + Date.now(),
+        type: 'maintenance',
+        severity: 'maintenance',
+        startedAt: next.activatedAt,
+        endsAt: next.endsAt,
+        resolvedAt: null,
+        title: 'Manteniment programat',
+        message: next.message || 'Estem fent millores al sistema',
+        triggeredBy: (req.user && req.user.email) || 'admin',
+      });
+    } else if (!active && cur.active) {
+      // Marquem el primer incident obert com resolt
+      const idx = incidents.findIndex(i => !i.resolvedAt);
+      if (idx >= 0) {
+        incidents[idx].resolvedAt = new Date().toISOString();
+        const startedAt = Date.parse(incidents[idx].startedAt);
+        incidents[idx].durationMs = isNaN(startedAt) ? null : (Date.now() - startedAt);
+      }
+    }
+    writeJSON('incidents.json', incidents.slice(0, 200));
+  } catch (e) { console.warn('[incidents] error:', e.message); }
   res.json({ ok: true, ...next });
 });
+
+// ── /api/status · estat públic del sistema (estil Supabase) ─────────
+// Retorna estat actual + historial uptime (90 dies) + incidents recents.
+// És PÚBLIC (no requereix auth) per a la pàgina /status.
+app.get('/api/status', (req, res) => {
+  try {
+    const m = readJSON('maintenance.json', { active: false });
+    const incidents = readJSON('incidents.json', []);
+    // Auto-resol incidents si hi ha un actiu però el manteniment ja no està
+    let dirty = false;
+    incidents.forEach(i => {
+      if (!i.resolvedAt && !m.active) { i.resolvedAt = new Date().toISOString(); dirty = true; }
+    });
+    if (dirty) writeJSON('incidents.json', incidents);
+    // Health checks bàsics (síncrons, no fan calls externs aquí · això ho fa /api/admin/health)
+    const services = [
+      { id: 'web', name: 'Web · planner.gesem.es', status: m.active ? 'maintenance' : 'operational', desc: 'Aplicació web principal' },
+      { id: 'api', name: 'API · backend', status: m.active ? 'maintenance' : 'operational', desc: 'Endpoints REST' },
+      { id: 'smtp', name: 'SMTP · correu', status: process.env.SMTP_HOST ? 'operational' : 'degraded', desc: 'Enviament de correus de confirmació' },
+      { id: 'ai', name: 'IA · Anthropic', status: process.env.ANTHROPIC_API_KEY ? 'operational' : 'degraded', desc: 'Suggeridor automàtic de formador' },
+      { id: 'google', name: 'Google Calendar', status: process.env.GOOGLE_CLIENT_ID ? 'operational' : 'degraded', desc: 'Sincronització de calendaris' },
+      { id: 'db', name: 'Base de dades', status: 'operational', desc: 'SQLite local · key-value' },
+    ];
+    // Overall status: pitjor de tots
+    const priorities = { 'major_outage': 4, 'partial_outage': 3, 'maintenance': 2, 'degraded': 1, 'operational': 0 };
+    let worst = 'operational';
+    services.forEach(s => { if (priorities[s.status] > priorities[worst]) worst = s.status; });
+    if (m.active) worst = 'maintenance';
+    // Uptime · últims 90 dies, derivem dels incidents (qualsevol no-resolt vell del dia compta com "down")
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+    const days = [];
+    for (let i = 89; i >= 0; i--) {
+      const dayStart = TODAY.getTime() - i * DAY_MS;
+      const dayEnd = dayStart + DAY_MS;
+      let downMs = 0;
+      incidents.forEach(inc => {
+        const a = Date.parse(inc.startedAt);
+        const b = inc.resolvedAt ? Date.parse(inc.resolvedAt) : Date.now();
+        if (isNaN(a) || isNaN(b)) return;
+        const overlapStart = Math.max(a, dayStart);
+        const overlapEnd = Math.min(b, dayEnd);
+        if (overlapEnd > overlapStart) downMs += (overlapEnd - overlapStart);
+      });
+      const uptimePct = Math.max(0, Math.min(100, 100 - (downMs / DAY_MS) * 100));
+      days.push({
+        date: new Date(dayStart).toISOString().slice(0, 10),
+        uptimePct: Math.round(uptimePct * 100) / 100,
+        downMs,
+        status: downMs === 0 ? 'operational' : (downMs > DAY_MS * 0.5 ? 'major_outage' : (downMs > DAY_MS * 0.05 ? 'partial_outage' : 'degraded')),
+      });
+    }
+    const uptime90 = days.reduce((s, d) => s + d.uptimePct, 0) / days.length;
+    res.json({
+      status: worst,
+      checkedAt: new Date().toISOString(),
+      maintenance: m.active ? { active: true, message: m.message, activatedAt: m.activatedAt, endsAt: m.endsAt } : null,
+      services,
+      uptime: {
+        avg90d: Math.round(uptime90 * 1000) / 1000,
+        days,
+      },
+      incidents: incidents.slice(0, 30),
+      serverBootAt: new Date(SERVER_BOOT_AT).toISOString(),
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Pàgina pública d'estat (mai requereix auth)
+app.get('/status', (req, res) => res.sendFile(path.join(__dirname, 'public', 'status.html')));
 
 // Helper: sendFile amb headers anti-cache (per que el manteniment s'apliqui
 // instantàniament i les actualitzacions de versió no es quedin a cache)
