@@ -244,14 +244,14 @@ async function saveMessage(){
 // ── GESTIÓ D'USUARIS ─────────────────────────────────────
 async function loadUsers(){
   try{
-    const r=await fetch('/api/auth/users',{credentials:'same-origin'});
+    const r=await fetch('/api/auth/users',{credentials:'include'});
     if(!r.ok){
-      const me=await fetch('/api/auth/me',{credentials:'same-origin'}).then(x=>x.json()).catch(()=>({}));
+      const me=await fetch('/api/auth/me',{credentials:'include'}).then(x=>x.json()).catch(()=>({}));
       document.getElementById('users-list').innerHTML='<div style="font-size:12px;color:#71717A;padding:10px">'+(me.user?.role!=='admin'?'Cal rol admin per gestionar usuaris':'Error carregant usuaris')+'</div>';
       return;
     }
     const data=await r.json();
-    const meR=await fetch('/api/auth/me',{credentials:'same-origin'}).then(x=>x.json()).catch(()=>({}));
+    const meR=await fetch('/api/auth/me',{credentials:'include'}).then(x=>x.json()).catch(()=>({}));
     const me=meR.user?.email||'';
     renderUsers(data.users||[],me);
   }catch(e){
@@ -289,7 +289,7 @@ async function createNewUser(){
   if(!email||!password){toast('Email i password obligatoris');return;}
   if(password.length<8){toast('Password mínim 8 caràcters');return;}
   try{
-    const r=await fetch('/api/auth/users',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name,password,role})});
+    const r=await fetch('/api/auth/users',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name,password,role})});
     const d=await r.json();
     if(!r.ok||!d.ok){toast(d.error||'Error');return;}
     document.getElementById('newuser-email').value='';
@@ -306,7 +306,7 @@ async function resetUserPwd(email){
   if(!pwd)return;
   if(pwd.length<8){toast('Mínim 8 caràcters');return;}
   try{
-    const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+    const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
     const d=await r.json();
     if(d.ok)toast('✓ Contrasenya actualitzada');else toast(d.error||'Error');
   }catch(e){toast('Error: '+e.message);}
@@ -314,21 +314,21 @@ async function resetUserPwd(email){
 
 async function promoteUser(email){
   if(!confirm('Promocionar '+email+' a administrador?'))return;
-  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'admin'})});
+  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'admin'})});
   const d=await r.json();
   if(d.ok){toast('✓ Promogut a admin');loadUsers();}else toast(d.error||'Error');
 }
 
 async function demoteUser(email){
   if(!confirm('Treure permisos d\'administrador a '+email+'?'))return;
-  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'user'})});
+  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'PUT',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:'user'})});
   const d=await r.json();
   if(d.ok){toast('✓ Convertit a usuari');loadUsers();}else toast(d.error||'Error');
 }
 
 async function deleteUser(email){
   if(!confirm('Eliminar usuari '+email+'? Aquesta acció no es pot desfer.'))return;
-  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'DELETE',credentials:'same-origin'});
+  const r=await fetch('/api/auth/users/'+encodeURIComponent(email),{method:'DELETE',credentials:'include'});
   const d=await r.json();
   if(d.ok){toast('✓ Usuari eliminat');loadUsers();}else toast(d.error||'Error');
 }

@@ -236,7 +236,7 @@ form.addEventListener('submit', async (e) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
-      credentials: 'same-origin',
+      credentials: 'include',
     });
     const data = await r.json();
     if (!r.ok || !data.ok) {
@@ -257,7 +257,7 @@ form.addEventListener('submit', async (e) => {
 });
 
 // Si ja estem autenticats, redirigeix
-fetch('/api/auth/me', { credentials: 'same-origin' })
+fetch('/api/auth/me', { credentials: 'include' })
   .then(r => r.json())
   .then(d => {
     if (d.authenticated) {

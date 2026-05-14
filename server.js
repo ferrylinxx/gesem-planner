@@ -87,10 +87,16 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ ok: false, error: 'Credencials incorrectes' });
   }
   const { token, expiresAt } = auth.createSession(user.email);
+  // SameSite='none' és essencial perquè la cookie funcioni dins de l'iframe de
+  // Microsoft Teams (l'app es carrega a teams.microsoft.com com a "top frame"
+  // i planner.gesem.es queda com a "third-party"). Sense això, el navegador
+  // bloqueja la cookie de sessió quan l'app corre dins de Teams.
+  // Requereix Secure:true, que ja tenim via HTTPS en producció.
+  const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
   res.cookie(auth.COOKIE_NAME, token, {
     httpOnly: true,
-    secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-    sameSite: 'lax',
+    secure: isHttps,
+    sameSite: isHttps ? 'none' : 'lax',  // 'none' només funciona amb Secure
     maxAge: auth.SESSION_TTL_MS,
     path: '/',
   });
@@ -109,7 +115,14 @@ app.get('/api/auth/me', (req, res) => {
 app.post('/api/auth/logout', (req, res) => {
   const token = req.cookies && req.cookies[auth.COOKIE_NAME];
   if (token) auth.revokeSession(token);
-  res.clearCookie(auth.COOKIE_NAME, { path: '/' });
+  // Per a clearCookie cal indicar els mateixos atributs amb què es va crear
+  const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
+  res.clearCookie(auth.COOKIE_NAME, {
+    path: '/',
+    httpOnly: true,
+    secure: isHttps,
+    sameSite: isHttps ? 'none' : 'lax',
+  });
   res.json({ ok: true });
 });
 
