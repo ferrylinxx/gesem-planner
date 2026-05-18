@@ -13,75 +13,412 @@
 <link rel="stylesheet" href="/css/styles.css"/>
 <script src="/js/teams.js" defer></script>
 <script src="/js/splash.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
-.cl-wrap{max-width:780px;margin:0 auto;padding:32px 24px}
-.cl-hero{text-align:center;margin-bottom:36px}
-.cl-hero h1{font-size:28px;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px}
-.cl-hero .sub{color:var(--text-muted);font-size:14px}
-.cl-current{
-  display:inline-flex;align-items:center;gap:7px;
-  background:var(--primary-soft);color:var(--primary-soft-text);
-  padding:5px 12px;border-radius:999px;
-  font-size:11.5px;font-weight:600;letter-spacing:.04em;
-  margin-top:14px;
+/* ═══ READING PROGRESS BAR ═══ */
+.cl-progress{
+  position:fixed;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg, #10B981, #34D399, #6EE7B7);
+  transform-origin:left;transform:scaleX(0);
+  transition:transform 0.05s linear;
+  z-index:100;
+  box-shadow:0 0 12px rgba(16,185,129,0.5);
 }
-.cl-current::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 3px rgba(5,150,105,0.2)}
-.cl-version{
+
+/* ═══ LAYOUT GENERAL ═══ */
+.cl-wrap{
+  max-width:1200px;margin:0 auto;
+  padding:24px 24px 80px;
+  display:grid;
+  grid-template-columns:1fr 220px;
+  gap:32px;
+  align-items:start;
+}
+.cl-main{min-width:0}
+
+/* ═══ HERO ═══ */
+.cl-hero{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 35%, #A7F3D0 100%);
+  border-radius:22px;
+  padding:32px 36px;
+  margin-bottom:24px;
+  border:1px solid rgba(16,185,129,0.18);
+  box-shadow:0 10px 32px rgba(5,150,105,0.10);
+}
+html.dark .cl-hero{
+  background:linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.08) 50%, rgba(4,120,87,0.04) 100%);
+  border-color:rgba(16,185,129,0.25);
+}
+.cl-hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,0.5), transparent 40%),
+    radial-gradient(circle at 15% 85%, rgba(52,211,153,0.3), transparent 50%);
+}
+.cl-hero-inner{position:relative;z-index:1}
+.cl-hero h1{
+  font-size:32px;font-weight:800;letter-spacing:-0.025em;
+  margin-bottom:6px;color:#064E3B;
+}
+html.dark .cl-hero h1{color:#A7F3D0}
+.cl-hero .sub{color:#047857;font-size:14px;font-weight:500;margin-bottom:18px}
+html.dark .cl-hero .sub{color:#6EE7B7}
+
+/* Stats grid al hero */
+.cl-stats{
+  display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+  gap:12px;margin-top:18px;
+}
+.cl-stat{
+  background:rgba(255,255,255,0.7);
+  border:1px solid rgba(16,185,129,0.2);
+  border-radius:12px;
+  padding:11px 14px;
+  backdrop-filter:blur(8px);
+}
+html.dark .cl-stat{background:rgba(0,0,0,0.25);border-color:rgba(16,185,129,0.2)}
+.cl-stat-num{
+  font-size:22px;font-weight:700;color:#064E3B;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  letter-spacing:-0.02em;line-height:1;
+}
+html.dark .cl-stat-num{color:#A7F3D0}
+.cl-stat-lbl{
+  font-size:10.5px;color:#047857;
+  text-transform:uppercase;letter-spacing:0.06em;font-weight:600;
+  margin-top:5px;
+}
+html.dark .cl-stat-lbl{color:#6EE7B7}
+
+.cl-current{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.85);
+  color:#047857;
+  padding:6px 14px;border-radius:999px;
+  font-size:12px;font-weight:700;letter-spacing:.02em;
+  border:1px solid rgba(5,150,105,0.2);
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+}
+html.dark .cl-current{background:rgba(16,185,129,0.15);color:#6EE7B7;border-color:rgba(16,185,129,0.3)}
+.cl-current::before{
+  content:'';width:8px;height:8px;border-radius:50%;background:#10B981;
+  box-shadow:0 0 0 3px rgba(16,185,129,0.25),0 0 12px rgba(16,185,129,0.6);
+  animation:cl-pulse 2s ease-in-out infinite;
+}
+@keyframes cl-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* ═══ TOOLBAR ═══ */
+.cl-toolbar{
+  display:flex;align-items:center;gap:12px;
   background:var(--bg-card);
   border:1px solid var(--border);
   border-radius:14px;
-  padding:24px 28px;
-  margin-bottom:18px;
-  box-shadow:var(--shadow-sm);
+  padding:10px 14px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+  position:sticky;top:0;z-index:20;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  background:rgba(255,255,255,0.85);
 }
-.cl-version.latest{border-color:var(--primary);box-shadow:0 0 0 3px rgba(5,150,105,0.08)}
-.cl-vh{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+html.dark .cl-toolbar{background:rgba(15,23,42,0.85)}
+.cl-search{
+  flex:1;min-width:200px;
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg-muted);
+  border:1px solid transparent;
+  border-radius:10px;
+  padding:7px 12px;
+  transition:border-color 0.15s, background 0.15s;
+}
+.cl-search:focus-within{
+  border-color:var(--primary);
+  background:var(--bg-card);
+  box-shadow:0 0 0 3px rgba(5,150,105,0.08);
+}
+.cl-search svg{width:15px;height:15px;color:var(--text-muted);flex-shrink:0}
+.cl-search input{
+  flex:1;border:none;background:transparent;
+  font-size:13px;font-family:inherit;color:var(--text);
+  outline:none;
+}
+.cl-search input::placeholder{color:var(--text-muted)}
+.cl-search-clear{
+  cursor:pointer;border:none;background:none;
+  color:var(--text-muted);font-size:18px;line-height:1;
+  padding:0 2px;display:none;
+}
+.cl-search.has-text .cl-search-clear{display:block}
+.cl-search-clear:hover{color:var(--text)}
+
+.cl-filters{display:flex;gap:5px;flex-wrap:wrap}
+.cl-chip{
+  cursor:pointer;border:1px solid var(--border);
+  background:var(--bg-card);color:var(--text-muted);
+  padding:6px 12px;border-radius:8px;
+  font-size:11.5px;font-weight:600;
+  transition:all 0.15s;
+  font-family:inherit;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.cl-chip:hover{color:var(--text);border-color:var(--text-subtle)}
+.cl-chip.act{background:var(--primary);color:#fff;border-color:var(--primary)}
+.cl-chip.act:hover{background:var(--primary-dark, #047857);color:#fff}
+.cl-chip .cnt{
+  font-size:10px;opacity:0.7;
+  font-family:'JetBrains Mono',monospace;
+}
+.cl-chip.act .cnt{opacity:0.85}
+
+.cl-toolbar-actions{display:flex;gap:6px}
+.cl-act-btn{
+  cursor:pointer;border:1px solid var(--border);
+  background:var(--bg-card);color:var(--text-muted);
+  padding:7px 11px;border-radius:8px;
+  font-size:11.5px;font-weight:600;
+  font-family:inherit;
+  transition:all 0.15s;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.cl-act-btn:hover{color:var(--text);background:var(--bg-muted)}
+.cl-act-btn svg{width:13px;height:13px}
+
+/* ═══ TIMELINE ═══ */
+.cl-timeline{
+  position:relative;
+  padding-left:32px;
+}
+.cl-timeline::before{
+  content:'';position:absolute;
+  left:11px;top:8px;bottom:8px;
+  width:2px;border-radius:2px;
+  background:linear-gradient(180deg, var(--primary) 0%, var(--border) 30%, var(--border) 100%);
+}
+
+/* ═══ VERSION CARDS ═══ */
+.cl-version{
+  position:relative;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:0;
+  margin-bottom:14px;
+  box-shadow:var(--shadow-sm);
+  transition:border-color 0.15s, box-shadow 0.2s, opacity 0.25s;
+  scroll-margin-top:80px;
+}
+/* Timeline dot per cada versió */
+.cl-version::before{
+  content:'';position:absolute;
+  left:-26px;top:24px;
+  width:11px;height:11px;border-radius:50%;
+  background:var(--bg-card);
+  border:3px solid var(--text-subtle);
+  box-shadow:0 0 0 4px var(--bg-card);
+  z-index:1;
+  transition:all 0.2s;
+}
+.cl-version:hover{box-shadow:0 8px 28px rgba(0,0,0,0.06)}
+.cl-version:hover::before{transform:scale(1.15)}
+.cl-version.latest{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(5,150,105,0.08), 0 12px 36px rgba(5,150,105,0.1);
+}
+.cl-version.latest::before{
+  background:var(--primary);border-color:var(--primary);
+  box-shadow:0 0 0 4px var(--bg-card), 0 0 0 7px rgba(5,150,105,0.2);
+  animation:cl-dot-pulse 2s ease-in-out infinite;
+}
+@keyframes cl-dot-pulse{
+  0%,100%{box-shadow:0 0 0 4px var(--bg-card), 0 0 0 7px rgba(5,150,105,0.25)}
+  50%{box-shadow:0 0 0 4px var(--bg-card), 0 0 0 11px rgba(5,150,105,0.05)}
+}
+
+/* Header clickable */
+.cl-vh{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;padding:18px 24px;
+  cursor:pointer;
+  user-select:none;
+  flex-wrap:wrap;
+  transition:background 0.15s;
+  border-radius:14px;
+}
+.cl-vh:hover{background:var(--bg-muted)}
+.cl-vh-l{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.cl-toggle{
+  width:24px;height:24px;border-radius:6px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--text-muted);
+  flex-shrink:0;
+  transition:transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cl-version:not(.collapsed) .cl-toggle{transform:rotate(90deg)}
+.cl-toggle svg{width:14px;height:14px}
+
 .cl-vnum{
-  font-size:18px;font-weight:700;
+  font-size:17px;font-weight:700;
   color:var(--text);
   display:flex;align-items:center;gap:10px;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  letter-spacing:-0.02em;
 }
+.cl-vh-r{display:flex;align-items:center;gap:10px}
 .cl-tag{
-  font-size:9.5px;font-weight:600;letter-spacing:.06em;
+  font-size:9.5px;font-weight:700;letter-spacing:.07em;
   padding:3px 9px;border-radius:999px;
   text-transform:uppercase;
+  font-family:'JetBrains Mono',monospace;
 }
-.cl-tag.major{background:var(--accent-violet-soft);color:var(--accent-violet-text)}
-.cl-tag.minor{background:var(--accent-blue-soft);color:var(--accent-blue-text)}
+.cl-tag.major{background:var(--accent-violet-soft,#EDE9FE);color:var(--accent-violet-text,#5B21B6)}
+.cl-tag.minor{background:var(--accent-blue-soft,#DBEAFE);color:var(--accent-blue-text,#1E40AF)}
 .cl-tag.patch{background:var(--bg-muted);color:var(--text-muted)}
-.cl-tag.current{background:var(--primary);color:#fff}
-.cl-date{font-size:11.5px;color:var(--text-muted);font-weight:500}
-.cl-vtitle{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px}
-.cl-section{margin-bottom:14px}
-.cl-section:last-child{margin-bottom:0}
+.cl-tag.current{
+  background:linear-gradient(135deg, var(--primary), var(--primary-dark, #047857));
+  color:#fff;
+  box-shadow:0 2px 6px rgba(5,150,105,0.3);
+}
+.cl-date{font-size:11.5px;color:var(--text-muted);font-weight:500;font-family:'JetBrains Mono',monospace}
+
+.cl-permalink{
+  opacity:0;
+  cursor:pointer;border:none;background:none;padding:4px;
+  border-radius:6px;color:var(--text-muted);
+  transition:all 0.15s;
+}
+.cl-vh:hover .cl-permalink{opacity:1}
+.cl-permalink:hover{background:var(--bg-muted);color:var(--text)}
+.cl-permalink svg{width:13px;height:13px;display:block}
+.cl-permalink.copied{color:var(--primary)}
+
+/* Body collapsible */
+.cl-vbody{
+  padding:0 24px 22px;
+  overflow:hidden;
+  transition:max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s, opacity 0.25s;
+}
+.cl-version.collapsed .cl-vbody{
+  max-height:0 !important;
+  padding-top:0;padding-bottom:0;
+  opacity:0;
+}
+
+.cl-vtitle{
+  font-size:14.5px;font-weight:600;
+  color:var(--text);margin-bottom:14px;
+  line-height:1.4;letter-spacing:-0.01em;
+}
+.cl-section{margin-bottom:16px;padding-top:14px;border-top:1px dashed var(--border)}
+.cl-section:first-of-type{border-top:none;padding-top:0}
 .cl-stitle{
-  font-size:11px;font-weight:700;
-  color:var(--text-subtle);
-  text-transform:uppercase;letter-spacing:.08em;
-  margin-bottom:8px;
+  font-size:11.5px;font-weight:700;
+  color:var(--text);
+  letter-spacing:0.005em;
+  margin-bottom:9px;
+  display:flex;align-items:center;gap:6px;
 }
 .cl-list{list-style:none;padding:0;margin:0}
 .cl-list li{
   padding:5px 0 5px 22px;position:relative;
-  font-size:13px;color:var(--text);line-height:1.55;
+  font-size:13px;color:var(--text);line-height:1.6;
 }
 .cl-list li::before{
-  content:'';position:absolute;left:6px;top:11px;
+  content:'';position:absolute;left:6px;top:13px;
   width:5px;height:5px;border-radius:50%;
   background:var(--primary);
 }
-.cl-list.removed li::before{background:var(--accent-red)}
-.cl-list.fixed li::before{background:var(--accent-amber)}
+.cl-list.removed li::before{background:var(--accent-red,#EF4444)}
+.cl-list.fixed li::before{background:var(--accent-amber,#F59E0B)}
 .cl-list code{
   background:var(--bg-muted);
   padding:1px 6px;border-radius:4px;
-  font-family:ui-monospace,monospace;
+  font-family:'JetBrains Mono',ui-monospace,monospace;
   font-size:11.5px;color:var(--text);
 }
 .cl-list strong{font-weight:600;color:var(--text)}
+.cl-list a{color:var(--primary);text-decoration:none;font-weight:500}
+.cl-list a:hover{text-decoration:underline}
+
+/* ═══ TOC LATERAL ═══ */
+.cl-toc{
+  position:sticky;top:80px;
+  max-height:calc(100vh - 100px);
+  overflow-y:auto;
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px 14px;
+  font-size:12.5px;
+}
+.cl-toc::-webkit-scrollbar{width:5px}
+.cl-toc::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
+.cl-toc h3{
+  font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--text-subtle);
+  margin-bottom:10px;padding:0 4px;
+  font-family:'JetBrains Mono',monospace;
+}
+.cl-toc-list{display:flex;flex-direction:column;gap:1px}
+.cl-toc-item{
+  cursor:pointer;text-decoration:none;
+  padding:6px 10px;border-radius:7px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;
+  font-size:12px;color:var(--text-muted);
+  transition:all 0.12s;
+  border-left:2px solid transparent;
+}
+.cl-toc-item:hover{background:var(--bg-muted);color:var(--text)}
+.cl-toc-item.act{
+  color:var(--primary);background:var(--primary-soft,#ECFDF5);
+  border-left-color:var(--primary);font-weight:600;
+}
+html.dark .cl-toc-item.act{background:rgba(16,185,129,0.1)}
+.cl-toc-num{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:600;font-size:11.5px;
+}
+.cl-toc-date{
+  font-size:9.5px;color:var(--text-subtle);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ═══ EMPTY STATE (cerca sense resultats) ═══ */
+.cl-empty{
+  text-align:center;padding:48px 24px;
+  color:var(--text-muted);font-size:13.5px;
+  background:var(--bg-card);border:1px dashed var(--border);
+  border-radius:14px;
+  display:none;
+}
+.cl-empty.show{display:block}
+.cl-empty .emoji{font-size:36px;display:block;margin-bottom:10px}
+
+/* Hidden state per al filtrat */
+.cl-version.hidden{display:none}
+
+/* Highlight de cerca */
+mark.cl-mark{
+  background:rgba(252,211,77,0.5);color:inherit;
+  padding:0 2px;border-radius:2px;
+}
+html.dark mark.cl-mark{background:rgba(252,211,77,0.25)}
+
+/* ═══ MOBILE ═══ */
+@media (max-width:960px){
+  .cl-wrap{grid-template-columns:1fr;gap:18px;padding:18px 16px 60px}
+  .cl-toc{display:none}
+  .cl-hero{padding:24px}
+  .cl-hero h1{font-size:24px}
+}
 @media (max-width:720px){
-  .cl-version{padding:18px 20px}
-  .cl-hero h1{font-size:22px}
+  .cl-toolbar{padding:8px 10px}
+  .cl-vh{padding:14px 16px}
+  .cl-vbody{padding:0 16px 16px}
+  .cl-timeline{padding-left:24px}
+  .cl-version::before{left:-22px}
 }
 </style>
 </head>
@@ -150,22 +487,144 @@
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v51</span>
+  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v52</span>
 </div>
 <div class="content-area">
 
+<div class="cl-progress" id="cl-progress"></div>
+
 <div class="cl-wrap">
 
+  <main class="cl-main">
+
   <div class="cl-hero">
-    <h1>Historial de canvis</h1>
-    <div class="sub">Tot el que hem afegit a GESEM Planner</div>
-    <div class="cl-current">v51 · actual</div>
+    <div class="cl-hero-inner">
+      <h1>Historial de canvis</h1>
+      <div class="sub">Tot el que hem millorat de GESEM Planner</div>
+      <div class="cl-current">v52 · actual</div>
+      <div class="cl-stats">
+        <div class="cl-stat"><div class="cl-stat-num" id="stat-versions">52</div><div class="cl-stat-lbl">Versions</div></div>
+        <div class="cl-stat"><div class="cl-stat-num" id="stat-days">—</div><div class="cl-stat-lbl">Dies de desenvolupament</div></div>
+        <div class="cl-stat"><div class="cl-stat-num" id="stat-features">—</div><div class="cl-stat-lbl">Millores totals</div></div>
+        <div class="cl-stat"><div class="cl-stat-num" id="stat-current">v52</div><div class="cl-stat-lbl">Versió actual</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR · cerca + filtres + accions -->
+  <div class="cl-toolbar">
+    <div class="cl-search" id="cl-search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="cl-search" placeholder="Cerca a tot el changelog..." autocomplete="off"/>
+      <button class="cl-search-clear" id="cl-search-clear" aria-label="Esborra cerca">×</button>
+    </div>
+    <div class="cl-filters" id="cl-filters">
+      <button class="cl-chip act" data-filter="all">Tots <span class="cn cnt" id="cn-all">0</span></button>
+      <button class="cl-chip" data-filter="current">Actual</button>
+      <button class="cl-chip" data-filter="major">Major</button>
+      <button class="cl-chip" data-filter="minor">Minor</button>
+      <button class="cl-chip" data-filter="patch">Patch</button>
+    </div>
+    <div class="cl-toolbar-actions">
+      <button class="cl-act-btn" onclick="clToggleAll(false)" title="Plega tot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        Plega
+      </button>
+      <button class="cl-act-btn" onclick="clToggleAll(true)" title="Desplega tot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        Desplega
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty state cerca sense resultats -->
+  <div class="cl-empty" id="cl-empty">
+    <span class="emoji">🔍</span>
+    <div>No s'ha trobat cap versió que coincideixi amb la teva cerca.</div>
+  </div>
+
+  <!-- TIMELINE WRAPPER -->
+  <div class="cl-timeline" id="cl-timeline">
+
+  <!-- ════════════ v52 ════════════ -->
+  <div class="cl-version latest">
+    <div class="cl-vh">
+      <div class="cl-vnum">v52 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Redisseny complet del changelog · timeline + cerca + TOC + permalinks</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🎨 Disseny visual completament renovat</div>
+      <ul class="cl-list">
+        <li><strong>Hero amb gradient verd</strong> i 4 KPI cards: total versions, dies de desenvolupament, total millores, versió actual</li>
+        <li><strong>Timeline vertical</strong> a l'esquerra que connecta totes les versions amb una línia gradient + dots interactius</li>
+        <li>Dot de la versió actual amb <strong>halo pulsant verd</strong></li>
+        <li>Tipografia <strong>JetBrains Mono</strong> per nombres de versió, dates i estadístiques</li>
+        <li>Tags amb colors millors (Major violeta, Minor blau, Patch gris, Actual gradient verd)</li>
+        <li>Dark mode totalment suportat amb gradients adaptats</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔍 Cerca live + filtres per tag</div>
+      <ul class="cl-list">
+        <li>Barra de cerca a la <strong>toolbar sticky</strong> que filtra totes les versions per text al moment</li>
+        <li><strong>Highlight</strong> de les coincidències al títol de cada versió (mark groc)</li>
+        <li>Quan cerques, les versions amb match s'<strong>obren automàticament</strong> per veure el context</li>
+        <li>Chips de filtre per tag: <em>Tots · Actual · Major · Minor · Patch</em></li>
+        <li>Combinables: pots filtrar per "Major" + cercar "manteniment" alhora</li>
+        <li>Estat empty amb 🔍 si no hi ha resultats</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">📑 TOC lateral sticky + reading progress bar</div>
+      <ul class="cl-list">
+        <li><strong>Sidebar dreta</strong> amb llistat de totes les versions, sempre visible mentre fas scroll (desktop &gt;960px)</li>
+        <li>Click a una versió del TOC → scroll suau + obre la versió + marca-la com a activa</li>
+        <li>Highlight de la versió actual al TOC segons la posició del scroll</li>
+        <li><strong>Reading progress bar</strong> al top (gradient verd 3px) que indica quant has llegit</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">⚡ Collapse/expand amb animació + accions massives</div>
+      <ul class="cl-list">
+        <li>Per defecte, només la <strong>versió actual queda oberta</strong>; la resta collapsades</li>
+        <li>Click al header de qualsevol versió per togglejar amb animació fluida (max-height + opacity)</li>
+        <li>Caret SVG que <strong>rota 90°</strong> quan està oberta</li>
+        <li>Botons <strong>"Plega tot" / "Desplega tot"</strong> a la toolbar per accions massives</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔗 Permalinks per versió</div>
+      <ul class="cl-list">
+        <li>Cada versió té un botó d'enllaç (icona 🔗) que apareix al fer hover sobre el header</li>
+        <li>Click → copia al portapapers l'URL amb hash (ex: <code>/changelog#v37</code>)</li>
+        <li>Confirmació visual (checkmark verd) + toast: "Enllaç a v37 copiat"</li>
+        <li>Si obres una URL amb hash, la versió s'obre automàticament i fa scroll</li>
+      </ul>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🛠 Implementació tècnica</div>
+      <ul class="cl-list">
+        <li>Indexació automàtica de versions al carregar (data-version, data-tag, data-searchText cachejat)</li>
+        <li>Càlcul automàtic de "dies de desenvolupament" parsejant les dates en català</li>
+        <li>Comptador real de millores: <code>document.querySelectorAll('.cl-list li').length</code></li>
+        <li>Scroll listeners passius (<code>{ passive: true }</code>) per al progress bar i TOC sync</li>
+        <li>CSS amb <code>scroll-margin-top:80px</code> per a navegació amb header sticky</li>
+        <li>Backdrop-filter blur a la toolbar quan fas scroll</li>
+      </ul>
+    </div>
   </div>
 
   <!-- ════════════ v51 ════════════ -->
-  <div class="cl-version latest">
+  <div class="cl-version">
     <div class="cl-vh">
-      <div class="cl-vnum">v51 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v51</div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Status page · barres uptime verdes per defecte</div>
@@ -1881,6 +2340,16 @@
     </div>
   </div>
 
+  </div><!-- /cl-timeline -->
+
+  </main>
+
+  <!-- TOC LATERAL (sticky) -->
+  <aside class="cl-toc" id="cl-toc">
+    <h3>Versions</h3>
+    <div class="cl-toc-list" id="cl-toc-list"></div>
+  </aside>
+
 </div>
 
 </div><!-- /content-area -->
@@ -1888,6 +2357,284 @@
 </div><!-- /app-shell -->
 
 <div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CHANGELOG · interactivitat (cerca, filtres, collapse, TOC, etc.)
+// ═══════════════════════════════════════════════════════════════
+(function() {
+  const versions = Array.from(document.querySelectorAll('.cl-version'));
+  const timeline = document.getElementById('cl-timeline');
+  const search = document.getElementById('cl-search');
+  const searchWrap = document.getElementById('cl-search-wrap');
+  const searchClear = document.getElementById('cl-search-clear');
+  const filtersEl = document.getElementById('cl-filters');
+  const empty = document.getElementById('cl-empty');
+  const tocList = document.getElementById('cl-toc-list');
+  const progressBar = document.getElementById('cl-progress');
+
+  // ─── 1) Indexar versions (afegir data-version, data-tag, etc.) ─────
+  function detectTag(el) {
+    const tagEl = el.querySelector('.cl-tag');
+    if (!tagEl) return 'patch';
+    const cls = tagEl.className;
+    if (cls.includes('current')) return 'current';
+    if (cls.includes('major')) return 'major';
+    if (cls.includes('minor')) return 'minor';
+    return 'patch';
+  }
+  function detectVersion(el) {
+    const num = el.querySelector('.cl-vnum');
+    if (!num) return '';
+    const m = (num.textContent || '').match(/v(\d+)/i);
+    return m ? 'v' + m[1] : '';
+  }
+  function detectDate(el) {
+    const d = el.querySelector('.cl-date');
+    return d ? d.textContent.trim() : '';
+  }
+  versions.forEach(v => {
+    const ver = detectVersion(v);
+    const tag = detectTag(v);
+    v.dataset.version = ver;
+    v.dataset.tag = tag;
+    v.id = 'ver-' + ver;
+    // Capturar text per cerca
+    v.dataset.searchText = (v.textContent || '').toLowerCase();
+  });
+
+  // ─── 2) Crear header clickable + permalink + caret ─────────────────
+  versions.forEach((v, i) => {
+    const vh = v.querySelector('.cl-vh');
+    if (!vh) return;
+    const ver = v.dataset.version;
+    // Wrap el contingut existent del .cl-vh en .cl-vh-l i .cl-vh-r
+    const numEl = vh.querySelector('.cl-vnum');
+    const dateEl = vh.querySelector('.cl-date');
+    vh.innerHTML = '';
+    // Esquerra: toggle + num
+    const left = document.createElement('div');
+    left.className = 'cl-vh-l';
+    const toggle = document.createElement('span');
+    toggle.className = 'cl-toggle';
+    toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+    left.appendChild(toggle);
+    if (numEl) left.appendChild(numEl);
+    vh.appendChild(left);
+    // Dreta: date + permalink
+    const right = document.createElement('div');
+    right.className = 'cl-vh-r';
+    if (dateEl) right.appendChild(dateEl);
+    const perma = document.createElement('button');
+    perma.className = 'cl-permalink';
+    perma.title = 'Copia enllaç a aquesta versió';
+    perma.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+    perma.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const url = location.origin + location.pathname + '#' + ver;
+      navigator.clipboard.writeText(url).then(() => {
+        perma.classList.add('copied');
+        perma.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        showToast('Enllaç a ' + ver + ' copiat');
+        setTimeout(() => {
+          perma.classList.remove('copied');
+          perma.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+        }, 1600);
+      });
+    });
+    right.appendChild(perma);
+    vh.appendChild(right);
+
+    // Collapse handling: crear body amb tot el contingut original de .cl-version
+    // (cl-vtitle, cl-section, etc.) que no sigui el vh ja reestructurat
+    const body = document.createElement('div');
+    body.className = 'cl-vbody';
+    Array.from(v.children).forEach(c => {
+      if (c === vh) return;
+      body.appendChild(c);
+    });
+    v.appendChild(body);
+
+    // Per defecte, només la primera versió expandida; la resta collapsada
+    if (i > 0) v.classList.add('collapsed');
+    // Set max-height initial
+    requestAnimationFrame(() => {
+      if (!v.classList.contains('collapsed')) {
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    });
+
+    // Click al header per togglejar
+    vh.addEventListener('click', () => toggleVersion(v));
+  });
+
+  function toggleVersion(v, force) {
+    const body = v.querySelector('.cl-vbody');
+    if (!body) return;
+    const isCollapsed = v.classList.contains('collapsed');
+    const shouldOpen = typeof force === 'boolean' ? force : isCollapsed;
+    if (shouldOpen) {
+      v.classList.remove('collapsed');
+      body.style.maxHeight = body.scrollHeight + 'px';
+      // Després de la transició, ho posem a 'none' per permetre que el contingut creixi (per ex. resize)
+      setTimeout(() => { if (!v.classList.contains('collapsed')) body.style.maxHeight = 'none'; }, 400);
+    } else {
+      // Si està a 'none', primer cal posar la mida actual abans de transicionar
+      body.style.maxHeight = body.scrollHeight + 'px';
+      requestAnimationFrame(() => {
+        v.classList.add('collapsed');
+        body.style.maxHeight = '0';
+      });
+    }
+  }
+  window.clToggleAll = function(open) {
+    versions.forEach(v => toggleVersion(v, open));
+  };
+
+  // ─── 3) TOC ──────────────────────────────────────────────────────
+  tocList.innerHTML = versions.map(v => {
+    const ver = v.dataset.version;
+    const tag = v.dataset.tag;
+    const date = (detectDate(v) || '').replace(/^(\d{1,2}) (\w+) (\d{4})/, '$1 $2');
+    return `<a class="cl-toc-item ${tag === 'current' ? 'act' : ''}" href="#${ver}" data-target="${ver}">
+      <span class="cl-toc-num">${ver}</span>
+      <span class="cl-toc-date">${date.slice(0, 10)}</span>
+    </a>`;
+  }).join('');
+  tocList.addEventListener('click', e => {
+    const a = e.target.closest('.cl-toc-item');
+    if (!a) return;
+    e.preventDefault();
+    const target = a.dataset.target;
+    const el = document.getElementById('ver-' + target);
+    if (!el) return;
+    // Si està collapsada, l'obrim
+    if (el.classList.contains('collapsed')) toggleVersion(el, true);
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    history.replaceState(null, '', '#' + target);
+  });
+
+  // ─── 4) Cerca live + highlight ────────────────────────────────────
+  let activeFilter = 'all';
+  function applyFilter() {
+    const q = search.value.trim().toLowerCase();
+    if (q) searchWrap.classList.add('has-text');
+    else searchWrap.classList.remove('has-text');
+    let visibleCount = 0;
+    versions.forEach(v => {
+      const matchesText = !q || v.dataset.searchText.includes(q);
+      const matchesTag = activeFilter === 'all' || v.dataset.tag === activeFilter;
+      const visible = matchesText && matchesTag;
+      v.classList.toggle('hidden', !visible);
+      if (visible) {
+        visibleCount++;
+        // Si hi ha cerca activa, obre-les automàticament per veure el context
+        if (q && v.classList.contains('collapsed')) toggleVersion(v, true);
+      }
+      // Highlight de coincidències al títol (visual feedback)
+      const titleEl = v.querySelector('.cl-vtitle');
+      if (titleEl) {
+        if (!titleEl.dataset.original) titleEl.dataset.original = titleEl.innerHTML;
+        if (q) {
+          const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+          titleEl.innerHTML = titleEl.dataset.original.replace(re, '<mark class="cl-mark">$1</mark>');
+        } else {
+          titleEl.innerHTML = titleEl.dataset.original;
+        }
+      }
+    });
+    empty.classList.toggle('show', visibleCount === 0);
+    updateCounts();
+  }
+  function updateCounts() {
+    const all = document.getElementById('cn-all');
+    if (all) all.textContent = versions.filter(v => !v.classList.contains('hidden')).length;
+  }
+  search.addEventListener('input', applyFilter);
+  searchClear.addEventListener('click', () => { search.value = ''; applyFilter(); search.focus(); });
+  filtersEl.addEventListener('click', e => {
+    const chip = e.target.closest('.cl-chip');
+    if (!chip) return;
+    filtersEl.querySelectorAll('.cl-chip').forEach(c => c.classList.remove('act'));
+    chip.classList.add('act');
+    activeFilter = chip.dataset.filter || 'all';
+    applyFilter();
+  });
+
+  // ─── 5) Hero stats ────────────────────────────────────────────────
+  const totalVersions = versions.length;
+  document.getElementById('stat-versions').textContent = totalVersions;
+  // Comptem items <li> totals
+  const totalFeatures = document.querySelectorAll('.cl-list li').length;
+  document.getElementById('stat-features').textContent = totalFeatures;
+  // Dies de desenvolupament: parse data més antiga vs més recent (heurística simple per dates en català)
+  const MES = { 'gen':0, 'feb':1, 'mar':2, 'abr':3, 'mai':4, 'jun':5, 'jul':6, 'ago':7, 'set':8, 'oct':9, 'nov':10, 'des':11 };
+  const dates = versions.map(v => {
+    const dStr = detectDate(v).toLowerCase();
+    const m = dStr.match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
+    if (!m) return null;
+    const mes = Object.keys(MES).find(k => m[2].startsWith(k));
+    if (mes === undefined || mes === null) return null;
+    return new Date(parseInt(m[3]), MES[mes], parseInt(m[1])).getTime();
+  }).filter(Boolean);
+  if (dates.length >= 2) {
+    const days = Math.round((Math.max(...dates) - Math.min(...dates)) / (24*60*60*1000));
+    document.getElementById('stat-days').textContent = days;
+  } else {
+    document.getElementById('stat-days').textContent = '—';
+  }
+
+  // ─── 6) Reading progress bar ─────────────────────────────────────
+  function updateProgress() {
+    const sc = document.querySelector('.content-area') || document.documentElement;
+    const scrollTop = sc.scrollTop || document.documentElement.scrollTop;
+    const max = (sc.scrollHeight || 1) - (sc.clientHeight || window.innerHeight);
+    const pct = max > 0 ? Math.min(1, Math.max(0, scrollTop / max)) : 0;
+    progressBar.style.transform = 'scaleX(' + pct + ')';
+  }
+  (document.querySelector('.content-area') || window).addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  // ─── 7) Highlight TOC item segons scroll position ────────────────
+  const tocLinks = Array.from(tocList.querySelectorAll('.cl-toc-item'));
+  function syncToc() {
+    const sc = document.querySelector('.content-area') || document.documentElement;
+    const scrollTop = sc.scrollTop || document.documentElement.scrollTop;
+    let active = versions[0];
+    for (const v of versions) {
+      if (v.offsetTop - 100 <= scrollTop) active = v;
+      else break;
+    }
+    if (!active) return;
+    const ver = active.dataset.version;
+    tocLinks.forEach(a => a.classList.toggle('act', a.dataset.target === ver));
+  }
+  (document.querySelector('.content-area') || window).addEventListener('scroll', syncToc, { passive: true });
+  syncToc();
+
+  // ─── 8) Carregar hash si hi ha ───────────────────────────────────
+  if (location.hash) {
+    const ver = location.hash.replace('#', '');
+    const el = document.getElementById('ver-' + ver);
+    if (el) {
+      toggleVersion(el, true);
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+    }
+  }
+
+  // ─── 9) Toast helper ─────────────────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // Init counts
+  updateCounts();
+})();
+</script>
 
 <script src="/js/i18n.js" defer></script>
 <script src="/js/shortcuts.js" defer></script>
