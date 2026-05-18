@@ -487,7 +487,7 @@ html.dark mark.cl-mark{background:rgba(252,211,77,0.25)}
   <div class="appbar-title" data-i18n="page.changelog">Changelog</div>
   <div class="appbar-spacer"></div>
   <div id="appbar-menu-mount"></div>
-  <span style="font-size:11px;color:var(--text-subtle);font-weight:500">v52</span>
+  <a href="/changelog#v53" title="Veure changelog" style="font-size:11px;color:var(--text-subtle);font-weight:500;text-decoration:none;padding:3px 8px;border-radius:6px;border:1px solid var(--border);transition:all .15s" onmouseover="this.style.color='var(--primary)';this.style.borderColor='var(--primary)';this.style.background='var(--primary-soft)'" onmouseout="this.style.color='var(--text-subtle)';this.style.borderColor='var(--border)';this.style.background='transparent'">v53</a>
 </div>
 <div class="content-area">
 
@@ -501,12 +501,12 @@ html.dark mark.cl-mark{background:rgba(252,211,77,0.25)}
     <div class="cl-hero-inner">
       <h1>Historial de canvis</h1>
       <div class="sub">Tot el que hem millorat de GESEM Planner</div>
-      <div class="cl-current">v52 · actual</div>
+      <div class="cl-current">v53 · actual</div>
       <div class="cl-stats">
         <div class="cl-stat"><div class="cl-stat-num" id="stat-versions">52</div><div class="cl-stat-lbl">Versions</div></div>
         <div class="cl-stat"><div class="cl-stat-num" id="stat-days">—</div><div class="cl-stat-lbl">Dies de desenvolupament</div></div>
         <div class="cl-stat"><div class="cl-stat-num" id="stat-features">—</div><div class="cl-stat-lbl">Millores totals</div></div>
-        <div class="cl-stat"><div class="cl-stat-num" id="stat-current">v52</div><div class="cl-stat-lbl">Versió actual</div></div>
+        <div class="cl-stat"><div class="cl-stat-num" id="stat-current">v53</div><div class="cl-stat-lbl">Versió actual</div></div>
       </div>
     </div>
   </div>
@@ -546,10 +546,31 @@ html.dark mark.cl-mark{background:rgba(252,211,77,0.25)}
   <!-- TIMELINE WRAPPER -->
   <div class="cl-timeline" id="cl-timeline">
 
-  <!-- ════════════ v52 ════════════ -->
+  <!-- ════════════ v53 ════════════ -->
   <div class="cl-version latest">
     <div class="cl-vh">
-      <div class="cl-vnum">v52 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-vnum">v53 <span class="cl-tag current">Actual</span></div>
+      <div class="cl-date">14 maig 2026</div>
+    </div>
+    <div class="cl-vtitle">Versió clickable a l'appbar · enllaç directe al changelog</div>
+
+    <div class="cl-section">
+      <div class="cl-stitle">🔗 Pots clicar la versió a qualsevol pàgina per veure les novetats</div>
+      <ul class="cl-list">
+        <li>El número de versió (ex: <code>v53</code>) que apareix a la part dreta de la <strong>appbar</strong> de totes les pàgines ara és un <strong>enllaç clickable</strong></li>
+        <li>Click → t'envia a <code>/changelog#v53</code> i obre automàticament la versió actual</li>
+        <li>Estil de "pill" amb border subtil i hover effect (canvi de color a verd primari + background lleuger)</li>
+        <li>Tooltip "Veure changelog" al passar el cursor</li>
+        <li>Aplicat a: <code>peticio · gestio · canvis · formadors · entrades · changelog · login</code></li>
+        <li>Combinat amb el sistema de permalinks i auto-expand de v52, l'experiència és: <em>click → veu què hem afegit</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ════════════ v52 ════════════ -->
+  <div class="cl-version">
+    <div class="cl-vh">
+      <div class="cl-vnum">v52</div>
       <div class="cl-date">14 maig 2026</div>
     </div>
     <div class="cl-vtitle">Redisseny complet del changelog · timeline + cerca + TOC + permalinks</div>
